@@ -1,20 +1,52 @@
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider, useTheme } from './src/lib/theme';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { useAuthStore } from './src/stores';
 
-export default function App() {
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
+
+function AppContent() {
+  const { isDark } = useTheme();
+  const { setLoading } = useAuthStore();
+
+  useEffect(() => {
+    // Simulate checking for existing session
+    const checkAuth = async () => {
+      // In production, this would check Supabase session
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <AppNavigator />
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
+  );
+}
