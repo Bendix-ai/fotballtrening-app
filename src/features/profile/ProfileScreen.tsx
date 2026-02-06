@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -7,37 +7,35 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card, StreakCard, Button } from '../../components';
-import { useAuthStore, useAppStore } from '../../stores';
+import { Card, StreakCard } from '../../components';
+import { useAuthStore, useExerciseStore } from '../../stores';
+import { ProfileStackParamList, AchievementDefinition } from '../../types';
+import { mockAchievements, mockExercises, achievementDefinitions } from '../../data/mockData';
+import { AchievementDetailModal } from './AchievementDetailModal';
 
-// Mock profile data
-const mockProfile = {
-    totalPoints: 390,
-    exercisesCompleted: 30,
-    currentStreak: 5,
-    longestStreak: 12,
-    achievements: [
-        { type: 'first_exercise', unlocked: true },
-        { type: 'streak_7', unlocked: true },
-        { type: 'points_100', unlocked: true },
-        { type: 'exercises_10', unlocked: true },
-        { type: 'streak_30', unlocked: false },
-        { type: 'points_500', unlocked: false },
-    ],
-};
+type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
 export function ProfileScreen() {
-    const { colors, isDark } = useTheme();
-    const { user, logout } = useAuthStore();
-    const { themeMode, setThemeMode } = useAppStore();
+    const { colors } = useTheme();
+    const navigation = useNavigation<ProfileNavProp>();
+    const { user } = useAuthStore();
+    const { completions, totalPoints } = useExerciseStore();
+
+    const [selectedAchievement, setSelectedAchievement] = useState<AchievementDefinition | null>(null);
+    const [selectedUnlocked, setSelectedUnlocked] = useState(false);
+    const [showAchievementModal, setShowAchievementModal] = useState(false);
 
     const displayName = user?.display_name || 'Spiller';
 
-    const handleLogout = () => {
-        logout();
-    };
+    // Get recent completions for activity history
+    const recentCompletions = [...completions]
+        .sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
+        .slice(0, 5);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -51,6 +49,9 @@ export function ProfileScreen() {
                     <Text style={[styles.title, { color: colors.text }]}>
                         {t('profile.title')}
                     </Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                        <MaterialIcons name="settings" size={24} color={colors.textSecondary} />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Profile Card */}
@@ -67,7 +68,7 @@ export function ProfileScreen() {
                             {displayName}
                         </Text>
                         <Text style={[styles.club, { color: colors.textSecondary }]}>
-                            Våganes IL • Gutter 2015
+                            {user?.club_id ? 'Våganes IL' : ''}
                         </Text>
                     </View>
                 </Card>
@@ -76,7 +77,7 @@ export function ProfileScreen() {
                 <View style={styles.statsGrid}>
                     <Card style={styles.statCard}>
                         <Text style={[styles.statValue, { color: colors.primary }]}>
-                            {mockProfile.totalPoints}
+                            {totalPoints + (user?.total_points ?? 0)}
                         </Text>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
                             {t('profile.totalPoints')}
@@ -85,7 +86,7 @@ export function ProfileScreen() {
 
                     <Card style={styles.statCard}>
                         <Text style={[styles.statValue, { color: colors.accent }]}>
-                            {mockProfile.exercisesCompleted}
+                            {completions.length}
                         </Text>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
                             {t('profile.exercisesCompleted')}
@@ -96,10 +97,42 @@ export function ProfileScreen() {
                 {/* Streak Card */}
                 <View style={styles.section}>
                     <StreakCard
-                        currentStreak={mockProfile.currentStreak}
-                        longestStreak={mockProfile.longestStreak}
+                        currentStreak={user?.current_streak ?? 0}
+                        longestStreak={user?.longest_streak ?? 0}
                     />
                 </View>
+
+                {/* Activity History */}
+                {recentCompletions.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            Aktivitetshistorikk
+                        </Text>
+                        {recentCompletions.map((completion) => {
+                            const exercise = mockExercises.find((e) => e.id === completion.exercise_id);
+                            return (
+                                <Card key={completion.id} style={styles.activityCard}>
+                                    <View style={styles.activityRow}>
+                                        <View style={[styles.activityIcon, { backgroundColor: colors.primaryLight }]}>
+                                            <MaterialIcons name="check-circle" size={20} color={colors.success} />
+                                        </View>
+                                        <View style={styles.activityInfo}>
+                                            <Text style={[styles.activityTitle, { color: colors.text }]}>
+                                                {exercise?.title ?? 'Øvelse'}
+                                            </Text>
+                                            <Text style={[styles.activityDate, { color: colors.textTertiary }]}>
+                                                {new Date(completion.completed_at).toLocaleDateString('nb-NO')}
+                                            </Text>
+                                        </View>
+                                        <Text style={[styles.activityPoints, { color: colors.primary }]}>
+                                            +{completion.points_earned}
+                                        </Text>
+                                    </View>
+                                </Card>
+                            );
+                        })}
+                    </View>
+                )}
 
                 {/* Achievements Preview */}
                 <View style={styles.section}>
@@ -107,96 +140,50 @@ export function ProfileScreen() {
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>
                             {t('profile.achievements')}
                         </Text>
-                        <TouchableOpacity>
-                            <Text style={[styles.viewAll, { color: colors.primary }]}>
-                                {t('profile.viewAll')}
-                            </Text>
-                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.achievementsGrid}>
-                        {mockProfile.achievements.map((achievement, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.achievementBadge,
-                                    {
-                                        backgroundColor: achievement.unlocked
-                                            ? colors.primaryLight
-                                            : colors.surface,
-                                        borderColor: achievement.unlocked
-                                            ? colors.primary
-                                            : colors.border,
-                                        opacity: achievement.unlocked ? 1 : 0.5,
-                                    },
-                                ]}
-                            >
-                                <Text style={styles.achievementIcon}>
-                                    {achievement.unlocked ? '⭐' : '🔒'}
-                                </Text>
-                            </View>
-                        ))}
+                        {mockAchievements.map((achievement, index) => {
+                            const definition = achievementDefinitions[achievement.type];
+                            return (
+                                <TouchableOpacity
+                                    key={index}
+                                    onPress={() => {
+                                        setSelectedAchievement(definition);
+                                        setSelectedUnlocked(achievement.unlocked);
+                                        setShowAchievementModal(true);
+                                    }}
+                                    style={[
+                                        styles.achievementBadge,
+                                        {
+                                            backgroundColor: achievement.unlocked
+                                                ? colors.primaryLight
+                                                : colors.surface,
+                                            borderColor: achievement.unlocked
+                                                ? colors.primary
+                                                : colors.border,
+                                            opacity: achievement.unlocked ? 1 : 0.5,
+                                        },
+                                    ]}
+                                >
+                                    <MaterialIcons
+                                        name={achievement.unlocked ? (definition?.icon as any ?? 'star') : 'lock'}
+                                        size={24}
+                                        color={achievement.unlocked ? colors.secondary : colors.textTertiary}
+                                    />
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </View>
-
-                {/* Settings Section */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                        {t('settings.title')}
-                    </Text>
-
-                    <Card style={styles.settingsCard}>
-                        {/* Theme Setting */}
-                        <View style={styles.settingRow}>
-                            <Text style={[styles.settingLabel, { color: colors.text }]}>
-                                {t('settings.theme')}
-                            </Text>
-                            <View style={styles.themeButtons}>
-                                {(['light', 'dark', 'system'] as const).map((mode) => (
-                                    <TouchableOpacity
-                                        key={mode}
-                                        onPress={() => setThemeMode(mode)}
-                                        style={[
-                                            styles.themeButton,
-                                            {
-                                                backgroundColor: themeMode === mode
-                                                    ? colors.primary
-                                                    : colors.surface,
-                                                borderColor: themeMode === mode
-                                                    ? colors.primary
-                                                    : colors.border,
-                                            },
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.themeButtonText,
-                                                {
-                                                    color: themeMode === mode
-                                                        ? '#ffffff'
-                                                        : colors.textSecondary,
-                                                },
-                                            ]}
-                                        >
-                                            {t(`settings.${mode}`)}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </View>
-                    </Card>
-                </View>
-
-                {/* Logout Button */}
-                <View style={styles.section}>
-                    <Button
-                        title={t('settings.logout')}
-                        onPress={handleLogout}
-                        variant="outline"
-                        fullWidth
-                    />
-                </View>
             </ScrollView>
+
+            <AchievementDetailModal
+                visible={showAchievementModal}
+                achievement={selectedAchievement}
+                unlocked={selectedUnlocked}
+                onClose={() => setShowAchievementModal(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -213,6 +200,9 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
     },
     header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 20,
     },
     title: {
@@ -276,11 +266,40 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '700',
+        marginBottom: 12,
     },
-    viewAll: {
-        fontSize: 14,
+    // Activity history
+    activityCard: {
+        marginBottom: 8,
+    },
+    activityRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    activityIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    activityInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    activityTitle: {
+        fontSize: 15,
         fontWeight: '600',
     },
+    activityDate: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+    activityPoints: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    // Achievements
     achievementsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -293,34 +312,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
-    },
-    achievementIcon: {
-        fontSize: 24,
-    },
-    settingsCard: {
-        padding: 0,
-    },
-    settingRow: {
-        padding: 16,
-    },
-    settingLabel: {
-        fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 12,
-    },
-    themeButtons: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    themeButton: {
-        flex: 1,
-        paddingVertical: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        borderWidth: 1,
-    },
-    themeButtonText: {
-        fontSize: 13,
-        fontWeight: '600',
     },
 });

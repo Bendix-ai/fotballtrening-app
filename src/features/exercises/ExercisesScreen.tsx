@@ -1,96 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     FlatList,
     TouchableOpacity,
-    Image,
+    TextInput,
+    RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card } from '../../components';
-import { ExerciseCategory, Difficulty, Exercise } from '../../types';
+import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
+import { mockExercises } from '../../data/mockData';
+import { useExerciseStore } from '../../stores';
 
-// Placeholder exercises
-const mockExercises: Exercise[] = [
-    {
-        id: '1',
-        title: 'Oppvarming med ball',
-        description: 'Let oppvarming med fotball',
-        instructions: 'Start med lett jogging mens du dribler ballen.',
-        image_url: null,
-        video_url: null,
-        duration_seconds: 120,
-        difficulty: 'easy',
-        category: 'warmup',
-        points: 10,
-        is_public: true,
-        created_by_club_id: null,
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '2',
-        title: 'Styrkeøvelse: Knebøy',
-        description: 'Bygg styrke i beina',
-        instructions: 'Utfør 3 sett med 15 knebøy.',
-        image_url: null,
-        video_url: null,
-        duration_seconds: 180,
-        difficulty: 'medium',
-        category: 'strength',
-        points: 20,
-        is_public: true,
-        created_by_club_id: null,
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '3',
-        title: 'Hurtighet: Sprintøvelser',
-        description: 'Forbedre akselerasjonen din',
-        instructions: 'Sprint 20 meter, gå tilbake. Gjenta 8 ganger.',
-        image_url: null,
-        video_url: null,
-        duration_seconds: 240,
-        difficulty: 'hard',
-        category: 'agility',
-        points: 25,
-        is_public: true,
-        created_by_club_id: null,
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '4',
-        title: 'Teknikk: Pasninger',
-        description: 'Øv på presise pasninger',
-        instructions: 'Tren pasninger mot vegg på 5-10 meters avstand.',
-        image_url: null,
-        video_url: null,
-        duration_seconds: 300,
-        difficulty: 'medium',
-        category: 'skill',
-        points: 15,
-        is_public: true,
-        created_by_club_id: null,
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '5',
-        title: 'Nedtrapping: Stretch',
-        description: 'Tøy ut etter trening',
-        instructions: 'Tøy alle hovedmuskelgrupper i 30 sekunder hver.',
-        image_url: null,
-        video_url: null,
-        duration_seconds: 300,
-        difficulty: 'easy',
-        category: 'cooldown',
-        points: 10,
-        is_public: true,
-        created_by_club_id: null,
-        created_at: new Date().toISOString(),
-    },
-];
+type ExercisesNavProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExercisesList'>;
 
 const categories: (ExerciseCategory | 'all')[] = [
     'all',
@@ -119,11 +48,24 @@ const getDifficultyColor = (difficulty: Difficulty, colors: any) => {
 
 export function ExercisesScreen() {
     const { colors } = useTheme();
+    const navigation = useNavigation<ExercisesNavProp>();
     const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+    const { toggleFavorite, isFavorite } = useExerciseStore();
 
-    const filteredExercises = selectedCategory === 'all'
-        ? mockExercises
-        : mockExercises.filter(e => e.category === selectedCategory);
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 1000);
+    }, []);
+
+    const filteredExercises = mockExercises.filter((e) => {
+        const matchesCategory = selectedCategory === 'all' || e.category === selectedCategory;
+        const matchesSearch = searchQuery.length === 0 ||
+            e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            e.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
     const formatDuration = (seconds: number) => {
         if (seconds < 60) return `${seconds} ${t('exercises.seconds')}`;
@@ -132,7 +74,7 @@ export function ExercisesScreen() {
     };
 
     const renderExercise = ({ item }: { item: Exercise }) => (
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })}>
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
                     {/* Placeholder image */}
@@ -142,7 +84,7 @@ export function ExercisesScreen() {
                             { backgroundColor: colors.primaryLight }
                         ]}
                     >
-                        <Text style={styles.imageEmoji}>⚽</Text>
+                        <MaterialIcons name="sports-soccer" size={28} color={colors.primary} />
                     </View>
 
                     <View style={styles.exerciseInfo}>
@@ -170,13 +112,29 @@ export function ExercisesScreen() {
                                 </Text>
                             </View>
 
-                            <Text style={[styles.duration, { color: colors.textTertiary }]}>
-                                ⏱️ {formatDuration(item.duration_seconds)}
-                            </Text>
+                            <View style={styles.durationContainer}>
+                                <MaterialIcons name="timer" size={14} color={colors.textTertiary} />
+                                <Text style={[styles.duration, { color: colors.textTertiary }]}>
+                                    {formatDuration(item.duration_seconds)}
+                                </Text>
+                            </View>
                         </View>
                     </View>
 
                     <View style={styles.pointsContainer}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(item.id);
+                            }}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
+                            <MaterialIcons
+                                name={isFavorite(item.id) ? 'favorite' : 'favorite-border'}
+                                size={22}
+                                color={isFavorite(item.id) ? colors.error : colors.textTertiary}
+                            />
+                        </TouchableOpacity>
                         <Text style={[styles.points, { color: colors.primary }]}>
                             +{item.points}
                         </Text>
@@ -196,6 +154,25 @@ export function ExercisesScreen() {
                 <Text style={[styles.title, { color: colors.text }]}>
                     {t('exercises.title')}
                 </Text>
+            </View>
+
+            {/* Search Bar */}
+            <View style={[styles.searchContainer, { paddingHorizontal: 20 }]}>
+                <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <MaterialIcons name="search" size={20} color={colors.textTertiary} />
+                    <TextInput
+                        style={[styles.searchInput, { color: colors.text }]}
+                        placeholder={t('exercises.search')}
+                        placeholderTextColor={colors.textTertiary}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    {searchQuery.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearchQuery('')}>
+                            <MaterialIcons name="close" size={20} color={colors.textTertiary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             {/* Category Filter */}
@@ -245,6 +222,9 @@ export function ExercisesScreen() {
                 renderItem={renderExercise}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                }
             />
         </SafeAreaView>
     );
@@ -262,6 +242,23 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '700',
+    },
+    searchContainer: {
+        marginBottom: 4,
+    },
+    searchBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        height: 44,
+        borderRadius: 12,
+        borderWidth: 1,
+        gap: 8,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 15,
+        height: '100%',
     },
     filterContainer: {
         marginVertical: 12,
@@ -299,9 +296,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    imageEmoji: {
-        fontSize: 28,
-    },
     exerciseInfo: {
         flex: 1,
         marginLeft: 12,
@@ -328,6 +322,11 @@ const styles = StyleSheet.create({
     difficultyText: {
         fontSize: 11,
         fontWeight: '600',
+    },
+    durationContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
     },
     duration: {
         fontSize: 12,

@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme } from './src/lib/theme';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { ToastProvider } from './src/components';
 import { useAuthStore } from './src/stores';
 
 // Create a QueryClient instance
@@ -44,7 +45,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </QueryClientProvider>

@@ -37,6 +37,9 @@ export const no = {
         loginButton: 'Logg inn',
         loginError: 'Feil brukernavn eller passord',
         welcomeBack: 'Velkommen tilbake!',
+        selectClub: 'Velg klubb',
+        selectYear: 'Velg årgang',
+        selectGender: 'Velg kjønn',
     },
 
     // Navigation tabs
@@ -59,6 +62,7 @@ export const no = {
         viewAll: 'Se alle',
         keepGoing: 'Fortsett sånn!',
         startTraining: 'Start trening',
+        todayChallenge: 'Dagens utfordring',
     },
 
     // Exercises
@@ -86,6 +90,8 @@ export const no = {
         greatJob: 'Bra jobbet!',
         continueTraining: 'Fortsett trening',
         backToExercises: 'Tilbake til øvelser',
+        search: 'Søk etter øvelser...',
+        favorites: 'Favoritter',
     },
 
     // Leaderboard
@@ -158,21 +164,135 @@ export const no = {
         logoutConfirm: 'Er du sikker på at du vil logge ut?',
     },
 
+    // Notifications
+    notifications: {
+        dailyReminder: 'Daglig påminnelse',
+        dailyReminderDesc: 'Få en påminnelse om å trene hver dag',
+        newExercises: 'Nye øvelser',
+        newExercisesDesc: 'Bli varslet når nye øvelser er tilgjengelige',
+        leaderboard: 'Toppliste-oppdateringer',
+        leaderboardDesc: 'Bli varslet om endringer på topplisten',
+        streakReminder: 'Streak-påminnelse',
+        streakReminderDesc: 'Få en påminnelse før streaken brytes',
+        note: 'Varsler kan ta noen minutter å aktivere. Du kan endre disse innstillingene når som helst.',
+    },
+
+    // About
+    about: {
+        title: 'Om appen',
+        version: 'Versjon',
+        description: 'FotballTrening hjelper unge fotballspillere med å trene smartere, spore fremgang og konkurrere med lagkamerater. Fullfør øvelser, tjen poeng og klatre på topplisten!',
+        developer: 'Utvikler',
+        privacy: 'Personvernerklæring',
+        copyright: '© 2024 FotballTrening AS. Alle rettigheter reservert.',
+    },
+
     // Admin
     admin: {
-        dashboard: 'Admin Dashboard',
+        // Navigation
+        dashboard: 'Dashboard',
         players: 'Spillere',
         exercises: 'Øvelser',
-        addPlayer: 'Legg til spiller',
-        addExercise: 'Legg til øvelse',
+        clubStructure: 'Klubbstruktur',
+        exerciseStore: 'Øvelsesbutikk',
+        reports: 'Rapporter',
+        adminSettings: 'Innstillinger',
+
+        // Dashboard
         totalPlayers: 'Totalt spillere',
+        activeLast7Days: 'Aktive siste 7 dager',
+        totalCompletions: 'Fullføringer totalt',
+        engagementRate: 'Engasjement',
+        recentActivity: 'Nylig aktivitet',
+        topPerformers: 'Topp utøvere',
+        quickActions: 'Hurtighandlinger',
+        alerts: 'Varsler',
         activeToday: 'Aktive i dag',
         exercisesToday: 'Øvelser i dag',
+
+        // Players
+        addPlayer: 'Legg til spiller',
+        editPlayer: 'Rediger spiller',
+        deletePlayer: 'Slett spiller',
+        deletePlayerConfirm: 'Er du sikker på at du vil slette denne spilleren?',
+        playerName: 'Spillernavn',
+        username: 'Brukernavn',
+        password: 'Passord',
+        confirmPassword: 'Bekreft passord',
+        yearGroup: 'Årgang',
+        gender: 'Kjønn',
+        allYears: 'Alle årganger',
+        allGenders: 'Alle kjønn',
+        boys: 'Gutter',
+        girls: 'Jenter',
+        mixed: 'Blandet',
+        lastActive: 'Sist aktiv',
+        active: 'Aktiv',
+        inactive: 'Inaktiv',
+        noPlayersFound: 'Ingen spillere funnet',
+
+        // Club Structure
+        clubInfo: 'Klubbinformasjon',
+        yearGroups: 'Årganger',
+        addYearGroup: 'Legg til årgang',
+        boysCount: 'Gutter',
+        girlsCount: 'Jenter',
+        totalCount: 'Totalt',
+
+        // Exercises
+        addExercise: 'Legg til øvelse',
+        editExercise: 'Rediger øvelse',
+        deleteExercise: 'Slett øvelse',
+        clubExercises: 'Klubbøvelser',
+        customExercises: 'Egendefinerte',
+        title: 'Tittel',
+        description: 'Beskrivelse',
+        category: 'Kategori',
+        difficulty: 'Vanskelighetsgrad',
+        duration: 'Varighet',
+        points: 'Poeng',
+        instructions: 'Instruksjoner',
+        visibility: 'Synlighet',
+        public: 'Offentlig',
+        private: 'Privat',
+
+        // Exercise Store
+        featured: 'Utvalgte',
+        popular: 'Populære',
+        newest: 'Nyeste',
+        allExercises: 'Alle øvelser',
+        addToClub: 'Legg til i klubb',
+        addedToClub: 'Lagt til i klubb!',
+        rating: 'Vurdering',
+        downloads: 'Nedlastinger',
+        reviews: 'Anmeldelser',
+        by: 'Av',
+
+        // Reports
+        dateRange: 'Tidsperiode',
+        last7Days: 'Siste 7 dager',
+        last30Days: 'Siste 30 dager',
+        last90Days: 'Siste 90 dager',
+        weeklyActivity: 'Ukentlig aktivitet',
+        monthlyPoints: 'Månedlige poeng',
+        categoryDistribution: 'Kategorifordeling',
+        difficultyDistribution: 'Vanskelighetsfordeling',
+        exportPDF: 'Eksporter PDF',
+        exportCSV: 'Eksporter CSV',
+        exportSuccess: 'Eksport startet!',
+
+        // Admin Settings
+        profileSection: 'Profil',
+        clubSettings: 'Klubbinnstillinger',
+        clubName: 'Klubbnavn',
+        support: 'Support',
+        contactSupport: 'Kontakt support',
+        helpCenter: 'Hjelpesenter',
     },
 
     // Streak
     streak: {
-        title: 'Streak 🔥',
+        title: 'Streak',
         keepItUp: 'Fortsett sånn!',
         broken: 'Streak brutt',
         newRecord: 'Ny rekord!',

@@ -112,14 +112,77 @@ export interface AchievementDefinition {
     points_bonus: number;
 }
 
+// Admin types
+export interface AdminPlayer {
+    id: string;
+    display_name: string;
+    username: string;
+    year_group: number;
+    gender: Gender;
+    total_points: number;
+    exercises_completed: number;
+    current_streak: number;
+    last_active: string;
+    is_active: boolean;
+}
+
+export interface AdminActivity {
+    id: string;
+    player_name: string;
+    action: string;
+    timestamp: string;
+    points?: number;
+}
+
+export interface DashboardMetrics {
+    totalPlayers: number;
+    activeLast7Days: number;
+    totalCompletions: number;
+    engagementRate: number;
+}
+
+export interface StoreExercise {
+    id: string;
+    title: string;
+    description: string;
+    category: ExerciseCategory;
+    difficulty: Difficulty;
+    duration_seconds: number;
+    points: number;
+    rating: number;
+    downloads: number;
+    author: string;
+    is_featured: boolean;
+}
+
+export interface StoreReview {
+    id: string;
+    exercise_id: string;
+    club_name: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+}
+
+export interface ClubYearGroup {
+    year: number;
+    boys_count: number;
+    girls_count: number;
+    total_count: number;
+}
+
+export interface ChartDataPoint {
+    label: string;
+    value: number;
+}
+
 // Navigation types
 export type RootStackParamList = {
     Onboarding: undefined;
     ClubSelect: undefined;
     Login: undefined;
     MainTabs: undefined;
-    ExerciseDetail: { exerciseId: string };
-    ExerciseComplete: { exerciseId: string; pointsEarned: number };
+    AdminMain: undefined;
     Achievements: undefined;
     Settings: undefined;
     AdminDashboard: undefined;
@@ -129,7 +192,41 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
     Home: undefined;
-    Exercises: undefined;
+    ExercisesTab: undefined;
     Leaderboard: undefined;
-    Profile: undefined;
+    ProfileTab: undefined;
+};
+
+export type ExercisesStackParamList = {
+    ExercisesList: undefined;
+    ExerciseDetail: { exerciseId: string };
+    ExerciseExecution: { exerciseId: string };
+    ExerciseComplete: { exerciseId: string; pointsEarned: number };
+};
+
+export type ProfileStackParamList = {
+    ProfileMain: undefined;
+    Achievements: undefined;
+    Settings: undefined;
+    ChangePassword: undefined;
+    Notifications: undefined;
+    About: undefined;
+};
+
+export type AdminDrawerParamList = {
+    Dashboard: undefined;
+    Players: undefined;
+    ClubStructure: undefined;
+    Exercises: undefined;
+    ExerciseStore: undefined;
+    Reports: undefined;
+    AdminSettings: undefined;
+};
+
+export type AdminStackParamList = {
+    AdminDrawer: undefined;
+    AddEditPlayer: { playerId?: string };
+    AddEditExercise: { exerciseId?: string };
+    ExerciseStoreDetail: { exerciseId: string };
+    AddYearGroup: undefined;
 };

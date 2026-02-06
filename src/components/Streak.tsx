@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
 import { t } from '../lib/i18n';
 
@@ -38,7 +39,7 @@ export function StreakBadge({ days, size = 'medium' }: StreakBadgeProps) {
                 },
             ]}
         >
-            <Text style={{ fontSize: sizeConfig.iconSize }}>🔥</Text>
+            <MaterialIcons name="local-fire-department" size={sizeConfig.iconSize} color={colors.streak} />
             <Text
                 style={[
                     styles.days,
@@ -74,7 +75,7 @@ export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
         >
             <View style={styles.cardContent}>
                 <View style={styles.streakMain}>
-                    <Text style={styles.flameIcon}>🔥</Text>
+                    <MaterialIcons name="local-fire-department" size={40} color={colors.streak} />
                     <View>
                         <Text style={[styles.streakCount, { color: colors.streak }]}>
                             {currentStreak}

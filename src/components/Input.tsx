@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     TextInput,
     View,
@@ -6,7 +6,9 @@ import {
     StyleSheet,
     TextInputProps,
     ViewStyle,
+    TouchableOpacity,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
 
 interface InputProps extends TextInputProps {
@@ -21,9 +23,13 @@ export function Input({
     error,
     containerStyle,
     icon,
+    secureTextEntry,
     ...props
 }: InputProps) {
     const { colors } = useTheme();
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const isPassword = secureTextEntry !== undefined;
 
     return (
         <View style={[styles.container, containerStyle]}>
@@ -46,11 +52,25 @@ export function Input({
                     style={[
                         styles.input,
                         { color: colors.text },
-                        icon && styles.inputWithIcon,
+                        icon ? styles.inputWithIcon : undefined,
                     ]}
                     placeholderTextColor={colors.textTertiary}
+                    secureTextEntry={isPassword && !isPasswordVisible}
                     {...props}
                 />
+                {isPassword && (
+                    <TouchableOpacity
+                        onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                        style={styles.toggleButton}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                        <MaterialIcons
+                            name={isPasswordVisible ? 'visibility-off' : 'visibility'}
+                            size={20}
+                            color={colors.textTertiary}
+                        />
+                    </TouchableOpacity>
+                )}
             </View>
             {error && (
                 <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
@@ -85,6 +105,9 @@ const styles = StyleSheet.create({
     },
     inputWithIcon: {
         paddingLeft: 0,
+    },
+    toggleButton: {
+        paddingLeft: 8,
     },
     error: {
         fontSize: 12,

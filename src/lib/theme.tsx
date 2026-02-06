@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { useAppStore } from '../stores';
+import { colors as tokens } from './design-tokens';
 
 type Theme = 'light' | 'dark';
 
@@ -11,14 +12,22 @@ interface ThemeColors {
     text: string;
     textSecondary: string;
     textTertiary: string;
+    textDisabled: string;
     border: string;
     primary: string;
     primaryLight: string;
+    primaryDark: string;
+    secondary: string;
+    secondaryLight: string;
     accent: string;
+    info: string;
     success: string;
     warning: string;
     error: string;
     streak: string;
+    leaderboardGold: string;
+    leaderboardSilver: string;
+    leaderboardBronze: string;
 }
 
 interface ThemeContextType {
@@ -28,37 +37,53 @@ interface ThemeContextType {
 }
 
 const lightColors: ThemeColors = {
-    background: '#f8fafc',
-    surface: '#ffffff',
-    card: '#ffffff',
-    text: '#0f172a',
-    textSecondary: '#475569',
-    textTertiary: '#94a3b8',
-    border: '#e2e8f0',
-    primary: '#4caf50',
-    primaryLight: '#e8f5e9',
-    accent: '#2196f3',
-    success: '#22c55e',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    streak: '#f97316',
+    background: tokens.background.primary,
+    surface: tokens.background.secondary,
+    card: tokens.background.primary,
+    text: tokens.text.primary,
+    textSecondary: tokens.text.secondary,
+    textTertiary: tokens.text.tertiary,
+    textDisabled: tokens.text.disabled,
+    border: tokens.border.default,
+    primary: tokens.primary.main,
+    primaryLight: '#E8F5E9',
+    primaryDark: tokens.primary.dark,
+    secondary: tokens.secondary.main,
+    secondaryLight: '#FFF3E0',
+    accent: tokens.info,
+    info: tokens.info,
+    success: tokens.success,
+    warning: tokens.warning,
+    error: tokens.error,
+    streak: tokens.secondary.main,
+    leaderboardGold: tokens.leaderboard.gold,
+    leaderboardSilver: tokens.leaderboard.silver,
+    leaderboardBronze: tokens.leaderboard.bronze,
 };
 
 const darkColors: ThemeColors = {
-    background: '#0f172a',
-    surface: '#1e293b',
-    card: '#334155',
-    text: '#f8fafc',
-    textSecondary: '#94a3b8',
-    textTertiary: '#64748b',
-    border: '#334155',
-    primary: '#66bb6a',
-    primaryLight: '#1b5e20',
-    accent: '#64b5f6',
-    success: '#4ade80',
-    warning: '#fbbf24',
-    error: '#f87171',
-    streak: '#fb923c',
+    background: tokens.dark.background.primary,
+    surface: tokens.dark.background.secondary,
+    card: tokens.dark.background.tertiary,
+    text: tokens.dark.text.primary,
+    textSecondary: tokens.dark.text.secondary,
+    textTertiary: tokens.dark.text.tertiary,
+    textDisabled: tokens.dark.text.disabled,
+    border: tokens.dark.border.default,
+    primary: tokens.primary.light,
+    primaryLight: tokens.primary.dark,
+    primaryDark: tokens.primary.main,
+    secondary: tokens.secondary.main,
+    secondaryLight: tokens.secondary.dark,
+    accent: '#64B5F6',
+    info: '#64B5F6',
+    success: '#4ADE80',
+    warning: '#FBBF24',
+    error: '#F87171',
+    streak: tokens.secondary.light,
+    leaderboardGold: tokens.leaderboard.gold,
+    leaderboardSilver: tokens.leaderboard.silver,
+    leaderboardBronze: tokens.leaderboard.bronze,
 };
 
 const ThemeContext = createContext<ThemeContextType>({

@@ -1,27 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     FlatList,
     TouchableOpacity,
+    RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { LeaderboardEntry, LeaderboardPeriod, LeaderboardScope } from '../../types';
-
-// Placeholder leaderboard data
-const mockLeaderboard: LeaderboardEntry[] = [
-    { rank: 1, user_id: '1', display_name: 'Martin S.', avatar_url: null, total_points: 520, exercises_completed: 42, current_streak: 12, is_current_user: false },
-    { rank: 2, user_id: '2', display_name: 'Emma L.', avatar_url: null, total_points: 485, exercises_completed: 38, current_streak: 8, is_current_user: false },
-    { rank: 3, user_id: '3', display_name: 'Jonas K.', avatar_url: null, total_points: 460, exercises_completed: 35, current_streak: 15, is_current_user: false },
-    { rank: 4, user_id: '4', display_name: 'Du', avatar_url: null, total_points: 390, exercises_completed: 30, current_streak: 5, is_current_user: true },
-    { rank: 5, user_id: '5', display_name: 'Sofia M.', avatar_url: null, total_points: 350, exercises_completed: 28, current_streak: 3, is_current_user: false },
-    { rank: 6, user_id: '6', display_name: 'Oliver T.', avatar_url: null, total_points: 320, exercises_completed: 25, current_streak: 7, is_current_user: false },
-    { rank: 7, user_id: '7', display_name: 'Nora B.', avatar_url: null, total_points: 280, exercises_completed: 22, current_streak: 4, is_current_user: false },
-    { rank: 8, user_id: '8', display_name: 'Henrik A.', avatar_url: null, total_points: 250, exercises_completed: 20, current_streak: 2, is_current_user: false },
-];
+import { mockLeaderboard } from '../../data/mockData';
 
 const periods: { key: LeaderboardPeriod; label: string }[] = [
     { key: 'week', label: 'thisWeek' },
@@ -29,21 +20,75 @@ const periods: { key: LeaderboardPeriod; label: string }[] = [
     { key: 'all_time', label: 'allTime' },
 ];
 
-const getRankEmoji = (rank: number): string => {
+const scopes: { key: LeaderboardScope; label: string }[] = [
+    { key: 'club', label: 'club' },
+    { key: 'year_group', label: 'yearGroup' },
+    { key: 'team', label: 'team' },
+];
+
+const getRankColor = (rank: number, colors: any): string => {
     switch (rank) {
-        case 1: return '🥇';
-        case 2: return '🥈';
-        case 3: return '🥉';
-        default: return '';
+        case 1: return colors.leaderboardGold;
+        case 2: return colors.leaderboardSilver;
+        case 3: return colors.leaderboardBronze;
+        default: return colors.textTertiary;
     }
 };
+
+// Podium component for top 3
+function Podium({ top3, colors }: { top3: LeaderboardEntry[]; colors: any }) {
+    const [second, first, third] = [top3[1], top3[0], top3[2]];
+    if (!first) return null;
+
+    const renderPodiumItem = (entry: LeaderboardEntry | undefined, height: number, rank: number) => {
+        if (!entry) return <View style={{ flex: 1 }} />;
+        const color = getRankColor(rank, colors);
+        return (
+            <View style={[styles.podiumItem, { flex: 1 }]}>
+                <View style={[styles.podiumAvatar, { backgroundColor: color }]}>
+                    <Text style={styles.podiumAvatarText}>
+                        {entry.display_name.charAt(0).toUpperCase()}
+                    </Text>
+                </View>
+                <Text style={[styles.podiumName, { color: colors.text }]} numberOfLines={1}>
+                    {entry.display_name}
+                </Text>
+                <Text style={[styles.podiumPoints, { color }]}>
+                    {entry.total_points}
+                </Text>
+                <View style={[styles.podiumBar, { height, backgroundColor: color + '30', borderColor: color }]}>
+                    <MaterialIcons name="emoji-events" size={24} color={color} />
+                    <Text style={[styles.podiumRank, { color }]}>{rank}</Text>
+                </View>
+            </View>
+        );
+    };
+
+    return (
+        <View style={styles.podiumContainer}>
+            {renderPodiumItem(second, 80, 2)}
+            {renderPodiumItem(first, 110, 1)}
+            {renderPodiumItem(third, 60, 3)}
+        </View>
+    );
+}
 
 export function LeaderboardScreen() {
     const { colors } = useTheme();
     const [selectedPeriod, setSelectedPeriod] = useState<LeaderboardPeriod>('week');
+    const [selectedScope, setSelectedScope] = useState<LeaderboardScope>('club');
+    const [refreshing, setRefreshing] = useState(false);
 
-    const renderLeaderboardEntry = ({ item, index }: { item: LeaderboardEntry; index: number }) => {
-        const isTopThree = item.rank <= 3;
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 1000);
+    }, []);
+
+    const top3 = mockLeaderboard.slice(0, 3);
+    const rest = mockLeaderboard.slice(3);
+    const currentUser = mockLeaderboard.find((e) => e.is_current_user);
+
+    const renderLeaderboardEntry = ({ item }: { item: LeaderboardEntry }) => {
         const isCurrentUser = item.is_current_user;
 
         return (
@@ -56,30 +101,20 @@ export function LeaderboardScreen() {
                     },
                 ]}
             >
-                {/* Rank */}
                 <View style={styles.rankContainer}>
-                    {isTopThree ? (
-                        <Text style={styles.rankEmoji}>{getRankEmoji(item.rank)}</Text>
-                    ) : (
-                        <Text style={[styles.rankNumber, { color: colors.textSecondary }]}>
-                            {item.rank}
-                        </Text>
-                    )}
+                    <Text style={[styles.rankNumber, { color: colors.textSecondary }]}>
+                        {item.rank}
+                    </Text>
                 </View>
 
-                {/* Avatar */}
                 <View
-                    style={[
-                        styles.avatar,
-                        { backgroundColor: isTopThree ? colors.primary : colors.accent }
-                    ]}
+                    style={[styles.avatar, { backgroundColor: colors.accent }]}
                 >
                     <Text style={styles.avatarText}>
                         {item.display_name.charAt(0).toUpperCase()}
                     </Text>
                 </View>
 
-                {/* Player Info */}
                 <View style={styles.playerInfo}>
                     <Text
                         style={[
@@ -98,14 +133,16 @@ export function LeaderboardScreen() {
                             {item.exercises_completed} {t('home.exercises')}
                         </Text>
                         {item.current_streak > 0 && (
-                            <Text style={[styles.streak, { color: colors.streak }]}>
-                                🔥 {item.current_streak}
-                            </Text>
+                            <View style={styles.streakContainer}>
+                                <MaterialIcons name="local-fire-department" size={14} color={colors.streak} />
+                                <Text style={[styles.streak, { color: colors.streak }]}>
+                                    {item.current_streak}
+                                </Text>
+                            </View>
                         )}
                     </View>
                 </View>
 
-                {/* Points */}
                 <View style={styles.pointsContainer}>
                     <Text style={[styles.points, { color: colors.primary }]}>
                         {item.total_points}
@@ -127,8 +164,42 @@ export function LeaderboardScreen() {
                 </Text>
             </View>
 
+            {/* Scope Filter Chips */}
+            <View style={styles.scopeFilter}>
+                {scopes.map((scope) => (
+                    <TouchableOpacity
+                        key={scope.key}
+                        onPress={() => setSelectedScope(scope.key)}
+                        style={[
+                            styles.scopeChip,
+                            {
+                                backgroundColor: selectedScope === scope.key
+                                    ? colors.primary
+                                    : colors.surface,
+                                borderColor: selectedScope === scope.key
+                                    ? colors.primary
+                                    : colors.border,
+                            },
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.scopeText,
+                                {
+                                    color: selectedScope === scope.key
+                                        ? '#ffffff'
+                                        : colors.textSecondary,
+                                },
+                            ]}
+                        >
+                            {t(`leaderboard.${scope.label}`)}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+
             {/* Period Filter */}
-            <View style={styles.periodFilter}>
+            <View style={[styles.periodFilter, { backgroundColor: colors.surface }]}>
                 {periods.map((period) => (
                     <TouchableOpacity
                         key={period.key}
@@ -158,14 +229,24 @@ export function LeaderboardScreen() {
                 ))}
             </View>
 
-            {/* Leaderboard List */}
             <FlatList
-                data={mockLeaderboard}
+                data={rest}
                 keyExtractor={(item) => item.user_id}
                 renderItem={renderLeaderboardEntry}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                ListHeaderComponent={<Podium top3={top3} colors={colors} />}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                }
             />
+
+            {/* Sticky current user card */}
+            {currentUser && currentUser.rank > 3 && (
+                <View style={[styles.stickyUser, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+                    {renderLeaderboardEntry({ item: currentUser })}
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -183,26 +264,91 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: '700',
     },
+    scopeFilter: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        gap: 8,
+        marginTop: 12,
+    },
+    scopeChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    scopeText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
     periodFilter: {
         flexDirection: 'row',
         marginHorizontal: 20,
         marginVertical: 16,
         borderRadius: 12,
-        overflow: 'hidden',
+        padding: 4,
     },
     periodButton: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 8,
         alignItems: 'center',
-        borderRadius: 10,
+        borderRadius: 8,
     },
     periodText: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
     },
+    // Podium styles
+    podiumContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 24,
+    },
+    podiumItem: {
+        alignItems: 'center',
+        paddingHorizontal: 4,
+    },
+    podiumAvatar: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 4,
+    },
+    podiumAvatarText: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#ffffff',
+    },
+    podiumName: {
+        fontSize: 13,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    podiumPoints: {
+        fontSize: 14,
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    podiumBar: {
+        width: '100%',
+        borderRadius: 12,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+    },
+    podiumRank: {
+        fontSize: 16,
+        fontWeight: '700',
+        marginTop: 2,
+    },
+    // List styles
     list: {
-        padding: 20,
-        paddingBottom: 100,
+        paddingHorizontal: 20,
+        paddingBottom: 120,
     },
     entryCard: {
         flexDirection: 'row',
@@ -215,9 +361,6 @@ const styles = StyleSheet.create({
     rankContainer: {
         width: 36,
         alignItems: 'center',
-    },
-    rankEmoji: {
-        fontSize: 24,
     },
     rankNumber: {
         fontSize: 18,
@@ -252,6 +395,11 @@ const styles = StyleSheet.create({
     stat: {
         fontSize: 12,
     },
+    streakContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
     streak: {
         fontSize: 12,
         fontWeight: '600',
@@ -265,5 +413,15 @@ const styles = StyleSheet.create({
     },
     pointsLabel: {
         fontSize: 11,
+    },
+    stickyUser: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 20,
+        paddingTop: 8,
+        paddingBottom: 16,
+        borderTopWidth: 1,
     },
 });
