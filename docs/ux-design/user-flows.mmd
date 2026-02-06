@@ -1,0 +1,236 @@
+%% User Flow Diagrams for Football Training App
+
+%% Flow 1: Player First Exercise Completion
+graph TD
+    A[App Launch] --> B{First Time User?}
+    B -->|Yes| C[Onboarding Screens]
+    B -->|No| D[Login Screen]
+    C --> D
+    D --> E[Enter Club/Year/Gender]
+    E --> F[Enter Username/Password]
+    F --> G{Login Successful?}
+    G -->|No| H[Show Error Message]
+    H --> F
+    G -->|Yes| I[Home Screen]
+    I --> J[Browse Exercises Tab]
+    J --> K[Select Exercise]
+    K --> L[View Exercise Details]
+    L --> M{Ready to Start?}
+    M -->|No| J
+    M -->|Yes| N[Start Exercise]
+    N --> O[Follow Instructions]
+    O --> P[Complete Exercise]
+    P --> Q[Mark as Complete]
+    Q --> R[Success Animation]
+    R --> S[Earn Points & Achievement]
+    S --> T[View Leaderboard]
+    T --> U{Continue?}
+    U -->|Yes| J
+    U -->|No| V[Exit]
+
+%% Flow 2: Admin Creating Club Structure
+graph TD
+    A1[Admin Login] --> B1[Admin Dashboard]
+    B1 --> C1{Club Structure Exists?}
+    C1 -->|No| D1[Setup Wizard]
+    C1 -->|Yes| E1[Navigate to Club Structure]
+    D1 --> E1
+    E1 --> F1[Add Year Group]
+    F1 --> G1[Enter Year e.g. 2013]
+    G1 --> H1[Select Genders]
+    H1 --> I1[Create Year Group]
+    I1 --> J1{Add More Years?}
+    J1 -->|Yes| F1
+    J1 -->|No| K1[View Complete Structure]
+    K1 --> L1[Navigate to Players]
+    L1 --> M1{Bulk Import?}
+    M1 -->|Yes| N1[Download CSV Template]
+    N1 --> O1[Fill CSV with Players]
+    O1 --> P1[Upload CSV]
+    P1 --> Q1[Review Import Preview]
+    Q1 --> R1{Confirm Import?}
+    R1 -->|No| O1
+    R1 -->|Yes| S1[Import Players]
+    M1 -->|No| T1[Add Player Manually]
+    T1 --> U1[Enter Player Details]
+    U1 --> V1[Save Player]
+    V1 --> W1{Add More Players?}
+    W1 -->|Yes| T1
+    W1 -->|No| X1[Export Credentials]
+    S1 --> X1
+    X1 --> Y1[Share with Players]
+    Y1 --> Z1[Complete Setup]
+
+%% Flow 3: Player Maintaining Streak
+graph TD
+    A2[Receive Notification] --> B2[Open App]
+    B2 --> C2[View Home Screen]
+    C2 --> D2[See Streak Warning]
+    D2 --> E2[View Quick Exercise]
+    E2 --> F2{Time Available?}
+    F2 -->|No| G2[Browse Shorter Exercises]
+    G2 --> E2
+    F2 -->|Yes| H2[Start Exercise]
+    H2 --> I2[Complete Exercise]
+    I2 --> J2[Mark Complete]
+    J2 --> K2[Streak Maintained!]
+    K2 --> L2[Milestone Achievement?]
+    L2 -->|Yes| M2[Special Celebration]
+    L2 -->|No| N2[Regular Success]
+    M2 --> O2[Bonus Points Awarded]
+    N2 --> O2
+    O2 --> P2{Share Achievement?}
+    P2 -->|Yes| Q2[Generate Share Image]
+    Q2 --> R2[Share to Social Media]
+    R2 --> S2[Return to App]
+    P2 -->|No| S2
+    S2 --> T2[View Updated Profile]
+    T2 --> U2[Exit]
+
+%% Flow 4: Admin Adding Exercises from Store
+graph TD
+    A3[Admin Dashboard] --> B3[Navigate to Exercise Store]
+    B3 --> C3[Browse Featured Exercises]
+    C3 --> D3{Apply Filters?}
+    D3 -->|Yes| E3[Select Category/Difficulty]
+    E3 --> F3[View Filtered Results]
+    D3 -->|No| F3
+    F3 --> G3[Select Exercise]
+    G3 --> H3[View Exercise Details]
+    H3 --> I3[Watch Preview Video]
+    I3 --> J3[Read Reviews]
+    J3 --> K3{Appropriate for Club?}
+    K3 -->|No| F3
+    K3 -->|Yes| L3[Add to Club]
+    L3 --> M3[Success Confirmation]
+    M3 --> N3{Add More Exercises?}
+    N3 -->|Yes| F3
+    N3 -->|No| O3[View Added Exercises]
+    O3 --> P3[Navigate to Exercises Management]
+    P3 --> Q3[Review New Exercises]
+    Q3 --> R3{Notify Players?}
+    R3 -->|Yes| S3[Send Notification]
+    R3 -->|No| T3[Exit]
+    S3 --> T3
+
+%% Flow 5: Player Login Flow
+graph TD
+    A4[Launch App] --> B4[Login Screen]
+    B4 --> C4{Saved Preferences?}
+    C4 -->|Yes| D4[Pre-fill Club/Year/Gender]
+    C4 -->|No| E4[Select Club]
+    E4 --> F4[Select Year]
+    F4 --> G4[Select Gender]
+    D4 --> H4[Enter Username]
+    G4 --> H4
+    H4 --> I4[Enter Password]
+    I4 --> J4{Show Password?}
+    J4 -->|Yes| K4[Toggle Visibility]
+    K4 --> I4
+    J4 -->|No| L4[Tap Login]
+    L4 --> M4{Valid Credentials?}
+    M4 -->|No| N4[Show Error]
+    N4 --> O4{Forgot Password?}
+    O4 -->|Yes| P4[Password Recovery]
+    P4 --> Q4[Contact Admin]
+    O4 -->|No| H4
+    M4 -->|Yes| R4{First Login?}
+    R4 -->|Yes| S4[Onboarding Flow]
+    S4 --> T4[Home Screen]
+    R4 -->|No| T4
+
+%% Flow 6: Exercise Execution Flow
+graph TD
+    A5[Exercise Detail Screen] --> B5[Tap Start Exercise]
+    B5 --> C5[Exercise Execution Screen]
+    C5 --> D5[Display Instructions]
+    D5 --> E5[Start Timer]
+    E5 --> F5{User Action?}
+    F5 -->|Pause| G5[Pause Timer]
+    G5 --> H5{Resume or Exit?}
+    H5 -->|Resume| E5
+    H5 -->|Exit| I5[Confirm Exit]
+    I5 --> J5{Confirm?}
+    J5 -->|Yes| K5[Return to Exercise Detail]
+    J5 -->|No| E5
+    F5 -->|Complete| L5[Timer Reaches 0:00]
+    L5 --> M5[Enable Complete Button]
+    M5 --> N5[Tap Mark Complete]
+    N5 --> O5[Submit to Server]
+    O5 --> P5{Submission Success?}
+    P5 -->|No| Q5[Show Error, Retry]
+    Q5 --> O5
+    P5 -->|Yes| R5[Success Modal]
+    R5 --> S5[Show Points Earned]
+    S5 --> T5{Achievement Unlocked?}
+    T5 -->|Yes| U5[Show Achievement]
+    U5 --> V5[Continue Button]
+    T5 -->|No| V5
+    V5 --> W5[Return to Previous Screen]
+
+%% Flow 7: Leaderboard Viewing Flow
+graph TD
+    A6[Tap Leaderboard Tab] --> B6[Load Leaderboard Data]
+    B6 --> C6{Loading Success?}
+    C6 -->|No| D6[Show Error State]
+    D6 --> E6[Retry Button]
+    E6 --> B6
+    C6 -->|Yes| F6[Display Leaderboard]
+    F6 --> G6[Highlight User Position]
+    G6 --> H6[Show Top 3 Podium]
+    H6 --> I6{User Action?}
+    I6 -->|Change Time Period| J6[Select Weekly/Monthly/All-Time]
+    J6 --> B6
+    I6 -->|Change Filter| K6[Select Club/Year/Gender]
+    K6 --> B6
+    I6 -->|Pull to Refresh| L6[Refresh Data]
+    L6 --> B6
+    I6 -->|Scroll List| M6[View Other Players]
+    M6 --> I6
+    I6 -->|Exit| N6[Navigate Away]
+
+%% Flow 8: Admin Player Management Flow
+graph TD
+    A7[Players Management Screen] --> B7{Action?}
+    B7 -->|Add Single Player| C7[Open Add Player Form]
+    C7 --> D7[Fill Player Details]
+    D7 --> E7[Generate/Enter Password]
+    E7 --> F7[Select Year/Gender]
+    F7 --> G7[Save Player]
+    G7 --> H7{Save Success?}
+    H7 -->|No| I7[Show Validation Errors]
+    I7 --> D7
+    H7 -->|Yes| J7[Success Message]
+    J7 --> K7[Add to Player List]
+    B7 -->|Bulk Import| L7[Download CSV Template]
+    L7 --> M7[Fill CSV Externally]
+    M7 --> N7[Upload CSV File]
+    N7 --> O7[Validate CSV]
+    O7 --> P7{Valid Format?}
+    P7 -->|No| Q7[Show Errors]
+    Q7 --> N7
+    P7 -->|Yes| R7[Preview Import]
+    R7 --> S7{Confirm Import?}
+    S7 -->|No| T7[Cancel]
+    T7 --> A7
+    S7 -->|Yes| U7[Import Players]
+    U7 --> V7[Success Message]
+    V7 --> W7[Update Player List]
+    B7 -->|Edit Player| X7[Select Player]
+    X7 --> Y7[Open Edit Form]
+    Y7 --> Z7[Modify Details]
+    Z7 --> AA7[Save Changes]
+    AA7 --> W7
+    B7 -->|Delete Player| AB7[Select Player]
+    AB7 --> AC7[Confirm Delete]
+    AC7 --> AD7{Confirm?}
+    AD7 -->|Yes| AE7[Delete Player]
+    AE7 --> W7
+    AD7 -->|No| A7
+    B7 -->|Export Credentials| AF7[Select Export Format]
+    AF7 --> AG7[Generate PDF/CSV]
+    AG7 --> AH7[Download File]
+    K7 --> AI7[Export Single Credential]
+    AI7 --> AH7
+    W7 --> A7
+    AH7 --> A7

@@ -1,0 +1,31 @@
+graph TD
+    A1[Admin Login] --> B1[Admin Dashboard]
+    B1 --> C1{Club Structure Exists?}
+    C1 -->|No| D1[Setup Wizard]
+    C1 -->|Yes| E1[Navigate to Club Structure]
+    D1 --> E1
+    E1 --> F1[Add Year Group]
+    F1 --> G1[Enter Year eg 2013]
+    G1 --> H1[Select Genders]
+    H1 --> I1[Create Year Group]
+    I1 --> J1{Add More Years?}
+    J1 -->|Yes| F1
+    J1 -->|No| K1[View Complete Structure]
+    K1 --> L1[Navigate to Players]
+    L1 --> M1{Bulk Import?}
+    M1 -->|Yes| N1[Download CSV Template]
+    N1 --> O1[Fill CSV with Players]
+    O1 --> P1[Upload CSV]
+    P1 --> Q1[Review Import Preview]
+    Q1 --> R1{Confirm Import?}
+    R1 -->|No| O1
+    R1 -->|Yes| S1[Import Players]
+    M1 -->|No| T1[Add Player Manually]
+    T1 --> U1[Enter Player Details]
+    U1 --> V1[Save Player]
+    V1 --> W1{Add More Players?}
+    W1 -->|Yes| T1
+    W1 -->|No| X1[Export Credentials]
+    S1 --> X1
+    X1 --> Y1[Share with Players]
+    Y1 --> Z1[Complete Setup]

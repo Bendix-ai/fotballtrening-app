@@ -1,0 +1,26 @@
+graph TD
+    A[App Launch] --> B{First Time User?}
+    B -->|Yes| C[Onboarding Screens]
+    B -->|No| D[Login Screen]
+    C --> D
+    D --> E[Enter Club/Year/Gender]
+    E --> F[Enter Username/Password]
+    F --> G{Login Successful?}
+    G -->|No| H[Show Error Message]
+    H --> F
+    G -->|Yes| I[Home Screen]
+    I --> J[Browse Exercises Tab]
+    J --> K[Select Exercise]
+    K --> L[View Exercise Details]
+    L --> M{Ready to Start?}
+    M -->|No| J
+    M -->|Yes| N[Start Exercise]
+    N --> O[Follow Instructions]
+    O --> P[Complete Exercise]
+    P --> Q[Mark as Complete]
+    Q --> R[Success Animation]
+    R --> S[Earn Points & Achievement]
+    S --> T[View Leaderboard]
+    T --> U{Continue?}
+    U -->|Yes| J
+    U -->|No| V[Exit]
