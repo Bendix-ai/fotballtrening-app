@@ -25,13 +25,13 @@ export function AdminSettingsScreen() {
 
     const displayName = user?.display_name || 'Admin';
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setShowLogoutDialog(false);
-        logout();
+        await logout();
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.adminSettings')} />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

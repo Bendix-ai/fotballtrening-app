@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Component, useState } from 'react';
 import {
     View,
     Text,
@@ -12,8 +12,29 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card, Button, useToast } from '../../components';
-import { mockReportData, mockDashboardMetrics } from '../../data/mockData';
+import { mockReportData } from '../../data/mockData';
+import { useDashboardMetrics } from '../../hooks/useAdmin';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
+
+class ChartErrorBoundary extends Component<
+    { children: React.ReactNode },
+    { hasError: boolean }
+> {
+    state = { hasError: false };
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <View style={{ height: 200, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: '#999', fontSize: 14 }}>Kunne ikke laste diagram</Text>
+                </View>
+            );
+        }
+        return this.props.children;
+    }
+}
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -29,6 +50,8 @@ export function ReportsScreen() {
     const { colors } = useTheme();
     const { showToast } = useToast();
     const [selectedRange, setSelectedRange] = useState<DateRange>('30d');
+    const { data: metrics } = useDashboardMetrics();
+    const dashboardMetrics = metrics ?? { totalCompletions: 0, engagementRate: 0 };
 
     const chartConfig = {
         backgroundColor: colors.card,
@@ -76,7 +99,7 @@ export function ReportsScreen() {
     const chartWidth = screenWidth - 80;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.reports')} />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -109,7 +132,7 @@ export function ReportsScreen() {
                 <View style={styles.metricsRow}>
                     <Card style={styles.metricCard}>
                         <Text style={[styles.metricValue, { color: colors.primary }]}>
-                            {mockDashboardMetrics.totalCompletions}
+                            {dashboardMetrics.totalCompletions}
                         </Text>
                         <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
                             {t('admin.totalCompletions')}
@@ -117,7 +140,7 @@ export function ReportsScreen() {
                     </Card>
                     <Card style={styles.metricCard}>
                         <Text style={[styles.metricValue, { color: colors.accent }]}>
-                            {mockDashboardMetrics.engagementRate}%
+                            {dashboardMetrics.engagementRate}%
                         </Text>
                         <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
                             {t('admin.engagementRate')}
@@ -130,16 +153,18 @@ export function ReportsScreen() {
                     <Text style={[styles.chartTitle, { color: colors.text }]}>
                         {t('admin.weeklyActivity')}
                     </Text>
-                    <BarChart
-                        data={activityData}
-                        width={chartWidth}
-                        height={200}
-                        yAxisLabel=""
-                        yAxisSuffix=""
-                        chartConfig={chartConfig}
-                        style={styles.chart}
-                        fromZero
-                    />
+                    <ChartErrorBoundary>
+                        <BarChart
+                            data={activityData}
+                            width={chartWidth}
+                            height={200}
+                            yAxisLabel=""
+                            yAxisSuffix=""
+                            chartConfig={chartConfig}
+                            style={styles.chart}
+                            fromZero
+                        />
+                    </ChartErrorBoundary>
                 </Card>
 
                 {/* Monthly Points Chart */}
@@ -147,16 +172,18 @@ export function ReportsScreen() {
                     <Text style={[styles.chartTitle, { color: colors.text }]}>
                         {t('admin.monthlyPoints')}
                     </Text>
-                    <LineChart
-                        data={pointsData}
-                        width={chartWidth}
-                        height={200}
-                        yAxisLabel=""
-                        yAxisSuffix=""
-                        chartConfig={chartConfig}
-                        style={styles.chart}
-                        bezier
-                    />
+                    <ChartErrorBoundary>
+                        <LineChart
+                            data={pointsData}
+                            width={chartWidth}
+                            height={200}
+                            yAxisLabel=""
+                            yAxisSuffix=""
+                            chartConfig={chartConfig}
+                            style={styles.chart}
+                            bezier
+                        />
+                    </ChartErrorBoundary>
                 </Card>
 
                 {/* Category Distribution */}
@@ -164,15 +191,17 @@ export function ReportsScreen() {
                     <Text style={[styles.chartTitle, { color: colors.text }]}>
                         {t('admin.categoryDistribution')}
                     </Text>
-                    <PieChart
-                        data={pieData}
-                        width={chartWidth}
-                        height={200}
-                        chartConfig={chartConfig}
-                        accessor="value"
-                        backgroundColor="transparent"
-                        paddingLeft="15"
-                    />
+                    <ChartErrorBoundary>
+                        <PieChart
+                            data={pieData}
+                            width={chartWidth}
+                            height={200}
+                            chartConfig={chartConfig}
+                            accessor="value"
+                            backgroundColor="transparent"
+                            paddingLeft="15"
+                        />
+                    </ChartErrorBoundary>
                 </Card>
 
                 {/* Difficulty Distribution */}
@@ -180,19 +209,21 @@ export function ReportsScreen() {
                     <Text style={[styles.chartTitle, { color: colors.text }]}>
                         {t('admin.difficultyDistribution')}
                     </Text>
-                    <BarChart
-                        data={difficultyData}
-                        width={chartWidth}
-                        height={200}
-                        yAxisLabel=""
-                        yAxisSuffix="%"
-                        chartConfig={{
-                            ...chartConfig,
-                            color: (opacity = 1) => `rgba(255, 152, 0, ${opacity})`,
-                        }}
-                        style={styles.chart}
-                        fromZero
-                    />
+                    <ChartErrorBoundary>
+                        <BarChart
+                            data={difficultyData}
+                            width={chartWidth}
+                            height={200}
+                            yAxisLabel=""
+                            yAxisSuffix="%"
+                            chartConfig={{
+                                ...chartConfig,
+                                color: (opacity = 1) => `rgba(255, 152, 0, ${opacity})`,
+                            }}
+                            style={styles.chart}
+                            fromZero
+                        />
+                    </ChartErrorBoundary>
                 </Card>
 
                 {/* Export Buttons */}

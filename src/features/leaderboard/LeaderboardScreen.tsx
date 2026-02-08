@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { LeaderboardEntry, LeaderboardPeriod, LeaderboardScope } from '../../types';
-import { mockLeaderboard } from '../../data/mockData';
+import { useLeaderboard } from '../../hooks/useLeaderboard';
 
 const periods: { key: LeaderboardPeriod; label: string }[] = [
     { key: 'week', label: 'thisWeek' },
@@ -79,14 +79,16 @@ export function LeaderboardScreen() {
     const [selectedScope, setSelectedScope] = useState<LeaderboardScope>('club');
     const [refreshing, setRefreshing] = useState(false);
 
+    const { data: leaderboardData = [], refetch } = useLeaderboard(selectedScope, null, selectedPeriod);
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
+        refetch().finally(() => setRefreshing(false));
+    }, [refetch]);
 
-    const top3 = mockLeaderboard.slice(0, 3);
-    const rest = mockLeaderboard.slice(3);
-    const currentUser = mockLeaderboard.find((e) => e.is_current_user);
+    const top3 = leaderboardData.slice(0, 3);
+    const rest = leaderboardData.slice(3);
+    const currentUser = leaderboardData.find((e) => e.is_current_user);
 
     const renderLeaderboardEntry = ({ item }: { item: LeaderboardEntry }) => {
         const isCurrentUser = item.is_current_user;

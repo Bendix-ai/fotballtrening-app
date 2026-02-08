@@ -13,7 +13,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { ProgressBar, Button, ConfirmationDialog } from '../../components';
 import { ExercisesStackParamList } from '../../types';
-import { mockExercises } from '../../data/mockData';
+import { useExercise } from '../../hooks/useExercises';
 
 type ExecRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseExecution'>;
 type ExecNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseExecution'>;
@@ -24,7 +24,7 @@ export function ExerciseExecutionScreen() {
     const route = useRoute<ExecRouteProp>();
     const { exerciseId } = route.params;
 
-    const exercise = mockExercises.find((e) => e.id === exerciseId);
+    const { data: exercise } = useExercise(exerciseId);
     const totalDuration = exercise?.duration_seconds ?? 120;
 
     const [elapsedSeconds, setElapsedSeconds] = useState(0);

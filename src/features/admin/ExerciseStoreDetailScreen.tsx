@@ -13,7 +13,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Badge, useToast } from '../../components';
 import { AdminStackParamList } from '../../types';
-import { mockStoreExercises, mockStoreReviews } from '../../data/mockData';
+import { useStoreExercise, useStoreReviews, useDownloadExercise } from '../../hooks/useStore';
 
 type DetailRoute = RouteProp<AdminStackParamList, 'ExerciseStoreDetail'>;
 
@@ -24,8 +24,9 @@ export function ExerciseStoreDetailScreen() {
     const { showToast } = useToast();
     const { exerciseId } = route.params;
 
-    const exercise = mockStoreExercises.find((e) => e.id === exerciseId);
-    const reviews = mockStoreReviews.filter((r) => r.exercise_id === exerciseId);
+    const { data: exercise } = useStoreExercise(exerciseId);
+    const { data: reviews = [] } = useStoreReviews(exerciseId);
+    const downloadMutation = useDownloadExercise();
 
     if (!exercise) {
         return (
@@ -41,7 +42,10 @@ export function ExerciseStoreDetailScreen() {
     };
 
     const handleAddToClub = () => {
-        showToast(t('admin.addedToClub'), 'success');
+        downloadMutation.mutate(exerciseId, {
+            onSuccess: () => showToast(t('admin.addedToClub'), 'success'),
+            onError: () => showToast('Noe gikk galt', 'error'),
+        });
     };
 
     return (
@@ -96,10 +100,41 @@ export function ExerciseStoreDetailScreen() {
                     </Card>
                 </View>
 
+                {/* Equipment */}
+                {exercise.equipment ? (
+                    <View style={styles.equipmentRow}>
+                        <MaterialIcons name="sports-soccer" size={16} color={colors.textSecondary} />
+                        <Text style={[styles.equipmentText, { color: colors.textSecondary }]}>
+                            Utstyr: {exercise.equipment}
+                        </Text>
+                    </View>
+                ) : null}
+
                 {/* Description */}
                 <Card style={styles.descCard}>
                     <Text style={[styles.description, { color: colors.text }]}>{exercise.description}</Text>
                 </Card>
+
+                {/* Instructions */}
+                {exercise.instructions ? (
+                    <View style={styles.instructionsSection}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('exercises.instructions')}
+                        </Text>
+                        {exercise.instructions.split('. ').filter(Boolean).map((step, index) => (
+                            <View key={index} style={styles.stepRow}>
+                                <View style={[styles.stepNumber, { backgroundColor: colors.primaryLight }]}>
+                                    <Text style={[styles.stepNumberText, { color: colors.primary }]}>
+                                        {index + 1}
+                                    </Text>
+                                </View>
+                                <Text style={[styles.stepText, { color: colors.text }]}>
+                                    {step.trim()}{step.endsWith('.') ? '' : '.'}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                ) : null}
 
                 {/* Reviews */}
                 {reviews.length > 0 && (
@@ -219,6 +254,16 @@ const styles = StyleSheet.create({
         fontSize: 11,
         marginTop: 4,
     },
+    equipmentRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 20,
+        marginTop: 16,
+    },
+    equipmentText: {
+        fontSize: 14,
+    },
     descCard: {
         marginHorizontal: 20,
         marginTop: 16,
@@ -226,6 +271,33 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 15,
         lineHeight: 22,
+    },
+    instructionsSection: {
+        paddingHorizontal: 20,
+        marginTop: 24,
+    },
+    stepRow: {
+        flexDirection: 'row',
+        marginBottom: 12,
+        alignItems: 'flex-start',
+    },
+    stepNumber: {
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
+        marginTop: 2,
+    },
+    stepNumberText: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    stepText: {
+        flex: 1,
+        fontSize: 14,
+        lineHeight: 20,
     },
     reviewsSection: {
         paddingHorizontal: 20,

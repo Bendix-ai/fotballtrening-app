@@ -36,6 +36,7 @@ export const mockExercises: Exercise[] = [
         points: 10,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -51,6 +52,7 @@ export const mockExercises: Exercise[] = [
         points: 20,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -66,6 +68,7 @@ export const mockExercises: Exercise[] = [
         points: 25,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -81,6 +84,7 @@ export const mockExercises: Exercise[] = [
         points: 15,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -96,6 +100,7 @@ export const mockExercises: Exercise[] = [
         points: 10,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -111,6 +116,7 @@ export const mockExercises: Exercise[] = [
         points: 20,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -126,6 +132,7 @@ export const mockExercises: Exercise[] = [
         points: 15,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
     {
@@ -141,6 +148,7 @@ export const mockExercises: Exercise[] = [
         points: 30,
         is_public: true,
         created_by_club_id: null,
+        equipment: '',
         created_at: '2024-01-01',
     },
 ];
@@ -222,16 +230,11 @@ export const mockDashboardMetrics: DashboardMetrics = {
 };
 
 export const mockStoreExercises: StoreExercise[] = [
-    { id: 's1', title: 'Koordinasjonsbane', description: 'Avansert koordinasjonsøvelse med flere stasjoner.', category: 'agility', difficulty: 'hard', duration_seconds: 360, points: 35, rating: 4.8, downloads: 234, author: 'NFF Trenerskolen', is_featured: true },
-    { id: 's2', title: 'Heading-teknikk', description: 'Lær riktig heading-teknikk trinn for trinn.', category: 'skill', difficulty: 'medium', duration_seconds: 240, points: 20, rating: 4.5, downloads: 189, author: 'NFF Trenerskolen', is_featured: true },
-    { id: 's3', title: 'Styrketrening for unge', description: 'Alderstilpasset styrketrening uten vekter.', category: 'strength', difficulty: 'easy', duration_seconds: 300, points: 15, rating: 4.7, downloads: 312, author: 'Idrettshøgskolen', is_featured: false },
-    { id: 's4', title: 'Finter og vendinger', description: 'Mestre ulike finter og vendinger med ball.', category: 'skill', difficulty: 'hard', duration_seconds: 300, points: 30, rating: 4.9, downloads: 456, author: 'NFF Trenerskolen', is_featured: true },
-    { id: 's5', title: 'Dynamisk oppvarming', description: 'Moderne oppvarming med dynamiske øvelser.', category: 'warmup', difficulty: 'easy', duration_seconds: 180, points: 10, rating: 4.3, downloads: 567, author: 'Idrettshøgskolen', is_featured: false },
-    { id: 's6', title: 'Skuddtrening', description: 'Øv på avslutninger fra ulike vinkler.', category: 'skill', difficulty: 'medium', duration_seconds: 360, points: 25, rating: 4.6, downloads: 345, author: 'NFF Trenerskolen', is_featured: false },
-    { id: 's7', title: 'Hurtighet med retningsendring', description: 'Sprint og retningsendring for fotball.', category: 'agility', difficulty: 'medium', duration_seconds: 240, points: 20, rating: 4.4, downloads: 278, author: 'Idrettshøgskolen', is_featured: false },
-    { id: 's8', title: 'Kjernemuskulatur', description: 'Styrk kjernemuskulaturen for bedre balanse.', category: 'strength', difficulty: 'medium', duration_seconds: 240, points: 20, rating: 4.2, downloads: 198, author: 'Idrettshøgskolen', is_featured: false },
-    { id: 's9', title: 'Yoga for fotball', description: 'Yoga-inspirerte øvelser for fleksibilitet.', category: 'cooldown', difficulty: 'easy', duration_seconds: 420, points: 15, rating: 4.1, downloads: 134, author: 'Idrettshøgskolen', is_featured: false },
-    { id: 's10', title: '1-mot-1 situasjoner', description: 'Tren på offensive og defensive 1v1.', category: 'skill', difficulty: 'hard', duration_seconds: 300, points: 30, rating: 4.8, downloads: 389, author: 'NFF Trenerskolen', is_featured: true },
+    { id: 's1', title: 'Koordinasjonsbane', description: 'Avansert koordinasjonsøvelse med flere stasjoner.', instructions: '', category: 'agility', difficulty: 'hard', duration_seconds: 360, points: 35, rating: 4.8, downloads: 234, author: 'NFF Trenerskolen', is_featured: true, image_url: null, video_url: null, equipment: 'Koordinasjonsstige, kjegler' },
+    { id: 's2', title: 'Heading-teknikk', description: 'Lær riktig heading-teknikk trinn for trinn.', instructions: '', category: 'skill', difficulty: 'medium', duration_seconds: 240, points: 20, rating: 4.5, downloads: 189, author: 'NFF Trenerskolen', is_featured: true, image_url: null, video_url: null, equipment: 'Ball, partner' },
+    { id: 's3', title: 'Styrketrening for unge', description: 'Alderstilpasset styrketrening uten vekter.', instructions: '', category: 'strength', difficulty: 'easy', duration_seconds: 300, points: 15, rating: 4.7, downloads: 312, author: 'Norges idrettshøgskole', is_featured: false, image_url: null, video_url: null, equipment: '' },
+    { id: 's4', title: 'Finter og vendinger', description: 'Mestre ulike finter og vendinger med ball.', instructions: '', category: 'skill', difficulty: 'hard', duration_seconds: 300, points: 30, rating: 4.9, downloads: 456, author: 'NFF Trenerskolen', is_featured: true, image_url: null, video_url: null, equipment: 'Ball, kjegler' },
+    { id: 's5', title: 'Dynamisk oppvarming', description: 'Moderne oppvarming med dynamiske øvelser.', instructions: '', category: 'warmup', difficulty: 'easy', duration_seconds: 180, points: 10, rating: 4.3, downloads: 567, author: 'Norges idrettshøgskole', is_featured: false, image_url: null, video_url: null, equipment: '' },
 ];
 
 export const mockStoreReviews: StoreReview[] = [

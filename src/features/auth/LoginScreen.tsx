@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -7,31 +7,111 @@ import {
     Platform,
     TouchableOpacity,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Input, Dropdown, useToast } from '../../components';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore, useAppStore } from '../../stores';
-import { User } from '../../types';
-import { mockClubs, mockYearGroups, mockGenders } from '../../data/mockData';
+import { isSupabaseConfigured } from '../../lib/supabase';
+import * as authService from '../../services/authService';
+import * as clubService from '../../services/clubService';
+import { Club, Gender, RootStackParamList } from '../../types';
+
+type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export function LoginScreen() {
     const { colors } = useTheme();
-    const { setUser, setClub } = useAuthStore();
+    const navigation = useNavigation<LoginNavigationProp>();
+    const { setUser, setClub, setTeam, setManagedTeamIds } = useAuthStore();
     const { selectedClubId, setSelectedClubId } = useAppStore();
     const { showToast } = useToast();
 
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedGender, setSelectedGender] = useState<string | null>(null);
+    const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [isAdminLogin, setIsAdminLogin] = useState(false);
 
-    const clubOptions = mockClubs.map(c => ({ value: c.id, label: c.name }));
+    // Dynamic data from Supabase
+    const [clubs, setClubs] = useState<{ value: string; label: string }[]>([]);
+    const [yearGroups, setYearGroups] = useState<{ value: string; label: string }[]>([]);
+    const [genderOptions, setGenderOptions] = useState<{ value: string; label: string }[]>([]);
+    const [teamMap, setTeamMap] = useState<Record<string, string>>({});
+    const [loadingClubs, setLoadingClubs] = useState(true);
+
+    // Load clubs on mount
+    useEffect(() => {
+        loadClubs();
+    }, []);
+
+    // Load year groups when club changes
+    useEffect(() => {
+        if (selectedClubId) {
+            loadYearGroups(selectedClubId);
+        } else {
+            setYearGroups([]);
+        }
+        setSelectedYear(null);
+        setSelectedGender(null);
+        setSelectedTeamId(null);
+    }, [selectedClubId]);
+
+    // Load teams (genders) when year group changes
+    useEffect(() => {
+        if (selectedYear) {
+            loadTeams(selectedYear);
+        } else {
+            setGenderOptions([]);
+        }
+        setSelectedGender(null);
+        setSelectedTeamId(null);
+    }, [selectedYear]);
+
+    const loadClubs = async () => {
+        setLoadingClubs(true);
+        try {
+            const data = await clubService.getClubs();
+            const clubOptions = data.map((c: Club) => ({ value: c.id, label: c.name }));
+            setClubs(clubOptions);
+
+            // Clear stale selectedClubId if it doesn't match any real club
+            if (selectedClubId && !clubOptions.some(c => c.value === selectedClubId)) {
+                setSelectedClubId(null);
+            }
+        } catch (err) {
+            console.error('Error loading clubs:', err);
+        }
+        setLoadingClubs(false);
+    };
+
+    const loadYearGroups = async (clubId: string) => {
+        try {
+            const data = await clubService.getYearGroups(clubId);
+            setYearGroups(data);
+        } catch (err) {
+            console.error('Error loading year groups:', err);
+        }
+    };
+
+    const loadTeams = async (yearGroupId: string) => {
+        try {
+            const data = await clubService.getTeams(yearGroupId);
+            setGenderOptions(data.map(t => ({ value: t.value, label: t.label })));
+            const map: Record<string, string> = {};
+            data.forEach(t => { map[t.value] = t.teamId; });
+            setTeamMap(map);
+        } catch (err) {
+            console.error('Error loading teams:', err);
+        }
+    };
 
     const handleLogin = async () => {
         if (!isAdminLogin) {
@@ -56,47 +136,86 @@ export function LoginScreen() {
         setIsLoading(true);
         setError('');
 
-        // Simulate login delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            if (isSupabaseConfigured()) {
+                if (isAdminLogin) {
+                    const { session } = await authService.loginAdmin(username, password);
+                    if (session?.user) {
+                        const profile = await authService.getProfile(session.user.id);
+                        if (profile) {
+                            setUser(profile.user);
+                            setClub(profile.club);
+                            setTeam(profile.team);
+                            setManagedTeamIds(profile.managedTeamIds);
+                        } else {
+                            setError('Kunne ikke laste profilen. Prøv igjen.');
+                        }
+                    }
+                } else {
+                    const teamId = teamMap[selectedGender!] ?? '';
+                    const { session } = await authService.loginPlayer(username, password, teamId);
+                    if (session?.user) {
+                        const profile = await authService.getProfile(session.user.id);
+                        if (profile) {
+                            setUser(profile.user);
+                            setClub(profile.club);
+                            setTeam(profile.team);
+                            setManagedTeamIds(profile.managedTeamIds);
+                        } else {
+                            setError('Kunne ikke laste profilen. Prøv igjen.');
+                        }
+                    }
+                }
+            } else {
+                // Mock fallback for development
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const { mockClubs } = require('../../data/mockData');
 
-        if (isAdminLogin) {
-            const adminUser: User = {
-                id: 'admin1',
-                username: username,
-                role: 'admin',
-                club_id: '1',
-                team_id: null,
-                display_name: username,
-                avatar_url: null,
-                total_points: 0,
-                current_streak: 0,
-                longest_streak: 0,
-                created_at: new Date().toISOString(),
-                last_login: new Date().toISOString(),
-            };
-            setUser(adminUser);
-            setClub(mockClubs[0]);
-        } else {
-            const selectedClub = mockClubs.find(c => c.id === selectedClubId);
-
-            const mockUser: User = {
-                id: '4',
-                username: username,
-                role: 'player',
-                club_id: selectedClubId!,
-                team_id: '1',
-                display_name: username,
-                avatar_url: null,
-                total_points: 390,
-                current_streak: 5,
-                longest_streak: 12,
-                created_at: new Date().toISOString(),
-                last_login: new Date().toISOString(),
-            };
-
-            setUser(mockUser);
-            if (selectedClub) {
-                setClub(selectedClub);
+                if (isAdminLogin) {
+                    setUser({
+                        id: 'admin1',
+                        username,
+                        role: 'admin',
+                        admin_type: 'club_admin',
+                        club_id: '1',
+                        team_id: null,
+                        display_name: username,
+                        avatar_url: null,
+                        total_points: 0,
+                        current_streak: 0,
+                        longest_streak: 0,
+                        created_at: new Date().toISOString(),
+                        last_login: new Date().toISOString(),
+                    });
+                    setClub(mockClubs[0]);
+                } else {
+                    const selectedClub = mockClubs.find((c: Club) => c.id === selectedClubId);
+                    setUser({
+                        id: '4',
+                        username,
+                        role: 'player',
+                        admin_type: null,
+                        club_id: selectedClubId!,
+                        team_id: '1',
+                        display_name: username,
+                        avatar_url: null,
+                        total_points: 390,
+                        current_streak: 5,
+                        longest_streak: 12,
+                        created_at: new Date().toISOString(),
+                        last_login: new Date().toISOString(),
+                    });
+                    if (selectedClub) setClub(selectedClub);
+                }
+            }
+        } catch (err: any) {
+            const message = err?.message || 'Innlogging feilet';
+            if (message.includes('Invalid login credentials')) {
+                setError('Feil brukernavn eller passord');
+            } else if (message.includes('Email not confirmed')) {
+                setError('E-posten er ikke bekreftet ennå. Kontakt treneren din.');
+            } else {
+                setError(message);
             }
         }
 
@@ -106,6 +225,16 @@ export function LoginScreen() {
     const handleForgotPassword = () => {
         showToast('Kontakt treneren din for a fa nytt passord', 'info');
     };
+
+    if (loadingClubs) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -167,7 +296,7 @@ export function LoginScreen() {
                             <>
                                 <Dropdown
                                     label={t('auth.selectClub')}
-                                    options={clubOptions}
+                                    options={clubs}
                                     selectedValue={selectedClubId}
                                     onValueChange={(value) => {
                                         setSelectedClubId(value);
@@ -178,7 +307,7 @@ export function LoginScreen() {
 
                                 <Dropdown
                                     label={t('auth.selectYear')}
-                                    options={mockYearGroups}
+                                    options={yearGroups}
                                     selectedValue={selectedYear}
                                     onValueChange={(value) => {
                                         setSelectedYear(value);
@@ -189,10 +318,11 @@ export function LoginScreen() {
 
                                 <Dropdown
                                     label={t('auth.selectGender')}
-                                    options={mockGenders}
+                                    options={genderOptions}
                                     selectedValue={selectedGender}
                                     onValueChange={(value) => {
                                         setSelectedGender(value);
+                                        setSelectedTeamId(teamMap[value] ?? null);
                                         setError('');
                                     }}
                                     placeholder="Velg kjonn..."
@@ -201,15 +331,16 @@ export function LoginScreen() {
                         )}
 
                         <Input
-                            label={t('auth.username')}
+                            label={isAdminLogin ? 'E-post' : t('auth.username')}
                             value={username}
                             onChangeText={(text) => {
                                 setUsername(text);
                                 setError('');
                             }}
-                            placeholder="Brukernavn"
+                            placeholder={isAdminLogin ? 'admin@klubb.no' : 'Brukernavn'}
                             autoCapitalize="none"
                             autoCorrect={false}
+                            keyboardType={isAdminLogin ? 'email-address' : 'default'}
                         />
 
                         <Input
@@ -243,6 +374,18 @@ export function LoginScreen() {
                                 {t('auth.forgotPassword')}
                             </Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Register')}
+                            style={styles.registerLink}
+                        >
+                            <Text style={[styles.registerLinkText, { color: colors.textSecondary }]}>
+                                {t('auth.noAccount')}{' '}
+                            </Text>
+                            <Text style={[styles.registerLinkAction, { color: colors.primary }]}>
+                                {t('auth.createAccountButton')}
+                            </Text>
+                        </TouchableOpacity>
                     </Card>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -253,6 +396,11 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     keyboardView: {
         flex: 1,
@@ -310,5 +458,18 @@ const styles = StyleSheet.create({
     forgotPasswordText: {
         fontSize: 14,
         fontWeight: '500',
+    },
+    registerLink: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 16,
+    },
+    registerLinkText: {
+        fontSize: 14,
+    },
+    registerLinkAction: {
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

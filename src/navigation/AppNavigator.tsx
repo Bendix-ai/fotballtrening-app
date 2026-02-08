@@ -11,6 +11,7 @@ import { RootStackParamList, MainTabParamList } from '../types';
 
 // Screens
 import { LoginScreen } from '../features/auth/LoginScreen';
+import { RegisterScreen } from '../features/auth/RegisterScreen';
 import { OnboardingScreen } from '../features/onboarding/OnboardingScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { LeaderboardScreen } from '../features/leaderboard/LeaderboardScreen';
@@ -127,7 +128,10 @@ export function AppNavigator() {
                         <Stack.Screen name="MainTabs" component={MainTabs} />
                     )
                 ) : (
-                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <>
+                        <Stack.Screen name="Login" component={LoginScreen} />
+                        <Stack.Screen name="Register" component={RegisterScreen} />
+                    </>
                 )}
             </Stack.Navigator>
         </NavigationContainer>

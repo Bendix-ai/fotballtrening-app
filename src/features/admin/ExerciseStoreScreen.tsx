@@ -15,7 +15,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, SearchBar, Card, useToast } from '../../components';
 import { AdminStackParamList, StoreExercise } from '../../types';
-import { mockStoreExercises } from '../../data/mockData';
+import { useStoreExercises, useDownloadExercise } from '../../hooks/useStore';
 
 type StoreNavProp = NativeStackNavigationProp<AdminStackParamList>;
 
@@ -28,20 +28,25 @@ export function ExerciseStoreScreen() {
     const navigation = useNavigation<StoreNavProp>();
     const { showToast } = useToast();
     const [searchQuery, setSearchQuery] = useState('');
+    const { data: storeExercises = [] } = useStoreExercises();
+    const downloadMutation = useDownloadExercise();
 
-    const featured = mockStoreExercises.filter((e) => e.is_featured);
-    const popular = [...mockStoreExercises].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
+    const featured = storeExercises.filter((e) => e.is_featured);
+    const popular = [...storeExercises].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
 
     const allFiltered = searchQuery.length > 0
-        ? mockStoreExercises.filter(
+        ? storeExercises.filter(
               (e) =>
                   e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   e.description.toLowerCase().includes(searchQuery.toLowerCase())
           )
-        : mockStoreExercises;
+        : storeExercises;
 
     const handleAddToClub = (exercise: StoreExercise) => {
-        showToast(t('admin.addedToClub'), 'success');
+        downloadMutation.mutate(exercise.id, {
+            onSuccess: () => showToast(t('admin.addedToClub'), 'success'),
+            onError: () => showToast('Noe gikk galt', 'error'),
+        });
     };
 
     const renderStoreCard = (exercise: StoreExercise, compact = false) => (
@@ -82,7 +87,7 @@ export function ExerciseStoreScreen() {
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.exerciseStore')} />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -126,7 +131,7 @@ export function ExerciseStoreScreen() {
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>
                                 {t('admin.allExercises')}
                             </Text>
-                            {mockStoreExercises.map((e) => renderStoreCard(e))}
+                            {storeExercises.map((e) => renderStoreCard(e))}
                         </View>
                     </>
                 ) : (

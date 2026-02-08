@@ -5,23 +5,27 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, AdminHeader } from '../../components';
-import { mockDashboardMetrics, mockAdminActivity, mockAdminPlayers } from '../../data/mockData';
+import { useDashboardMetrics, useRecentActivity, usePlayers } from '../../hooks/useAdmin';
 
 export function DashboardScreen() {
     const { colors } = useTheme();
-    const metrics = mockDashboardMetrics;
-    const recentActivity = mockAdminActivity.slice(0, 8);
-    const topPlayers = [...mockAdminPlayers].sort((a, b) => b.total_points - a.total_points).slice(0, 5);
+    const { data: metrics } = useDashboardMetrics();
+    const { data: recentActivity = [] } = useRecentActivity();
+    const { data: allPlayers = [] } = usePlayers();
+
+    const displayMetrics = metrics ?? { totalPlayers: 0, activeLast7Days: 0, totalCompletions: 0, engagementRate: 0 };
+    const recentItems = recentActivity.slice(0, 8);
+    const topPlayers = [...allPlayers].sort((a, b) => b.total_points - a.total_points).slice(0, 5);
 
     const metricCards = [
-        { label: t('admin.totalPlayers'), value: metrics.totalPlayers, icon: 'people' as const, color: colors.primary },
-        { label: t('admin.activeLast7Days'), value: metrics.activeLast7Days, icon: 'trending-up' as const, color: colors.success },
-        { label: t('admin.totalCompletions'), value: metrics.totalCompletions, icon: 'check-circle' as const, color: colors.accent },
-        { label: t('admin.engagementRate'), value: `${metrics.engagementRate}%`, icon: 'speed' as const, color: colors.secondary },
+        { label: t('admin.totalPlayers'), value: displayMetrics.totalPlayers, icon: 'people' as const, color: colors.primary },
+        { label: t('admin.activeLast7Days'), value: displayMetrics.activeLast7Days, icon: 'trending-up' as const, color: colors.success },
+        { label: t('admin.totalCompletions'), value: displayMetrics.totalCompletions, icon: 'check-circle' as const, color: colors.accent },
+        { label: t('admin.engagementRate'), value: `${displayMetrics.engagementRate}%`, icon: 'speed' as const, color: colors.secondary },
     ];
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.dashboard')} />
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Metric Cards */}
@@ -47,12 +51,12 @@ export function DashboardScreen() {
                         {t('admin.recentActivity')}
                     </Text>
                     <Card style={styles.activityCard}>
-                        {recentActivity.map((activity, index) => (
+                        {recentItems.map((activity, index) => (
                             <View
                                 key={activity.id}
                                 style={[
                                     styles.activityRow,
-                                    index < recentActivity.length - 1 && {
+                                    index < recentItems.length - 1 && {
                                         borderBottomWidth: 1,
                                         borderBottomColor: colors.border,
                                     },

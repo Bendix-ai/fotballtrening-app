@@ -1,10 +1,12 @@
 // User types
 export type UserRole = 'admin' | 'player';
+export type AdminType = 'club_admin' | 'team_admin';
 
 export interface User {
     id: string;
     username: string;
     role: UserRole;
+    admin_type: AdminType | null;
     club_id: string;
     team_id: string | null;
     display_name: string;
@@ -59,6 +61,7 @@ export interface Exercise {
     points: number;
     is_public: boolean;
     created_by_club_id: string | null;
+    equipment: string;
     created_at: string;
 }
 
@@ -145,6 +148,7 @@ export interface StoreExercise {
     id: string;
     title: string;
     description: string;
+    instructions: string;
     category: ExerciseCategory;
     difficulty: Difficulty;
     duration_seconds: number;
@@ -153,6 +157,9 @@ export interface StoreExercise {
     downloads: number;
     author: string;
     is_featured: boolean;
+    image_url: string | null;
+    video_url: string | null;
+    equipment: string;
 }
 
 export interface StoreReview {
@@ -181,6 +188,7 @@ export type RootStackParamList = {
     Onboarding: undefined;
     ClubSelect: undefined;
     Login: undefined;
+    Register: undefined;
     MainTabs: undefined;
     AdminMain: undefined;
     Achievements: undefined;
@@ -227,6 +235,7 @@ export type AdminStackParamList = {
     AdminDrawer: undefined;
     AddEditPlayer: { playerId?: string };
     AddEditExercise: { exerciseId?: string };
+    ExercisePreview: { exerciseId: string };
     ExerciseStoreDetail: { exerciseId: string };
     AddYearGroup: undefined;
 };

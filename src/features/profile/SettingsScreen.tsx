@@ -25,9 +25,9 @@ export function SettingsScreen() {
     const { themeMode, setThemeMode } = useAppStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setShowLogoutDialog(false);
-        logout();
+        await logout();
     };
 
     const settingsItems = [

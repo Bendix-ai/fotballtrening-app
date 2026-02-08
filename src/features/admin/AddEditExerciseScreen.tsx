@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -14,7 +15,8 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Input, Dropdown, useToast } from '../../components';
-import { useAdminStore } from '../../stores';
+import { useAuthStore } from '../../stores';
+import { useExercise, useCreateExercise, useUpdateExercise } from '../../hooks/useExercises';
 import { AdminStackParamList, ExerciseCategory, Difficulty } from '../../types';
 
 type EditExerciseRoute = RouteProp<AdminStackParamList, 'AddEditExercise'>;
@@ -47,20 +49,36 @@ export function AddEditExerciseScreen() {
     const navigation = useNavigation();
     const route = useRoute<EditExerciseRoute>();
     const { showToast } = useToast();
-    const { clubExercises, addExercise, updateExercise } = useAdminStore();
+    const { user } = useAuthStore();
 
     const exerciseId = route.params?.exerciseId;
-    const existingExercise = exerciseId ? clubExercises.find((e) => e.id === exerciseId) : null;
-    const isEditing = !!existingExercise;
+    const { data: existingExercise, isLoading: loadingExercise } = useExercise(exerciseId ?? '');
+    const createExerciseMutation = useCreateExercise();
+    const updateExerciseMutation = useUpdateExercise();
+    const isEditing = !!exerciseId && !!existingExercise;
 
-    const [title, setTitle] = useState(existingExercise?.title ?? '');
-    const [description, setDescription] = useState(existingExercise?.description ?? '');
-    const [category, setCategory] = useState<string | null>(existingExercise?.category ?? null);
-    const [difficulty, setDifficulty] = useState<string | null>(existingExercise?.difficulty ?? null);
-    const [duration, setDuration] = useState(existingExercise ? String(existingExercise.duration_seconds) : '');
-    const [instructions, setInstructions] = useState(existingExercise?.instructions ?? '');
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [category, setCategory] = useState<string | null>(null);
+    const [difficulty, setDifficulty] = useState<string | null>(null);
+    const [duration, setDuration] = useState('');
+    const [instructions, setInstructions] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [formInitialized, setFormInitialized] = useState(false);
+
+    // Populate form when exercise data loads
+    React.useEffect(() => {
+        if (existingExercise && !formInitialized) {
+            setTitle(existingExercise.title);
+            setDescription(existingExercise.description);
+            setCategory(existingExercise.category);
+            setDifficulty(existingExercise.difficulty);
+            setDuration(String(existingExercise.duration_seconds));
+            setInstructions(existingExercise.instructions ?? '');
+            setFormInitialized(true);
+        }
+    }, [existingExercise, formInitialized]);
 
     const points = getPointsForDifficulty(difficulty as Difficulty | null);
 
@@ -93,37 +111,47 @@ export function AddEditExerciseScreen() {
         setIsLoading(true);
         setError('');
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+            const exerciseData = {
+                title: title.trim(),
+                description: description.trim(),
+                instructions: instructions.trim(),
+                category: category as ExerciseCategory,
+                difficulty: difficulty as Difficulty,
+                duration_seconds: parseInt(duration),
+                points,
+                image_url: null,
+                video_url: null,
+                is_public: false,
+                created_by_club_id: user?.club_id ?? '',
+                equipment: '',
+            };
 
-        const exerciseData = {
-            title: title.trim(),
-            description: description.trim(),
-            instructions: instructions.trim(),
-            category: category as ExerciseCategory,
-            difficulty: difficulty as Difficulty,
-            duration_seconds: parseInt(duration),
-            points,
-            image_url: null,
-            video_url: null,
-            is_public: false,
-            created_by_club_id: '1',
-        };
+            if (isEditing && existingExercise) {
+                await updateExerciseMutation.mutateAsync({ id: existingExercise.id, updates: exerciseData });
+                showToast('Øvelse oppdatert', 'success');
+            } else {
+                await createExerciseMutation.mutateAsync(exerciseData);
+                showToast('Øvelse opprettet', 'success');
+            }
 
-        if (isEditing && existingExercise) {
-            updateExercise(existingExercise.id, exerciseData);
-            showToast('Øvelse oppdatert', 'success');
-        } else {
-            addExercise({
-                id: `ex${Date.now()}`,
-                ...exerciseData,
-                created_at: new Date().toISOString(),
-            });
-            showToast('Øvelse opprettet', 'success');
+            navigation.goBack();
+        } catch (err: any) {
+            setError(err?.message || 'Kunne ikke lagre øvelsen');
         }
 
         setIsLoading(false);
-        navigation.goBack();
     };
+
+    if (exerciseId && loadingExercise) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -230,6 +258,11 @@ export function AddEditExerciseScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         flexDirection: 'row',

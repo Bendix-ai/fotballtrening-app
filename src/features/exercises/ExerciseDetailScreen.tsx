@@ -14,8 +14,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Badge, Button } from '../../components';
 import { ExercisesStackParamList, Exercise } from '../../types';
-import { mockExercises } from '../../data/mockData';
-import { useExerciseStore } from '../../stores';
+import { useExercise, useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
 
 type DetailRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseDetail'>;
 type DetailNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseDetail'>;
@@ -37,9 +36,17 @@ export function ExerciseDetailScreen() {
     const route = useRoute<DetailRouteProp>();
     const { exerciseId } = route.params;
 
-    const { toggleFavorite, isFavorite } = useExerciseStore();
-    const exercise = mockExercises.find((e) => e.id === exerciseId);
-    const favorited = exercise ? isFavorite(exercise.id) : false;
+    const { data: exercise } = useExercise(exerciseId);
+    const { data: allExercises = [] } = useExercises();
+    const { data: favoriteIds = [] } = useFavorites();
+    const toggleFavoriteMutation = useToggleFavorite();
+    const favorited = exercise ? favoriteIds.includes(exercise.id) : false;
+
+    const handleToggleFavorite = () => {
+        if (exercise) {
+            toggleFavoriteMutation.mutate({ exerciseId: exercise.id, isFavorite: favorited });
+        }
+    };
 
     if (!exercise) {
         return (
@@ -59,7 +66,7 @@ export function ExerciseDetailScreen() {
 
     const instructions = exercise.instructions.split('. ').filter(Boolean);
 
-    const relatedExercises = mockExercises
+    const relatedExercises = allExercises
         .filter((e) => e.category === exercise.category && e.id !== exercise.id)
         .slice(0, 3);
 
@@ -79,7 +86,7 @@ export function ExerciseDetailScreen() {
 
                 {/* Favorite button */}
                 <TouchableOpacity
-                    onPress={() => toggleFavorite(exercise.id)}
+                    onPress={handleToggleFavorite}
                     style={styles.favoriteButton}
                 >
                     <MaterialIcons
@@ -114,6 +121,16 @@ export function ExerciseDetailScreen() {
                         <Badge variant="points" label={`+${exercise.points} ${t('exercises.points')}`} />
                     </View>
                 </View>
+
+                {/* Equipment */}
+                {exercise.equipment ? (
+                    <View style={styles.equipmentRow}>
+                        <MaterialIcons name="sports-soccer" size={16} color={colors.textSecondary} />
+                        <Text style={[styles.equipmentText, { color: colors.textSecondary }]}>
+                            Utstyr: {exercise.equipment}
+                        </Text>
+                    </View>
+                ) : null}
 
                 {/* Description */}
                 <Card style={styles.descriptionCard}>
@@ -256,6 +273,16 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     metaText: {
+        fontSize: 14,
+    },
+    equipmentRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 20,
+        marginTop: 16,
+    },
+    equipmentText: {
         fontSize: 14,
     },
     descriptionCard: {

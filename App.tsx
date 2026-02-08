@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme } from './src/lib/theme';
@@ -19,17 +20,10 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { isDark } = useTheme();
-  const { setLoading } = useAuthStore();
+  const { initialize } = useAuthStore();
 
   useEffect(() => {
-    // Simulate checking for existing session
-    const checkAuth = async () => {
-      // In production, this would check Supabase session
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setLoading(false);
-    };
-
-    checkAuth();
+    initialize();
   }, []);
 
   return (
@@ -42,14 +36,16 @@ function AppContent() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <ToastProvider>
-            <AppContent />
-          </ToastProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <AppContent />
+            </ToastProvider>
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

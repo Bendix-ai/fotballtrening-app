@@ -18,21 +18,22 @@ interface DrawerItem {
     name: string;
     label: string;
     icon: keyof typeof MaterialIcons.glyphMap;
+    showFor: 'all' | 'club_admin';
 }
 
 const drawerItems: DrawerItem[] = [
-    { name: 'Dashboard', label: 'admin.dashboard', icon: 'dashboard' },
-    { name: 'Players', label: 'admin.players', icon: 'people' },
-    { name: 'ClubStructure', label: 'admin.clubStructure', icon: 'account-tree' },
-    { name: 'Exercises', label: 'admin.exercises', icon: 'fitness-center' },
-    { name: 'ExerciseStore', label: 'admin.exerciseStore', icon: 'store' },
-    { name: 'Reports', label: 'admin.reports', icon: 'bar-chart' },
-    { name: 'AdminSettings', label: 'admin.adminSettings', icon: 'settings' },
+    { name: 'Dashboard', label: 'admin.dashboard', icon: 'dashboard', showFor: 'all' },
+    { name: 'Players', label: 'admin.players', icon: 'people', showFor: 'all' },
+    { name: 'ClubStructure', label: 'admin.clubStructure', icon: 'account-tree', showFor: 'club_admin' },
+    { name: 'Exercises', label: 'admin.exercises', icon: 'fitness-center', showFor: 'all' },
+    { name: 'ExerciseStore', label: 'admin.exerciseStore', icon: 'store', showFor: 'all' },
+    { name: 'Reports', label: 'admin.reports', icon: 'bar-chart', showFor: 'all' },
+    { name: 'AdminSettings', label: 'admin.adminSettings', icon: 'settings', showFor: 'all' },
 ];
 
 export function AdminDrawerContent(props: DrawerContentComponentProps) {
     const { colors } = useTheme();
-    const { user, logout } = useAuthStore();
+    const { user, club, isClubAdmin, logout } = useAuthStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     const activeRoute = props.state.routes[props.state.index]?.name;
@@ -41,6 +42,15 @@ export function AdminDrawerContent(props: DrawerContentComponentProps) {
         setShowLogoutDialog(false);
         logout();
     };
+
+    const adminType = user?.admin_type;
+    const roleLabel = adminType === 'club_admin'
+        ? t('admin.clubAdministrator')
+        : t('admin.teamCoach');
+
+    const visibleItems = drawerItems.filter(item =>
+        item.showFor === 'all' || (item.showFor === 'club_admin' && isClubAdmin())
+    );
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.card }]}>
@@ -55,16 +65,16 @@ export function AdminDrawerContent(props: DrawerContentComponentProps) {
                     {user?.display_name || 'Admin'}
                 </Text>
                 <Text style={[styles.role, { color: colors.textSecondary }]}>
-                    Administrator
+                    {roleLabel}
                 </Text>
                 <Text style={[styles.club, { color: colors.textTertiary }]}>
-                    Våganes IL
+                    {club?.name || ''}
                 </Text>
             </View>
 
             {/* Menu Items */}
             <ScrollView style={styles.menuList}>
-                {drawerItems.map((item) => {
+                {visibleItems.map((item) => {
                     const isActive = activeRoute === item.name;
                     return (
                         <TouchableOpacity

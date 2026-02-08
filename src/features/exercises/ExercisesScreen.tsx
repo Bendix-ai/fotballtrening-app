@@ -16,8 +16,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
-import { mockExercises } from '../../data/mockData';
-import { useExerciseStore } from '../../stores';
+import { useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
 
 type ExercisesNavProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExercisesList'>;
 
@@ -52,14 +51,21 @@ export function ExercisesScreen() {
     const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
-    const { toggleFavorite, isFavorite } = useExerciseStore();
+    const { data: allExercises = [], refetch } = useExercises();
+    const { data: favoriteIds = [] } = useFavorites();
+    const toggleFavoriteMutation = useToggleFavorite();
+
+    const isFavorite = (id: string) => favoriteIds.includes(id);
+    const handleToggleFavorite = (id: string) => {
+        toggleFavoriteMutation.mutate({ exerciseId: id, isFavorite: isFavorite(id) });
+    };
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
+        refetch().finally(() => setRefreshing(false));
+    }, [refetch]);
 
-    const filteredExercises = mockExercises.filter((e) => {
+    const filteredExercises = allExercises.filter((e) => {
         const matchesCategory = selectedCategory === 'all' || e.category === selectedCategory;
         const matchesSearch = searchQuery.length === 0 ||
             e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -125,7 +131,7 @@ export function ExercisesScreen() {
                         <TouchableOpacity
                             onPress={(e) => {
                                 e.stopPropagation();
-                                toggleFavorite(item.id);
+                                handleToggleFavorite(item.id);
                             }}
                             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         >

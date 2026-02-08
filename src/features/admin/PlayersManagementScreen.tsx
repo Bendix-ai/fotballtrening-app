@@ -14,8 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, SearchBar, Card } from '../../components';
-import { useAdminStore } from '../../stores';
 import { AdminPlayer, AdminStackParamList, Gender } from '../../types';
+import { usePlayers } from '../../hooks/useAdmin';
 
 type PlayersNavProp = NativeStackNavigationProp<AdminStackParamList>;
 
@@ -30,16 +30,22 @@ const getGenderLabel = (g: Gender | null): string => {
 export function PlayersManagementScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<PlayersNavProp>();
-    const { getFilteredPlayers, playerYearFilter, playerGenderFilter, setPlayerYearFilter, setPlayerGenderFilter } = useAdminStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
+    const [playerYearFilter, setPlayerYearFilter] = useState<number | null>(null);
+    const [playerGenderFilter, setPlayerGenderFilter] = useState<Gender | null>(null);
+
+    const { data: allPlayersRaw = [], refetch } = usePlayers({
+        yearGroup: playerYearFilter,
+        gender: playerGenderFilter,
+    });
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
+        refetch().finally(() => setRefreshing(false));
+    }, [refetch]);
 
-    const allPlayers = getFilteredPlayers();
+    const allPlayers = allPlayersRaw;
     const filteredPlayers = searchQuery.length > 0
         ? allPlayers.filter(
               (p) =>
@@ -85,7 +91,7 @@ export function PlayersManagementScreen() {
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.players')} />
 
             <View style={styles.searchContainer}>

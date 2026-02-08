@@ -14,9 +14,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button } from '../../components';
 import { ExercisesStackParamList } from '../../types';
-import { mockExercises } from '../../data/mockData';
-import { useExerciseStore } from '../../stores/exerciseStore';
-import { useAuthStore } from '../../stores';
+import { useExercise, useCompleteExercise } from '../../hooks/useExercises';
 
 type CompleteRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseComplete'>;
 type CompleteNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseComplete'>;
@@ -26,10 +24,8 @@ export function ExerciseCompleteScreen() {
     const navigation = useNavigation<CompleteNavigationProp>();
     const route = useRoute<CompleteRouteProp>();
     const { exerciseId, pointsEarned } = route.params;
-    const { addCompletion } = useExerciseStore();
-    const { user } = useAuthStore();
-
-    const exercise = mockExercises.find((e) => e.id === exerciseId);
+    const { data: exercise } = useExercise(exerciseId);
+    const completeExercise = useCompleteExercise();
 
     const { width: screenWidth } = Dimensions.get('window');
 
@@ -52,13 +48,7 @@ export function ExerciseCompleteScreen() {
 
     useEffect(() => {
         // Record the completion
-        addCompletion({
-            id: `${Date.now()}`,
-            user_id: user?.id ?? 'unknown',
-            exercise_id: exerciseId,
-            points_earned: pointsEarned,
-            completed_at: new Date().toISOString(),
-        });
+        completeExercise.mutate({ exerciseId, pointsEarned });
 
         // Run entrance animation
         Animated.sequence([

@@ -13,18 +13,22 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, StreakCard } from '../../components';
-import { useAuthStore, useExerciseStore } from '../../stores';
+import { useAuthStore } from '../../stores';
 import { ProfileStackParamList, AchievementDefinition } from '../../types';
-import { mockAchievements, mockExercises, achievementDefinitions } from '../../data/mockData';
+import { achievementDefinitions } from '../../data/mockData';
 import { AchievementDetailModal } from './AchievementDetailModal';
+import { useCompletions, useExercises } from '../../hooks/useExercises';
+import { useAchievements } from '../../hooks/useAchievements';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
 export function ProfileScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<ProfileNavProp>();
-    const { user } = useAuthStore();
-    const { completions, totalPoints } = useExerciseStore();
+    const { user, club } = useAuthStore();
+    const { data: completions = [] } = useCompletions();
+    const { data: allExercises = [] } = useExercises();
+    const { data: achievements = [] } = useAchievements();
 
     const [selectedAchievement, setSelectedAchievement] = useState<AchievementDefinition | null>(null);
     const [selectedUnlocked, setSelectedUnlocked] = useState(false);
@@ -68,7 +72,7 @@ export function ProfileScreen() {
                             {displayName}
                         </Text>
                         <Text style={[styles.club, { color: colors.textSecondary }]}>
-                            {user?.club_id ? 'Våganes IL' : ''}
+                            {club?.name ?? ''}
                         </Text>
                     </View>
                 </Card>
@@ -77,7 +81,7 @@ export function ProfileScreen() {
                 <View style={styles.statsGrid}>
                     <Card style={styles.statCard}>
                         <Text style={[styles.statValue, { color: colors.primary }]}>
-                            {totalPoints + (user?.total_points ?? 0)}
+                            {user?.total_points ?? 0}
                         </Text>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
                             {t('profile.totalPoints')}
@@ -109,7 +113,7 @@ export function ProfileScreen() {
                             Aktivitetshistorikk
                         </Text>
                         {recentCompletions.map((completion) => {
-                            const exercise = mockExercises.find((e) => e.id === completion.exercise_id);
+                            const exercise = allExercises.find((e) => e.id === completion.exercise_id);
                             return (
                                 <Card key={completion.id} style={styles.activityCard}>
                                     <View style={styles.activityRow}>
@@ -143,7 +147,7 @@ export function ProfileScreen() {
                     </View>
 
                     <View style={styles.achievementsGrid}>
-                        {mockAchievements.map((achievement, index) => {
+                        {achievements.map((achievement, index) => {
                             const definition = achievementDefinitions[achievement.type];
                             return (
                                 <TouchableOpacity

@@ -15,8 +15,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, SearchBar, Card, Badge } from '../../components';
-import { useAdminStore } from '../../stores';
 import { AdminStackParamList, Exercise, ExerciseCategory } from '../../types';
+import { useExercises, useDeleteExercise } from '../../hooks/useExercises';
 
 type ExercisesNavProp = NativeStackNavigationProp<AdminStackParamList>;
 
@@ -40,16 +40,21 @@ const formatDuration = (seconds: number): string => {
 export function ExercisesManagementScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<ExercisesNavProp>();
-    const { getFilteredExercises, exerciseCategoryFilter, setExerciseCategoryFilter, deleteExercise } = useAdminStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
+    const [exerciseCategoryFilter, setExerciseCategoryFilter] = useState<ExerciseCategory | null>(null);
+
+    const { data: exercisesData = [], refetch } = useExercises();
+    const deleteExerciseMutation = useDeleteExercise();
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
+        refetch().finally(() => setRefreshing(false));
+    }, [refetch]);
 
-    const allExercises = getFilteredExercises();
+    const allExercises = exerciseCategoryFilter
+        ? exercisesData.filter(e => e.category === exerciseCategoryFilter)
+        : exercisesData;
     const filteredExercises = searchQuery.length > 0
         ? allExercises.filter(
               (e) =>
@@ -67,13 +72,14 @@ export function ExercisesManagementScreen() {
                 {
                     text: t('common.delete'),
                     style: 'destructive',
-                    onPress: () => deleteExercise(exercise.id),
+                    onPress: () => deleteExerciseMutation.mutate(exercise.id),
                 },
             ]
         );
     };
 
     const renderExercise = ({ item }: { item: Exercise }) => (
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExercisePreview', { exerciseId: item.id })}>
         <Card style={styles.exerciseCard}>
             <View style={styles.exerciseHeader}>
                 <Text style={[styles.exerciseTitle, { color: colors.text }]} numberOfLines={1}>
@@ -115,10 +121,11 @@ export function ExercisesManagementScreen() {
                 </TouchableOpacity>
             </View>
         </Card>
+        </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.exercises')} />
 
             <View style={styles.searchContainer}>

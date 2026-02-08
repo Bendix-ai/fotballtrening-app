@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { CompositeNavigationProp } from '@react-navigation/native';
@@ -9,9 +9,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, StreakCard } from '../../components';
-import { useAuthStore, useExerciseStore } from '../../stores';
+import { useAuthStore } from '../../stores';
 import { MainTabParamList, RootStackParamList } from '../../types';
-import { mockExercises } from '../../data/mockData';
+import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
 
 type HomeNavProp = CompositeNavigationProp<
     BottomTabNavigationProp<MainTabParamList, 'Home'>,
@@ -22,25 +22,35 @@ export function HomeScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<HomeNavProp>();
     const { user } = useAuthStore();
-    const exerciseStore = useExerciseStore();
 
-    const [refreshing, setRefreshing] = useState(false);
+    const { data: exercises = [], isLoading: exercisesLoading, refetch: refetchExercises } = useExercises();
+    const { data: todayCompletions = [], refetch: refetchToday } = useTodayCompletions();
 
     const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
+        refetchExercises();
+        refetchToday();
+    }, [refetchExercises, refetchToday]);
 
     const displayName = user?.display_name || 'Spiller';
-    const todayExercises = exerciseStore.getTodayExerciseCount();
-    const todayPoints = exerciseStore.getTodayPoints();
+    const todayExercises = todayCompletions.length;
+    const todayPoints = todayCompletions.reduce((sum, c) => sum + c.points_earned, 0);
 
     // Deterministic daily challenge based on date
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-    const dailyChallenge = mockExercises[dayOfYear % mockExercises.length];
+    const dailyChallenge = exercises.length > 0 ? exercises[dayOfYear % exercises.length] : null;
 
-    // Show the 3 most recent exercises from mock data as suggestions
-    const suggestedExercises = mockExercises.slice(0, 3);
+    // Show the 3 most recent exercises as suggestions
+    const suggestedExercises = exercises.slice(0, 3);
+
+    if (exercisesLoading) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -49,7 +59,7 @@ export function HomeScreen() {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                    <RefreshControl refreshing={false} onRefresh={onRefresh} tintColor={colors.primary} />
                 }
             >
                 {/* Header */}
@@ -102,36 +112,38 @@ export function HomeScreen() {
                 </View>
 
                 {/* Today's Challenge */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                        {t('home.todayChallenge')}
-                    </Text>
-                    <TouchableOpacity
-                        activeOpacity={0.7}
-                        onPress={() => navigation.navigate('ExercisesTab')}
-                    >
-                        <Card style={styles.challengeCard}>
-                            <View style={styles.challengeRow}>
-                                <View style={[styles.challengeIcon, { backgroundColor: colors.primaryLight }]}>
-                                    <MaterialIcons name="emoji-events" size={28} color={colors.primary} />
+                {dailyChallenge && (
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('home.todayChallenge')}
+                        </Text>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => navigation.navigate('ExercisesTab')}
+                        >
+                            <Card style={styles.challengeCard}>
+                                <View style={styles.challengeRow}>
+                                    <View style={[styles.challengeIcon, { backgroundColor: colors.primaryLight }]}>
+                                        <MaterialIcons name="emoji-events" size={28} color={colors.primary} />
+                                    </View>
+                                    <View style={styles.challengeInfo}>
+                                        <Text style={[styles.challengeTitle, { color: colors.text }]}>
+                                            {dailyChallenge.title}
+                                        </Text>
+                                        <Text style={[styles.challengeDesc, { color: colors.textSecondary }]} numberOfLines={1}>
+                                            {dailyChallenge.description}
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.challengePoints, { backgroundColor: colors.accent + '20' }]}>
+                                        <Text style={[styles.challengePointsText, { color: colors.accent }]}>
+                                            +{dailyChallenge.points}
+                                        </Text>
+                                    </View>
                                 </View>
-                                <View style={styles.challengeInfo}>
-                                    <Text style={[styles.challengeTitle, { color: colors.text }]}>
-                                        {dailyChallenge.title}
-                                    </Text>
-                                    <Text style={[styles.challengeDesc, { color: colors.textSecondary }]} numberOfLines={1}>
-                                        {dailyChallenge.description}
-                                    </Text>
-                                </View>
-                                <View style={[styles.challengePoints, { backgroundColor: colors.accent + '20' }]}>
-                                    <Text style={[styles.challengePointsText, { color: colors.accent }]}>
-                                        +{dailyChallenge.points}
-                                    </Text>
-                                </View>
-                            </View>
-                        </Card>
-                    </TouchableOpacity>
-                </View>
+                            </Card>
+                        </TouchableOpacity>
+                    </View>
+                )}
 
                 {/* Quick Start */}
                 <View style={styles.section}>
@@ -147,37 +159,39 @@ export function HomeScreen() {
                 </View>
 
                 {/* Recent Exercises */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            Nylige øvelser
-                        </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ExercisesTab')}>
-                            <Text style={[styles.viewAll, { color: colors.primary }]}>
-                                {t('home.viewAll')}
+                {suggestedExercises.length > 0 && (
+                    <View style={styles.section}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                Nylige øvelser
                             </Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('ExercisesTab')}>
+                                <Text style={[styles.viewAll, { color: colors.primary }]}>
+                                    {t('home.viewAll')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        {suggestedExercises.map((exercise) => (
+                            <Card key={exercise.id} style={styles.exerciseCard}>
+                                <View style={styles.exerciseRow}>
+                                    <View>
+                                        <Text style={[styles.exerciseTitle, { color: colors.text }]}>
+                                            {exercise.title}
+                                        </Text>
+                                        <Text style={[styles.exerciseCategory, { color: colors.textSecondary }]}>
+                                            {t(`exercises.${exercise.category}`)}
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.pointsBadge, { backgroundColor: colors.primaryLight }]}>
+                                        <Text style={[styles.pointsText, { color: colors.primary }]}>
+                                            +{exercise.points}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </Card>
+                        ))}
                     </View>
-                    {suggestedExercises.map((exercise) => (
-                        <Card key={exercise.id} style={styles.exerciseCard}>
-                            <View style={styles.exerciseRow}>
-                                <View>
-                                    <Text style={[styles.exerciseTitle, { color: colors.text }]}>
-                                        {exercise.title}
-                                    </Text>
-                                    <Text style={[styles.exerciseCategory, { color: colors.textSecondary }]}>
-                                        {t(`exercises.${exercise.category}`)}
-                                    </Text>
-                                </View>
-                                <View style={[styles.pointsBadge, { backgroundColor: colors.primaryLight }]}>
-                                    <Text style={[styles.pointsText, { color: colors.primary }]}>
-                                        +{exercise.points}
-                                    </Text>
-                                </View>
-                            </View>
-                        </Card>
-                    ))}
-                </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -186,6 +200,11 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     scrollView: {
         flex: 1,

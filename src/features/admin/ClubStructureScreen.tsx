@@ -8,13 +8,16 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card } from '../../components';
 import { AdminStackParamList, ClubYearGroup } from '../../types';
-import { mockClubStructure } from '../../data/mockData';
+import { useClubStructure } from '../../hooks/useClub';
+import { useAuthStore } from '../../stores';
 
 type ClubStructureNavProp = NativeStackNavigationProp<AdminStackParamList>;
 
 export function ClubStructureScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<ClubStructureNavProp>();
+    const { club } = useAuthStore();
+    const { data: clubStructure = [] } = useClubStructure();
 
     const renderYearGroup = (item: ClubYearGroup) => (
         <Card key={item.year} style={styles.yearCard}>
@@ -51,7 +54,7 @@ export function ClubStructureScreen() {
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.clubStructure')} />
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Club info card */}
@@ -62,10 +65,10 @@ export function ClubStructureScreen() {
                         </View>
                         <View style={styles.clubInfo}>
                             <Text style={[styles.clubName, { color: colors.text }]}>
-                                Våganes IL
+                                {club?.name ?? ''}
                             </Text>
                             <Text style={[styles.clubMeta, { color: colors.textSecondary }]}>
-                                {mockClubStructure.length} årganger
+                                {clubStructure.length} årganger
                             </Text>
                         </View>
                     </View>
@@ -76,7 +79,7 @@ export function ClubStructureScreen() {
                     Årganger
                 </Text>
 
-                {mockClubStructure.map(renderYearGroup)}
+                {clubStructure.map(renderYearGroup)}
             </ScrollView>
 
             {/* FAB */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -14,13 +14,16 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Input, Dropdown, useToast } from '../../components';
-import { useAdminStore } from '../../stores';
+import { useAuthStore, useAdminStore } from '../../stores';
+import { isSupabaseConfigured } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
+import * as authService from '../../services/authService';
+import * as clubService from '../../services/clubService';
 import { AdminStackParamList, Gender } from '../../types';
-import { mockYearGroups } from '../../data/mockData';
 
 type EditPlayerRoute = RouteProp<AdminStackParamList, 'AddEditPlayer'>;
 
-const genderOptions = [
+const staticGenderOptions = [
     { value: 'boys', label: 'Gutter' },
     { value: 'girls', label: 'Jenter' },
 ];
@@ -30,6 +33,7 @@ export function AddEditPlayerScreen() {
     const navigation = useNavigation();
     const route = useRoute<EditPlayerRoute>();
     const { showToast } = useToast();
+    const { user } = useAuthStore();
     const { players, addPlayer, updatePlayer } = useAdminStore();
 
     const playerId = route.params?.playerId;
@@ -48,6 +52,42 @@ export function AddEditPlayerScreen() {
     );
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Dynamic data from Supabase
+    const [yearGroups, setYearGroups] = useState<{ value: string; label: string }[]>([]);
+    const [teamMap, setTeamMap] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (user?.club_id) {
+            loadYearGroups(user.club_id);
+        }
+    }, [user?.club_id]);
+
+    useEffect(() => {
+        if (selectedYear) {
+            loadTeams(selectedYear);
+        }
+    }, [selectedYear]);
+
+    const loadYearGroups = async (clubId: string) => {
+        try {
+            const data = await clubService.getYearGroups(clubId);
+            setYearGroups(data);
+        } catch (err) {
+            console.error('Error loading year groups:', err);
+        }
+    };
+
+    const loadTeams = async (yearGroupId: string) => {
+        try {
+            const data = await clubService.getTeams(yearGroupId);
+            const map: Record<string, string> = {};
+            data.forEach(t => { map[t.value] = t.teamId; });
+            setTeamMap(map);
+        } catch (err) {
+            console.error('Error loading teams:', err);
+        }
+    };
 
     const handleSave = async () => {
         if (!name.trim()) {
@@ -82,34 +122,75 @@ export function AddEditPlayerScreen() {
         setIsLoading(true);
         setError('');
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+            if (isSupabaseConfigured()) {
+                const teamId = teamMap[selectedGender] ?? '';
+                const clubId = user?.club_id ?? '';
 
-        if (isEditing && existingPlayer) {
-            updatePlayer(existingPlayer.id, {
-                display_name: name.trim(),
-                username: username.trim(),
-                year_group: parseInt(selectedYear),
-                gender: selectedGender as Gender,
-            });
-            showToast('Spiller oppdatert', 'success');
-        } else {
-            addPlayer({
-                id: `p${Date.now()}`,
-                display_name: name.trim(),
-                username: username.trim(),
-                year_group: parseInt(selectedYear),
-                gender: selectedGender as Gender,
-                total_points: 0,
-                exercises_completed: 0,
-                current_streak: 0,
-                last_active: new Date().toISOString().split('T')[0],
-                is_active: true,
-            });
-            showToast('Spiller opprettet', 'success');
+                if (isEditing && existingPlayer) {
+                    // Update existing profile
+                    const { error: updateError } = await supabase
+                        .from('profiles')
+                        .update({
+                            display_name: name.trim(),
+                            username: username.trim(),
+                            team_id: teamId || undefined,
+                        })
+                        .eq('id', existingPlayer.id);
+
+                    if (updateError) throw updateError;
+                    showToast('Spiller oppdatert', 'success');
+                } else {
+                    // Create new player via Supabase Auth
+                    await authService.signUpPlayer(
+                        username.trim(),
+                        password,
+                        clubId,
+                        teamId,
+                        name.trim()
+                    );
+                    showToast('Spiller opprettet', 'success');
+                }
+            } else {
+                // Mock fallback
+                await new Promise((resolve) => setTimeout(resolve, 500));
+
+                if (isEditing && existingPlayer) {
+                    updatePlayer(existingPlayer.id, {
+                        display_name: name.trim(),
+                        username: username.trim(),
+                        year_group: parseInt(selectedYear),
+                        gender: selectedGender as Gender,
+                    });
+                    showToast('Spiller oppdatert', 'success');
+                } else {
+                    addPlayer({
+                        id: `p${Date.now()}`,
+                        display_name: name.trim(),
+                        username: username.trim(),
+                        year_group: parseInt(selectedYear),
+                        gender: selectedGender as Gender,
+                        total_points: 0,
+                        exercises_completed: 0,
+                        current_streak: 0,
+                        last_active: new Date().toISOString().split('T')[0],
+                        is_active: true,
+                    });
+                    showToast('Spiller opprettet', 'success');
+                }
+            }
+
+            navigation.goBack();
+        } catch (err: any) {
+            const message = err?.message || 'Noe gikk galt';
+            if (message.includes('already registered')) {
+                setError('Brukernavnet er allerede i bruk');
+            } else {
+                setError(message);
+            }
         }
 
         setIsLoading(false);
-        navigation.goBack();
     };
 
     return (
@@ -171,7 +252,7 @@ export function AddEditPlayerScreen() {
 
                         <Dropdown
                             label={t('admin.yearGroup')}
-                            options={mockYearGroups}
+                            options={yearGroups}
                             selectedValue={selectedYear}
                             onValueChange={(value) => { setSelectedYear(value); setError(''); }}
                             placeholder="Velg årgang..."
@@ -179,7 +260,7 @@ export function AddEditPlayerScreen() {
 
                         <Dropdown
                             label={t('admin.gender')}
-                            options={genderOptions}
+                            options={staticGenderOptions}
                             selectedValue={selectedGender}
                             onValueChange={(value) => { setSelectedGender(value); setError(''); }}
                             placeholder="Velg kjønn..."
