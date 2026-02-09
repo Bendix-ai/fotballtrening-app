@@ -303,6 +303,7 @@ export function LoginScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg klubb..."
+                                    testID="login-club-dropdown"
                                 />
 
                                 <Dropdown
@@ -314,6 +315,7 @@ export function LoginScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg argang..."
+                                    testID="login-year-dropdown"
                                 />
 
                                 <Dropdown
@@ -326,6 +328,7 @@ export function LoginScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg kjonn..."
+                                    testID="login-gender-dropdown"
                                 />
                             </>
                         )}
@@ -341,6 +344,7 @@ export function LoginScreen() {
                             autoCapitalize="none"
                             autoCorrect={false}
                             keyboardType={isAdminLogin ? 'email-address' : 'default'}
+                            testID="login-username"
                         />
 
                         <Input
@@ -352,6 +356,7 @@ export function LoginScreen() {
                             }}
                             placeholder="Passord"
                             secureTextEntry
+                            testID="login-password"
                         />
 
                         {error ? (
@@ -367,6 +372,7 @@ export function LoginScreen() {
                             fullWidth
                             size="large"
                             style={styles.loginButton}
+                            testID="login-button"
                         />
 
                         <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>

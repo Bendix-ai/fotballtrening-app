@@ -24,6 +24,7 @@ interface DropdownProps {
     placeholder?: string;
     error?: string;
     containerStyle?: ViewStyle;
+    testID?: string;
 }
 
 export function Dropdown({
@@ -34,6 +35,7 @@ export function Dropdown({
     placeholder = 'Velg...',
     error,
     containerStyle,
+    testID,
 }: DropdownProps) {
     const { colors } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
@@ -57,6 +59,7 @@ export function Dropdown({
                     },
                 ]}
                 activeOpacity={0.7}
+                testID={testID}
             >
                 <Text
                     style={[

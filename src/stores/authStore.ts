@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User, Club, Team } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import * as authService from '../services/authService';
+import { setUserId, logLogin, logLogout } from '../lib/analytics';
 
 interface AuthState {
     user: User | null;
@@ -84,6 +85,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                         isAuthenticated: true,
                         isLoading: false,
                     });
+                    setUserId(profile.user.id);
+                    logLogin(profile.user.role === 'admin' ? 'admin' : 'player');
                     return;
                 }
             }
@@ -141,6 +144,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (error) {
             console.error('Logout error:', error);
         }
+        logLogout();
         set({
             user: null,
             club: null,

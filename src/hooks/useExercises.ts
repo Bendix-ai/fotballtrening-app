@@ -3,6 +3,7 @@ import { queryKeys } from '../lib/queryKeys';
 import * as exerciseService from '../services/exerciseService';
 import { useAuthStore } from '../stores';
 import { Exercise } from '../types';
+import { logExerciseComplete } from '../lib/analytics';
 
 export function useExercises(clubId?: string) {
     const { user } = useAuthStore();
@@ -28,7 +29,8 @@ export function useCompleteExercise() {
     return useMutation({
         mutationFn: ({ exerciseId, pointsEarned }: { exerciseId: string; pointsEarned: number }) =>
             exerciseService.completeExercise(user?.id ?? '', exerciseId, pointsEarned),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
+            logExerciseComplete(variables.exerciseId, variables.pointsEarned);
             if (user) {
                 queryClient.invalidateQueries({ queryKey: queryKeys.exercises.todayCompletions(user.id) });
                 queryClient.invalidateQueries({ queryKey: queryKeys.exercises.completions(user.id) });

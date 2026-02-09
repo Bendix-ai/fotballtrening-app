@@ -1,0 +1,64 @@
+appId: com.fotballtrening.app
+name: "Admin Add Player Flow"
+---
+# Prerequisite: User must be logged in as admin
+# Verify admin dashboard loaded
+- assertVisible:
+    text: "Dashboard"
+    timeout: 5000
+
+# Navigate to Players management via drawer
+- tapOn:
+    id: "drawer-players"
+
+# Verify players list loaded
+- assertVisible:
+    text: "Spillere"
+    timeout: 5000
+
+# Tap add player button (FAB)
+- tapOn:
+    id: "add-player-fab"
+
+# Verify add player form loaded
+- assertVisible:
+    text: ".*spiller.*"
+    timeout: 3000
+
+# Fill in player details
+- tapOn:
+    id: "player-name-input"
+- inputText: "Test Spiller E2E"
+
+- tapOn:
+    id: "player-username-input"
+- inputText: "e2etester"
+
+- tapOn:
+    id: "player-password-input"
+- inputText: "Test1234!"
+
+# Select year group if dropdown exists
+- tapOn:
+    id: "player-year-dropdown"
+    optional: true
+- tapOn:
+    text: "2015"
+    optional: true
+
+# Select gender if dropdown exists
+- tapOn:
+    id: "player-gender-dropdown"
+    optional: true
+- tapOn:
+    text: "Gutter"
+    optional: true
+
+# Save player
+- tapOn:
+    id: "save-player-button"
+
+# Verify success (back on players list with new player visible)
+- assertVisible:
+    text: "Test Spiller E2E"
+    timeout: 5000

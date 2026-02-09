@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "fotballtrening-app",
+    "name": "FotballTrening",
     "slug": "fotballtrening-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bendixen.fotballtrening",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +33,11 @@
     "plugins": [
       "expo-secure-store",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d5bdb949-01bc-48fb-9b3d-5ca0885c3f76"
+      }
+    }
   }
 }

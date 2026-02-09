@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -6,6 +6,7 @@ import {
     FlatList,
     TouchableOpacity,
     RefreshControl,
+    Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -35,16 +36,46 @@ const getRankColor = (rank: number, colors: any): string => {
     }
 };
 
-// Podium component for top 3
+// Podium component for top 3 with staggered entrance animation
 function Podium({ top3, colors }: { top3: LeaderboardEntry[]; colors: any }) {
     const [second, first, third] = [top3[1], top3[0], top3[2]];
     if (!first) return null;
 
-    const renderPodiumItem = (entry: LeaderboardEntry | undefined, height: number, rank: number) => {
+    // Staggered animations: first (center) appears first, then second, then third
+    const anims = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
+
+    useEffect(() => {
+        const stagger = [200, 0, 400]; // center first, left second, right third
+        anims.forEach((anim, i) => {
+            Animated.timing(anim, {
+                toValue: 1,
+                duration: 500,
+                delay: stagger[i],
+                useNativeDriver: true,
+            }).start();
+        });
+    }, []);
+
+    const renderPodiumItem = (entry: LeaderboardEntry | undefined, height: number, rank: number, animIndex: number) => {
         if (!entry) return <View style={{ flex: 1 }} />;
         const color = getRankColor(rank, colors);
+        const anim = anims[animIndex];
         return (
-            <View style={[styles.podiumItem, { flex: 1 }]}>
+            <Animated.View
+                style={[
+                    styles.podiumItem,
+                    { flex: 1 },
+                    {
+                        opacity: anim,
+                        transform: [{
+                            translateY: anim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [30, 0],
+                            }),
+                        }],
+                    },
+                ]}
+            >
                 <View style={[styles.podiumAvatar, { backgroundColor: color }]}>
                     <Text style={styles.podiumAvatarText}>
                         {entry.display_name.charAt(0).toUpperCase()}
@@ -60,15 +91,15 @@ function Podium({ top3, colors }: { top3: LeaderboardEntry[]; colors: any }) {
                     <MaterialIcons name="emoji-events" size={24} color={color} />
                     <Text style={[styles.podiumRank, { color }]}>{rank}</Text>
                 </View>
-            </View>
+            </Animated.View>
         );
     };
 
     return (
         <View style={styles.podiumContainer}>
-            {renderPodiumItem(second, 80, 2)}
-            {renderPodiumItem(first, 110, 1)}
-            {renderPodiumItem(third, 60, 3)}
+            {renderPodiumItem(second, 80, 2, 0)}
+            {renderPodiumItem(first, 110, 1, 1)}
+            {renderPodiumItem(third, 60, 3, 2)}
         </View>
     );
 }

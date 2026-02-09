@@ -5,8 +5,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme } from './src/lib/theme';
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { ToastProvider } from './src/components';
+import { ToastProvider, ErrorBoundary } from './src/components';
 import { useAuthStore } from './src/stores';
+import { initSentry, Sentry } from './src/lib/sentry';
+
+// Initialize Sentry for crash reporting
+initSentry();
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -34,14 +38,16 @@ function AppContent() {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <ThemeProvider>
             <ToastProvider>
-              <AppContent />
+              <ErrorBoundary>
+                <AppContent />
+              </ErrorBoundary>
             </ToastProvider>
           </ThemeProvider>
         </SafeAreaProvider>
@@ -49,3 +55,5 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(App);

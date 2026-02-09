@@ -11,3 +11,5 @@ export { ToastProvider, useToast } from './Toast';
 export { LoadingSkeleton, SkeletonCard } from './LoadingSkeleton';
 export { SearchBar } from './SearchBar';
 export { AdminHeader } from './AdminHeader';
+export { ErrorBoundary } from './ErrorBoundary';
+export { FAB } from './FAB';

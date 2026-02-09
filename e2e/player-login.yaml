@@ -1,0 +1,42 @@
+appId: com.fotballtrening.app
+name: "Player Login Flow"
+---
+# Verify we're on the login screen
+- assertVisible: "Spiller"
+- assertVisible: "Admin"
+
+# Ensure player tab is selected (default)
+- tapOn: "Spiller"
+
+# Select a club from dropdown
+- tapOn:
+    id: "login-club-dropdown"
+- tapOn: ".*FK.*"  # Tap first club matching FK pattern
+
+# Select year group
+- tapOn:
+    id: "login-year-dropdown"
+- tapOn: "2015"
+
+# Select gender
+- tapOn:
+    id: "login-gender-dropdown"
+- tapOn: "Gutter"
+
+# Enter credentials
+- tapOn:
+    id: "login-username"
+- inputText: "testspiller"
+
+- tapOn:
+    id: "login-password"
+- inputText: "Test1234!"
+
+# Tap login button
+- tapOn:
+    id: "login-button"
+
+# Verify we navigated to the home screen (bottom tab should be visible)
+- assertVisible:
+    id: "tab-home"
+    timeout: 5000

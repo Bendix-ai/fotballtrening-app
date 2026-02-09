@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../lib/queryKeys';
 import * as storeService from '../services/storeService';
 import { useAuthStore } from '../stores';
+import { logStoreDownload } from '../lib/analytics';
 
 export function useStoreExercises() {
     return useQuery({
@@ -32,7 +33,8 @@ export function useDownloadExercise() {
     return useMutation({
         mutationFn: (storeExerciseId: string) =>
             storeService.downloadToClub(storeExerciseId, user?.club_id ?? ''),
-        onSuccess: () => {
+        onSuccess: (_data, storeExerciseId) => {
+            logStoreDownload(storeExerciseId);
             if (user) {
                 queryClient.invalidateQueries({ queryKey: queryKeys.exercises.all(user.club_id) });
             }

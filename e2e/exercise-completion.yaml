@@ -1,0 +1,52 @@
+appId: com.fotballtrening.app
+name: "Exercise Completion Flow"
+---
+# Prerequisite: User must be logged in as a player
+# Navigate to exercises tab
+- tapOn:
+    id: "tab-exercises"
+
+# Wait for exercise list to load
+- assertVisible:
+    text: ".*"
+    timeout: 5000
+
+# Tap on first exercise card
+- tapOn:
+    index: 0
+    id: "exercise-card"
+
+# Verify exercise detail screen
+- assertVisible:
+    id: "exercise-start-button"
+
+# Start the exercise
+- tapOn:
+    id: "exercise-start-button"
+
+# Verify execution screen loaded (timer should be visible)
+- assertVisible:
+    id: "exercise-timer"
+    timeout: 3000
+
+# Wait for the exercise to complete (or fast-forward by pressing complete when available)
+# In test mode, exercises should have a short duration
+- waitForAnimationToEnd
+
+# When complete button appears, tap it
+- tapOn:
+    id: "exercise-complete-button"
+    timeout: 120000  # Max 2 min for exercise
+
+# Verify completion screen
+- assertVisible:
+    text: ".*poeng.*"
+    timeout: 5000
+
+# Go back to exercises list
+- tapOn:
+    id: "exercise-back-button"
+
+# Verify we're back on exercises list
+- assertVisible:
+    id: "tab-exercises"

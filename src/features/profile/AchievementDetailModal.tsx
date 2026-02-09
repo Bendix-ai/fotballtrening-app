@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -6,6 +6,7 @@ import {
     Modal,
     TouchableOpacity,
     TouchableWithoutFeedback,
+    Animated,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
@@ -26,6 +27,21 @@ export function AchievementDetailModal({
     onClose,
 }: AchievementDetailModalProps) {
     const { colors } = useTheme();
+    const scaleAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (visible && unlocked) {
+            scaleAnim.setValue(0);
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                useNativeDriver: true,
+                speed: 8,
+                bounciness: 12,
+            }).start();
+        } else {
+            scaleAnim.setValue(1);
+        }
+    }, [visible, unlocked]);
 
     if (!achievement) return null;
 
@@ -40,7 +56,7 @@ export function AchievementDetailModal({
                 <View style={styles.overlay}>
                     <TouchableWithoutFeedback>
                         <View style={[styles.modal, { backgroundColor: colors.card }]}>
-                            <View
+                            <Animated.View
                                 style={[
                                     styles.iconContainer,
                                     {
@@ -50,6 +66,7 @@ export function AchievementDetailModal({
                                         borderColor: unlocked
                                             ? colors.primary
                                             : colors.border,
+                                        transform: [{ scale: scaleAnim }],
                                     },
                                 ]}
                             >
@@ -58,7 +75,7 @@ export function AchievementDetailModal({
                                     size={40}
                                     color={unlocked ? colors.primary : colors.textTertiary}
                                 />
-                            </View>
+                            </Animated.View>
 
                             <Text style={[styles.title, { color: colors.text }]}>
                                 {achievement.title}

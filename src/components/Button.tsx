@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
     TouchableOpacity,
     Text,
@@ -6,6 +6,7 @@ import {
     StyleSheet,
     ViewStyle,
     TextStyle,
+    Animated,
 } from 'react-native';
 import { useTheme } from '../lib/theme';
 
@@ -20,6 +21,7 @@ interface ButtonProps {
     fullWidth?: boolean;
     style?: ViewStyle;
     textStyle?: TextStyle;
+    testID?: string;
 }
 
 export function Button({
@@ -33,8 +35,28 @@ export function Button({
     fullWidth = false,
     style,
     textStyle,
+    testID,
 }: ButtonProps) {
     const { colors, isDark } = useTheme();
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = useCallback(() => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.95,
+            useNativeDriver: true,
+            speed: 50,
+            bounciness: 4,
+        }).start();
+    }, [scaleAnim]);
+
+    const handlePressOut = useCallback(() => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 50,
+            bounciness: 4,
+        }).start();
+    }, [scaleAnim]);
 
     const getBackgroundColor = () => {
         if (disabled) return colors.border;
@@ -94,42 +116,47 @@ export function Button({
     };
 
     return (
-        <TouchableOpacity
-            onPress={onPress}
-            disabled={disabled || loading}
-            activeOpacity={0.7}
-            style={[
-                styles.button,
-                {
-                    backgroundColor: getBackgroundColor(),
-                    borderColor: getBorderColor(),
-                    ...getPadding(),
-                },
-                fullWidth && styles.fullWidth,
-                style,
-            ]}
-        >
-            {loading ? (
-                <ActivityIndicator color={getTextColor()} size="small" />
-            ) : (
-                <>
-                    {icon && <>{icon}</>}
-                    <Text
-                        style={[
-                            styles.text,
-                            {
-                                color: getTextColor(),
-                                fontSize: getFontSize(),
-                                marginLeft: icon ? 8 : 0,
-                            },
-                            textStyle,
-                        ]}
-                    >
-                        {title}
-                    </Text>
-                </>
-            )}
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <TouchableOpacity
+                onPress={onPress}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                disabled={disabled || loading}
+                activeOpacity={0.7}
+                testID={testID}
+                style={[
+                    styles.button,
+                    {
+                        backgroundColor: getBackgroundColor(),
+                        borderColor: getBorderColor(),
+                        ...getPadding(),
+                    },
+                    fullWidth && styles.fullWidth,
+                    style,
+                ]}
+            >
+                {loading ? (
+                    <ActivityIndicator color={getTextColor()} size="small" />
+                ) : (
+                    <>
+                        {icon && <>{icon}</>}
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: getTextColor(),
+                                    fontSize: getFontSize(),
+                                    marginLeft: icon ? 8 : 0,
+                                },
+                                textStyle,
+                            ]}
+                        >
+                            {title}
+                        </Text>
+                    </>
+                )}
+            </TouchableOpacity>
+        </Animated.View>
     );
 }
 

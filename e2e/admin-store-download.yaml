@@ -1,0 +1,37 @@
+appId: com.fotballtrening.app
+name: "Admin Store Download Flow"
+---
+# Prerequisite: User must be logged in as admin
+# Navigate to Exercise Store via drawer
+- tapOn:
+    id: "drawer-store"
+
+# Verify store screen loaded
+- assertVisible:
+    text: ".*Butikk.*"
+    timeout: 5000
+
+# Tap on first store exercise
+- tapOn:
+    index: 0
+    id: "store-exercise-card"
+
+# Verify store exercise detail screen
+- assertVisible:
+    id: "store-download-button"
+    timeout: 3000
+
+# Download exercise to club
+- tapOn:
+    id: "store-download-button"
+
+# Verify success toast or confirmation
+- assertVisible:
+    text: ".*lastet ned.*|.*lagt til.*"
+    timeout: 5000
+
+# Go back to store
+- tapOn:
+    id: "store-back-button"
+    optional: true
+- back
