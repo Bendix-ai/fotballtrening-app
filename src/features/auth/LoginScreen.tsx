@@ -269,6 +269,9 @@ export function LoginScreen() {
                                     borderColor: !isAdminLogin ? colors.primary : colors.border,
                                 },
                             ]}
+                            accessibilityRole="button"
+                            accessibilityLabel={t('auth.player')}
+                            accessibilityState={{ selected: !isAdminLogin }}
                         >
                             <Text style={[styles.toggleText, { color: !isAdminLogin ? '#ffffff' : colors.textSecondary }]}>
                                 Spiller
@@ -283,6 +286,9 @@ export function LoginScreen() {
                                     borderColor: isAdminLogin ? colors.primary : colors.border,
                                 },
                             ]}
+                            accessibilityRole="button"
+                            accessibilityLabel="Admin"
+                            accessibilityState={{ selected: isAdminLogin }}
                         >
                             <Text style={[styles.toggleText, { color: isAdminLogin ? '#ffffff' : colors.textSecondary }]}>
                                 Admin
@@ -375,7 +381,12 @@ export function LoginScreen() {
                             testID="login-button"
                         />
 
-                        <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>
+                        <TouchableOpacity
+                            onPress={handleForgotPassword}
+                            style={styles.forgotPassword}
+                            accessibilityRole="link"
+                            accessibilityLabel={t('auth.forgotPassword')}
+                        >
                             <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
                                 {t('auth.forgotPassword')}
                             </Text>
@@ -384,6 +395,8 @@ export function LoginScreen() {
                         <TouchableOpacity
                             onPress={() => navigation.navigate('Register')}
                             style={styles.registerLink}
+                            accessibilityRole="link"
+                            accessibilityLabel={t('auth.createAccountButton')}
                         >
                             <Text style={[styles.registerLinkText, { color: colors.textSecondary }]}>
                                 {t('auth.noAccount')}{' '}

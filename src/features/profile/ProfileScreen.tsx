@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     View,
     Text,
@@ -37,9 +37,12 @@ export function ProfileScreen() {
     const displayName = user?.display_name || 'Spiller';
 
     // Get recent completions for activity history
-    const recentCompletions = [...completions]
-        .sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
-        .slice(0, 5);
+    const recentCompletions = useMemo(
+        () => [...completions]
+            .sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
+            .slice(0, 5),
+        [completions]
+    );
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -53,7 +56,11 @@ export function ProfileScreen() {
                     <Text style={[styles.title, { color: colors.text }]}>
                         {t('profile.title')}
                     </Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Settings')}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('profile.settings')}
+                    >
                         <MaterialIcons name="settings" size={24} color={colors.textSecondary} />
                     </TouchableOpacity>
                 </View>
@@ -80,21 +87,25 @@ export function ProfileScreen() {
                 {/* Stats Grid */}
                 <View style={styles.statsGrid}>
                     <Card style={styles.statCard}>
-                        <Text style={[styles.statValue, { color: colors.primary }]}>
-                            {user?.total_points ?? 0}
-                        </Text>
-                        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                            {t('profile.totalPoints')}
-                        </Text>
+                        <View accessibilityLabel={`${user?.total_points ?? 0} ${t('profile.totalPoints')}`}>
+                            <Text style={[styles.statValue, { color: colors.primary }]}>
+                                {user?.total_points ?? 0}
+                            </Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                                {t('profile.totalPoints')}
+                            </Text>
+                        </View>
                     </Card>
 
                     <Card style={styles.statCard}>
-                        <Text style={[styles.statValue, { color: colors.accent }]}>
-                            {completions.length}
-                        </Text>
-                        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                            {t('profile.exercisesCompleted')}
-                        </Text>
+                        <View accessibilityLabel={`${completions.length} ${t('profile.exercisesCompleted')}`}>
+                            <Text style={[styles.statValue, { color: colors.accent }]}>
+                                {completions.length}
+                            </Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                                {t('profile.exercisesCompleted')}
+                            </Text>
+                        </View>
                     </Card>
                 </View>
 
@@ -169,6 +180,8 @@ export function ProfileScreen() {
                                             opacity: achievement.unlocked ? 1 : 0.5,
                                         },
                                     ]}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`${definition?.title ?? achievement.type}: ${achievement.unlocked ? t('achievements.unlocked') : t('achievements.locked')}`}
                                 >
                                     <MaterialIcons
                                         name={achievement.unlocked ? (definition?.icon as any ?? 'star') : 'lock'}

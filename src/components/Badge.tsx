@@ -55,6 +55,8 @@ export function Badge({
                 },
                 style,
             ]}
+            accessibilityRole="text"
+            accessibilityLabel={label}
         >
             <Text
                 style={[

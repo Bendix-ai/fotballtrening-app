@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -117,11 +117,11 @@ export function LeaderboardScreen() {
         refetch().finally(() => setRefreshing(false));
     }, [refetch]);
 
-    const top3 = leaderboardData.slice(0, 3);
-    const rest = leaderboardData.slice(3);
-    const currentUser = leaderboardData.find((e) => e.is_current_user);
+    const top3 = useMemo(() => leaderboardData.slice(0, 3), [leaderboardData]);
+    const rest = useMemo(() => leaderboardData.slice(3), [leaderboardData]);
+    const currentUser = useMemo(() => leaderboardData.find((e) => e.is_current_user), [leaderboardData]);
 
-    const renderLeaderboardEntry = ({ item }: { item: LeaderboardEntry }) => {
+    const renderLeaderboardEntry = useCallback(({ item }: { item: LeaderboardEntry }) => {
         const isCurrentUser = item.is_current_user;
 
         return (
@@ -133,6 +133,7 @@ export function LeaderboardScreen() {
                         borderColor: isCurrentUser ? colors.primary : colors.border,
                     },
                 ]}
+                accessibilityLabel={`${t('leaderboard.rank')} ${item.rank}, ${item.display_name}, ${item.total_points} ${t('leaderboard.points')}${isCurrentUser ? ` (${t('leaderboard.you')})` : ''}`}
             >
                 <View style={styles.rankContainer}>
                     <Text style={[styles.rankNumber, { color: colors.textSecondary }]}>
@@ -186,7 +187,7 @@ export function LeaderboardScreen() {
                 </View>
             </View>
         );
-    };
+    }, [colors]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -214,6 +215,9 @@ export function LeaderboardScreen() {
                                     : colors.border,
                             },
                         ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={t(`leaderboard.${scope.label}`)}
+                        accessibilityState={{ selected: selectedScope === scope.key }}
                     >
                         <Text
                             style={[
@@ -245,6 +249,9 @@ export function LeaderboardScreen() {
                                     : 'transparent',
                             },
                         ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={t(`leaderboard.${period.label}`)}
+                        accessibilityState={{ selected: selectedPeriod === period.key }}
                     >
                         <Text
                             style={[

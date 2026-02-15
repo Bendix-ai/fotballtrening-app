@@ -60,6 +60,10 @@ export function Dropdown({
                 ]}
                 activeOpacity={0.7}
                 testID={testID}
+                accessibilityRole="combobox"
+                accessibilityLabel={label || placeholder}
+                accessibilityHint={`Currently: ${selectedOption ? selectedOption.label : 'none selected'}`}
+                accessibilityState={{ expanded: isOpen }}
             >
                 <Text
                     style={[
@@ -112,6 +116,9 @@ export function Dropdown({
                                                     : 'transparent',
                                         },
                                     ]}
+                                    accessibilityRole="menuitem"
+                                    accessibilityLabel={item.label}
+                                    accessibilityState={{ selected: item.value === selectedValue }}
                                 >
                                     <Text
                                         style={[

@@ -21,9 +21,15 @@ export function SearchBar({ value, onChangeText, placeholder = 'Søk...' }: Sear
                 placeholderTextColor={colors.textTertiary}
                 value={value}
                 onChangeText={onChangeText}
+                accessibilityLabel={placeholder}
+                accessibilityRole="search"
             />
             {value.length > 0 && (
-                <TouchableOpacity onPress={() => onChangeText('')}>
+                <TouchableOpacity
+                    onPress={() => onChangeText('')}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear search"
+                >
                     <MaterialIcons name="close" size={20} color={colors.textTertiary} />
                 </TouchableOpacity>
             )}

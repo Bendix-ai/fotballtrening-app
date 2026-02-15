@@ -37,6 +37,16 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# test coverage
+coverage/
+
 # generated native folders
 /ios
 /android
+
+# EAS
+.easignore
+
+# Store credentials
+play-store-key.json
+*.keystore

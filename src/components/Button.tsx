@@ -124,6 +124,9 @@ export function Button({
                 disabled={disabled || loading}
                 activeOpacity={0.7}
                 testID={testID}
+                accessibilityRole="button"
+                accessibilityLabel={title}
+                accessibilityState={{ disabled: disabled || loading, busy: loading }}
                 style={[
                     styles.button,
                     {

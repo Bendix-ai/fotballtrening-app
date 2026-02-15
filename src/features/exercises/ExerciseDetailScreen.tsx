@@ -80,6 +80,8 @@ export function ExerciseDetailScreen() {
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common.back')}
                 >
                     <MaterialIcons name="arrow-back" size={24} color={colors.text} />
                 </TouchableOpacity>
@@ -88,6 +90,9 @@ export function ExerciseDetailScreen() {
                 <TouchableOpacity
                     onPress={handleToggleFavorite}
                     style={styles.favoriteButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={favorited ? 'Remove from favorites' : 'Add to favorites'}
+                    accessibilityState={{ selected: favorited }}
                 >
                     <MaterialIcons
                         name={favorited ? 'favorite' : 'favorite-border'}
@@ -174,6 +179,8 @@ export function ExerciseDetailScreen() {
                                     key={related.id}
                                     onPress={() => navigation.push('ExerciseDetail', { exerciseId: related.id })}
                                     activeOpacity={0.7}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`${related.title}, +${related.points} ${t('exercises.points')}`}
                                 >
                                     <Card style={styles.relatedCard}>
                                         <View style={[styles.relatedIcon, { backgroundColor: colors.primaryLight }]}>

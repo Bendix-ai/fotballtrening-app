@@ -57,6 +57,8 @@ export function Input({
                     ]}
                     placeholderTextColor={colors.textTertiary}
                     secureTextEntry={isPassword && !isPasswordVisible}
+                    accessibilityLabel={label || props.placeholder}
+                    accessibilityHint={error ? error : undefined}
                     {...props}
                 />
                 {isPassword && (
@@ -64,6 +66,8 @@ export function Input({
                         onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                         style={styles.toggleButton}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={isPasswordVisible ? 'Hide password' : 'Show password'}
                     >
                         <MaterialIcons
                             name={isPasswordVisible ? 'visibility-off' : 'visibility'}

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -33,14 +33,20 @@ export function HomeScreen() {
 
     const displayName = user?.display_name || 'Spiller';
     const todayExercises = todayCompletions.length;
-    const todayPoints = todayCompletions.reduce((sum, c) => sum + c.points_earned, 0);
+    const todayPoints = useMemo(
+        () => todayCompletions.reduce((sum, c) => sum + c.points_earned, 0),
+        [todayCompletions]
+    );
 
     // Deterministic daily challenge based on date
-    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-    const dailyChallenge = exercises.length > 0 ? exercises[dayOfYear % exercises.length] : null;
+    const dailyChallenge = useMemo(() => {
+        if (exercises.length === 0) return null;
+        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+        return exercises[dayOfYear % exercises.length];
+    }, [exercises]);
 
     // Show the 3 most recent exercises as suggestions
-    const suggestedExercises = exercises.slice(0, 3);
+    const suggestedExercises = useMemo(() => exercises.slice(0, 3), [exercises]);
 
     if (exercisesLoading) {
         return (
@@ -80,7 +86,7 @@ export function HomeScreen() {
                         {t('home.todayProgress')}
                     </Text>
                     <View style={styles.progressRow}>
-                        <View style={styles.progressItem}>
+                        <View style={styles.progressItem} accessibilityLabel={`${todayExercises} ${t('home.exercises')}`}>
                             <Text style={[styles.progressValue, { color: colors.primary }]}>
                                 {todayExercises}
                             </Text>
@@ -88,8 +94,8 @@ export function HomeScreen() {
                                 {t('home.exercises')}
                             </Text>
                         </View>
-                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                        <View style={styles.progressItem}>
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} accessibilityElementsHidden />
+                        <View style={styles.progressItem} accessibilityLabel={`${todayPoints} ${t('home.points')}`}>
                             <Text style={[styles.progressValue, { color: colors.accent }]}>
                                 {todayPoints}
                             </Text>
@@ -120,6 +126,8 @@ export function HomeScreen() {
                         <TouchableOpacity
                             activeOpacity={0.7}
                             onPress={() => navigation.navigate('ExercisesTab')}
+                            accessibilityRole="button"
+                            accessibilityLabel={`${t('home.todayChallenge')}: ${dailyChallenge.title}, +${dailyChallenge.points} ${t('home.points')}`}
                         >
                             <Card style={styles.challengeCard}>
                                 <View style={styles.challengeRow}>
@@ -165,7 +173,11 @@ export function HomeScreen() {
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>
                                 Nylige øvelser
                             </Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('ExercisesTab')}>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('ExercisesTab')}
+                                accessibilityRole="link"
+                                accessibilityLabel={t('home.viewAll')}
+                            >
                                 <Text style={[styles.viewAll, { color: colors.primary }]}>
                                     {t('home.viewAll')}
                                 </Text>

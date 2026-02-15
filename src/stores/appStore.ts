@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Language, setLanguage } from '../lib/i18n';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -8,6 +9,10 @@ interface AppState {
     // Theme
     themeMode: ThemeMode;
     setThemeMode: (mode: ThemeMode) => void;
+
+    // Language
+    language: Language;
+    setAppLanguage: (lang: Language) => void;
 
     // Onboarding
     hasCompletedOnboarding: boolean;
@@ -25,6 +30,13 @@ export const useAppStore = create<AppState>()(
             themeMode: 'system',
             setThemeMode: (themeMode) => set({ themeMode }),
 
+            // Language
+            language: 'no',
+            setAppLanguage: (language) => {
+                setLanguage(language);
+                set({ language });
+            },
+
             // Onboarding
             hasCompletedOnboarding: false,
             setOnboardingComplete: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
@@ -36,6 +48,12 @@ export const useAppStore = create<AppState>()(
         {
             name: 'fotballtrening-app-storage',
             storage: createJSONStorage(() => AsyncStorage),
+            onRehydrateStorage: () => (state) => {
+                // Sync i18n module with persisted language on app start
+                if (state?.language) {
+                    setLanguage(state.language);
+                }
+            },
         }
     )
 );

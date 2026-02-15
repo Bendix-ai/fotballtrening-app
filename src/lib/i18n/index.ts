@@ -1,17 +1,42 @@
 import no, { Translations } from './no';
+import en from './en';
 
-// For now, we only support Norwegian
-// This structure allows easy addition of more languages later
-const translations: Record<string, Translations> = {
+export type Language = 'no' | 'en';
+
+const translations: Record<Language, Translations> = {
     no,
+    en,
 };
 
-// Current language (Norwegian only for now)
-const currentLanguage = 'no';
+let currentLanguage: Language = 'no';
+
+/**
+ * Set the current language
+ */
+export function setLanguage(lang: Language): void {
+    currentLanguage = lang;
+}
+
+/**
+ * Get the current language
+ */
+export function getCurrentLanguage(): Language {
+    return currentLanguage;
+}
+
+/**
+ * Get all supported languages with display names
+ */
+export function getSupportedLanguages(): { code: Language; label: string }[] {
+    return [
+        { code: 'no', label: 'Norsk' },
+        { code: 'en', label: 'English' },
+    ];
+}
 
 /**
  * Get a translation by key path
- * Example: t('exercises.title') returns 'Øvelser'
+ * Example: t('exercises.title') returns 'Øvelser' (in Norwegian)
  */
 export function t(keyPath: string, params?: Record<string, string | number>): string {
     const keys = keyPath.split('.');
@@ -43,5 +68,5 @@ export function t(keyPath: string, params?: Record<string, string | number>): st
     return value;
 }
 
-export { no };
+export { no, en };
 export type { Translations };

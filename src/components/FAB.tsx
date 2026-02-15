@@ -42,6 +42,8 @@ export function FAB({
       onPress={onPress}
       activeOpacity={0.8}
       testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={icon === 'add' ? 'Add' : icon}
       style={[
         styles.fab,
         {

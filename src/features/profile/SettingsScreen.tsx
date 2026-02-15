@@ -11,7 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
-import { t } from '../../lib/i18n';
+import { t, getSupportedLanguages, Language } from '../../lib/i18n';
 import { Card, Button, ConfirmationDialog } from '../../components';
 import { useAuthStore, useAppStore } from '../../stores';
 import { ProfileStackParamList } from '../../types';
@@ -22,7 +22,7 @@ export function SettingsScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<SettingsNavProp>();
     const { logout } = useAuthStore();
-    const { themeMode, setThemeMode } = useAppStore();
+    const { themeMode, setThemeMode, language, setAppLanguage } = useAppStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     const handleLogout = async () => {
@@ -93,6 +93,9 @@ export function SettingsScreen() {
                                                 : colors.border,
                                         },
                                     ]}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={t(`settings.${mode}`)}
+                                    accessibilityState={{ selected: themeMode === mode }}
                                 >
                                     <Text
                                         style={[
@@ -105,6 +108,47 @@ export function SettingsScreen() {
                                         ]}
                                     >
                                         {t(`settings.${mode}`)}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </Card>
+                </View>
+
+                {/* Language setting */}
+                <View style={styles.section}>
+                    <Card>
+                        <Text style={[styles.settingLabel, { color: colors.text }]}>
+                            {language === 'no' ? 'Språk' : 'Language'}
+                        </Text>
+                        <View style={styles.themeButtons}>
+                            {getSupportedLanguages().map((lang) => (
+                                <TouchableOpacity
+                                    key={lang.code}
+                                    onPress={() => setAppLanguage(lang.code as Language)}
+                                    style={[
+                                        styles.themeButton,
+                                        {
+                                            backgroundColor: language === lang.code
+                                                ? colors.primary
+                                                : colors.surface,
+                                            borderColor: language === lang.code
+                                                ? colors.primary
+                                                : colors.border,
+                                        },
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.themeButtonText,
+                                            {
+                                                color: language === lang.code
+                                                    ? '#ffffff'
+                                                    : colors.textSecondary,
+                                            },
+                                        ]}
+                                    >
+                                        {lang.label}
                                     </Text>
                                 </TouchableOpacity>
                             ))}

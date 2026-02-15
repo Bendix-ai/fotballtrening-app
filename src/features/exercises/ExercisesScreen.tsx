@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
     View,
     Text,
@@ -55,23 +55,27 @@ export function ExercisesScreen() {
     const { data: favoriteIds = [] } = useFavorites();
     const toggleFavoriteMutation = useToggleFavorite();
 
-    const isFavorite = (id: string) => favoriteIds.includes(id);
-    const handleToggleFavorite = (id: string) => {
-        toggleFavoriteMutation.mutate({ exerciseId: id, isFavorite: isFavorite(id) });
-    };
+    const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+    const isFavorite = useCallback((id: string) => favoriteSet.has(id), [favoriteSet]);
+    const handleToggleFavorite = useCallback((id: string) => {
+        toggleFavoriteMutation.mutate({ exerciseId: id, isFavorite: favoriteSet.has(id) });
+    }, [toggleFavoriteMutation, favoriteSet]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         refetch().finally(() => setRefreshing(false));
     }, [refetch]);
 
-    const filteredExercises = allExercises.filter((e) => {
-        const matchesCategory = selectedCategory === 'all' || e.category === selectedCategory;
-        const matchesSearch = searchQuery.length === 0 ||
-            e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            e.description.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+    const filteredExercises = useMemo(() => {
+        const query = searchQuery.toLowerCase();
+        return allExercises.filter((e) => {
+            const matchesCategory = selectedCategory === 'all' || e.category === selectedCategory;
+            const matchesSearch = query.length === 0 ||
+                e.title.toLowerCase().includes(query) ||
+                e.description.toLowerCase().includes(query);
+            return matchesCategory && matchesSearch;
+        });
+    }, [allExercises, selectedCategory, searchQuery]);
 
     const formatDuration = (seconds: number) => {
         if (seconds < 60) return `${seconds} ${t('exercises.seconds')}`;
@@ -79,7 +83,7 @@ export function ExercisesScreen() {
         return `${minutes} ${t('exercises.minutes')}`;
     };
 
-    const renderExercise = ({ item }: { item: Exercise }) => (
+    const renderExercise = useCallback(({ item }: { item: Exercise }) => (
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })}>
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
@@ -151,7 +155,7 @@ export function ExercisesScreen() {
                 </View>
             </Card>
         </TouchableOpacity>
-    );
+    ), [colors, navigation, isFavorite, handleToggleFavorite]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -228,6 +232,9 @@ export function ExercisesScreen() {
                 renderItem={renderExercise}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                maxToRenderPerBatch={10}
+                windowSize={5}
+                removeClippedSubviews
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
                 }
