@@ -12,6 +12,8 @@ import { RootStackParamList, MainTabParamList } from '../types';
 // Screens
 import { LoginScreen } from '../features/auth/LoginScreen';
 import { RegisterScreen } from '../features/auth/RegisterScreen';
+import { ForgotPasswordScreen } from '../features/auth/ForgotPasswordScreen';
+import { ResetPasswordScreen } from '../features/auth/ResetPasswordScreen';
 import { OnboardingScreen } from '../features/onboarding/OnboardingScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { LeaderboardScreen } from '../features/leaderboard/LeaderboardScreen';
@@ -87,7 +89,7 @@ function MainTabs() {
 
 export function AppNavigator() {
     const { colors, isDark } = useTheme();
-    const { isAuthenticated, isLoading, user } = useAuthStore();
+    const { isAuthenticated, isLoading, user, isPasswordRecovery } = useAuthStore();
     const { hasCompletedOnboarding } = useAppStore();
 
     // Show loading state while checking auth
@@ -121,6 +123,8 @@ export function AppNavigator() {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 {!hasCompletedOnboarding ? (
                     <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                ) : isAuthenticated && isPasswordRecovery ? (
+                    <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
                 ) : isAuthenticated ? (
                     user?.role === 'admin' ? (
                         <Stack.Screen name="AdminMain" component={AdminStack} />
@@ -131,6 +135,7 @@ export function AppNavigator() {
                     <>
                         <Stack.Screen name="Login" component={LoginScreen} />
                         <Stack.Screen name="Register" component={RegisterScreen} />
+                        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                     </>
                 )}
             </Stack.Navigator>

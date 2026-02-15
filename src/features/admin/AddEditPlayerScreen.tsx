@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -89,6 +90,21 @@ export function AddEditPlayerScreen() {
         }
     };
 
+    const handleSaveWithConfirmation = () => {
+        if (isEditing && password.trim()) {
+            Alert.alert(
+                t('auth.adminResetPassword'),
+                t('auth.adminResetPasswordConfirm'),
+                [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    { text: t('common.yes'), onPress: () => handleSave() },
+                ]
+            );
+        } else {
+            handleSave();
+        }
+    };
+
     const handleSave = async () => {
         if (!name.trim()) {
             setError('Fyll inn spillernavn');
@@ -139,7 +155,14 @@ export function AddEditPlayerScreen() {
                         .eq('id', existingPlayer.id);
 
                     if (updateError) throw updateError;
-                    showToast('Spiller oppdatert', 'success');
+
+                    // If password was filled, reset the player's password
+                    if (password.trim()) {
+                        await authService.adminResetPlayerPassword(existingPlayer.id, password);
+                        showToast(t('auth.adminResetPasswordSuccess'), 'success');
+                    } else {
+                        showToast('Spiller oppdatert', 'success');
+                    }
                 } else {
                     // Create new player via Supabase Auth
                     await authService.signUpPlayer(
@@ -274,7 +297,7 @@ export function AddEditPlayerScreen() {
 
                         <Button
                             title={isEditing ? t('common.save') : t('admin.addPlayer')}
-                            onPress={handleSave}
+                            onPress={handleSaveWithConfirmation}
                             loading={isLoading}
                             fullWidth
                             size="large"

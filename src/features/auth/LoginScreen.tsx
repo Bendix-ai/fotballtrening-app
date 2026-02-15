@@ -223,7 +223,11 @@ export function LoginScreen() {
     };
 
     const handleForgotPassword = () => {
-        showToast('Kontakt treneren din for a fa nytt passord', 'info');
+        if (isAdminLogin) {
+            navigation.navigate('ForgotPassword');
+        } else {
+            showToast(t('auth.playerForgotPassword'), 'info');
+        }
     };
 
     if (loadingClubs) {

@@ -189,6 +189,8 @@ export type RootStackParamList = {
     ClubSelect: undefined;
     Login: undefined;
     Register: undefined;
+    ForgotPassword: undefined;
+    ResetPassword: undefined;
     MainTabs: undefined;
     AdminMain: undefined;
     Achievements: undefined;

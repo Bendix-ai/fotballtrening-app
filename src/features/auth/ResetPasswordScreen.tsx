@@ -3,42 +3,35 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card, Input, Button, useToast } from '../../components';
-import { isSupabaseConfigured } from '../../lib/supabase';
+import { Card, Button, Input, useToast } from '../../components';
+import { useAuthStore } from '../../stores';
 import * as authService from '../../services/authService';
 
-export function ChangePasswordScreen() {
+export function ResetPasswordScreen() {
     const { colors } = useTheme();
-    const navigation = useNavigation();
     const { showToast } = useToast();
+    const { clearPasswordRecovery, logout } = useAuthStore();
 
-    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleChangePassword = async () => {
-        if (!currentPassword.trim()) {
-            setError('Skriv inn nåværende passord');
-            return;
-        }
+    const handleResetPassword = async () => {
         if (newPassword.length < 6) {
-            setError('Nytt passord må være minst 6 tegn');
+            setError('Passord må være minst 6 tegn');
             return;
         }
         if (newPassword !== confirmPassword) {
-            setError('Passordene stemmer ikke overens');
+            setError(t('auth.passwordMismatch'));
             return;
         }
 
@@ -46,11 +39,10 @@ export function ChangePasswordScreen() {
         setError('');
 
         try {
-            if (isSupabaseConfigured()) {
-                await authService.updatePassword(newPassword);
-            }
+            await authService.updatePassword(newPassword);
             showToast(t('auth.passwordUpdated'), 'success');
-            navigation.goBack();
+            clearPasswordRecovery();
+            await logout();
         } catch (err: any) {
             setError(err?.message || 'Noe gikk galt');
         }
@@ -64,39 +56,35 @@ export function ChangePasswordScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-                    {/* Header */}
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-                        </TouchableOpacity>
+                        <MaterialIcons name="lock-reset" size={64} color={colors.primary} />
                         <Text style={[styles.title, { color: colors.text }]}>
-                            Endre passord
+                            {t('auth.resetPassword')}
                         </Text>
-                        <View style={{ width: 40 }} />
+                        <Text style={[styles.description, { color: colors.textSecondary }]}>
+                            {t('auth.resetPasswordDesc')}
+                        </Text>
                     </View>
 
                     <Card style={styles.formCard}>
                         <Input
-                            label="Nåværende passord"
-                            value={currentPassword}
-                            onChangeText={(text) => { setCurrentPassword(text); setError(''); }}
-                            secureTextEntry
-                            placeholder="Skriv inn nåværende passord"
-                        />
-                        <Input
-                            label="Nytt passord"
+                            label={t('auth.password')}
                             value={newPassword}
                             onChangeText={(text) => { setNewPassword(text); setError(''); }}
-                            secureTextEntry
                             placeholder="Minst 6 tegn"
+                            secureTextEntry
                         />
+
                         <Input
-                            label="Bekreft nytt passord"
+                            label={t('auth.confirmPassword')}
                             value={confirmPassword}
                             onChangeText={(text) => { setConfirmPassword(text); setError(''); }}
+                            placeholder="Bekreft passord"
                             secureTextEntry
-                            placeholder="Skriv inn passord på nytt"
                         />
 
                         {error ? (
@@ -106,12 +94,12 @@ export function ChangePasswordScreen() {
                         ) : null}
 
                         <Button
-                            title={t('common.save')}
-                            onPress={handleChangePassword}
+                            title={t('auth.resetPassword')}
+                            onPress={handleResetPassword}
                             loading={isLoading}
                             fullWidth
                             size="large"
-                            style={styles.saveButton}
+                            style={styles.button}
                         />
                     </Card>
                 </ScrollView>
@@ -125,34 +113,35 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 40,
+        flexGrow: 1,
+        paddingHorizontal: 24,
+        justifyContent: 'center',
+        paddingVertical: 24,
     },
     header: {
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-    backButton: {
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginBottom: 32,
     },
     title: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: '700',
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    description: {
+        fontSize: 15,
+        lineHeight: 22,
+        textAlign: 'center',
     },
     formCard: {
-        marginHorizontal: 20,
+        marginBottom: 24,
     },
     error: {
         fontSize: 14,
         textAlign: 'center',
         marginBottom: 12,
     },
-    saveButton: {
+    button: {
         marginTop: 8,
     },
 });

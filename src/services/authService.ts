@@ -122,6 +122,24 @@ export async function getSession() {
     return data.session;
 }
 
+export async function sendPasswordResetEmail(email: string): Promise<void> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+}
+
+export async function updatePassword(newPassword: string): Promise<void> {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+}
+
+export async function adminResetPlayerPassword(playerId: string, newPassword: string): Promise<void> {
+    const { error } = await supabase.rpc('reset_player_password', {
+        p_player_id: playerId,
+        p_new_password: newPassword,
+    });
+    if (error) throw error;
+}
+
 export interface ProfileWithRelations {
     user: User;
     club: Club | null;

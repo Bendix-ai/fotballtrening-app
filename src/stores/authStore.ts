@@ -11,6 +11,7 @@ interface AuthState {
     managedTeamIds: string[];
     isLoading: boolean;
     isAuthenticated: boolean;
+    isPasswordRecovery: boolean;
 
     // Derived helpers
     isClubAdmin: () => boolean;
@@ -23,6 +24,7 @@ interface AuthState {
     setTeam: (team: Team | null) => void;
     setManagedTeamIds: (ids: string[]) => void;
     setLoading: (loading: boolean) => void;
+    clearPasswordRecovery: () => void;
     initialize: () => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -34,6 +36,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     managedTeamIds: [],
     isLoading: true,
     isAuthenticated: false,
+    isPasswordRecovery: false,
 
     isClubAdmin: () => {
         const { user } = get();
@@ -66,11 +69,57 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     setLoading: (isLoading) => set({ isLoading }),
 
+    clearPasswordRecovery: () => set({ isPasswordRecovery: false }),
+
     initialize: async () => {
         if (!isSupabaseConfigured()) {
             set({ isLoading: false });
             return;
         }
+
+        // Listen for auth state changes — always register
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_OUT') {
+                set({
+                    user: null,
+                    club: null,
+                    team: null,
+                    managedTeamIds: [],
+                    isAuthenticated: false,
+                    isPasswordRecovery: false,
+                });
+            } else if (event === 'PASSWORD_RECOVERY' && session?.user) {
+                set({
+                    isAuthenticated: true,
+                    isPasswordRecovery: true,
+                });
+            } else if (event === 'SIGNED_IN' && session?.user) {
+                const profile = await authService.getProfile(session.user.id);
+                if (profile) {
+                    set({
+                        user: profile.user,
+                        club: profile.club,
+                        team: profile.team,
+                        managedTeamIds: profile.managedTeamIds,
+                        isAuthenticated: true,
+                    });
+                }
+            } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+                const { user: currentUser } = get();
+                if (!currentUser) {
+                    const profile = await authService.getProfile(session.user.id);
+                    if (profile) {
+                        set({
+                            user: profile.user,
+                            club: profile.club,
+                            team: profile.team,
+                            managedTeamIds: profile.managedTeamIds,
+                            isAuthenticated: true,
+                        });
+                    }
+                }
+            }
+        });
 
         try {
             const session = await authService.getSession();
@@ -95,45 +144,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
 
         set({ isLoading: false });
-
-        // Listen for auth state changes
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_OUT') {
-                set({
-                    user: null,
-                    club: null,
-                    team: null,
-                    managedTeamIds: [],
-                    isAuthenticated: false,
-                });
-            } else if (event === 'SIGNED_IN' && session?.user) {
-                const profile = await authService.getProfile(session.user.id);
-                if (profile) {
-                    set({
-                        user: profile.user,
-                        club: profile.club,
-                        team: profile.team,
-                        managedTeamIds: profile.managedTeamIds,
-                        isAuthenticated: true,
-                    });
-                }
-            } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-                // Re-fetch profile on token refresh to get latest data
-                const { user: currentUser } = get();
-                if (!currentUser) {
-                    const profile = await authService.getProfile(session.user.id);
-                    if (profile) {
-                        set({
-                            user: profile.user,
-                            club: profile.club,
-                            team: profile.team,
-                            managedTeamIds: profile.managedTeamIds,
-                            isAuthenticated: true,
-                        });
-                    }
-                }
-            }
-        });
     },
 
     logout: async () => {
@@ -151,6 +161,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             team: null,
             managedTeamIds: [],
             isAuthenticated: false,
+            isPasswordRecovery: false,
             isLoading: false,
         });
     },
