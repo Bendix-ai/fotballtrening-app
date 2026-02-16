@@ -1,12 +1,12 @@
-name: EAS Build
+name: Build & Submit to TestFlight
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build:
-    name: Build Preview
+  build-and-submit:
+    name: iOS Production Build + TestFlight
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +28,5 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build iOS preview
-        run: eas build --platform ios --profile preview --non-interactive
-
-      - name: Build Android preview
-        run: eas build --platform android --profile preview --non-interactive
+      - name: Build iOS production and submit to TestFlight
+        run: eas build --platform ios --profile production --non-interactive --auto-submit
