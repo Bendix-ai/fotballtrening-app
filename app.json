@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bendixen.fotballtrening",
-      "buildNumber": "1",
+      "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "FotballTrening trenger tilgang til kameraet for å ta profilbilde.",
@@ -51,6 +51,12 @@
       "eas": {
         "projectId": "d5bdb949-01bc-48fb-9b3d-5ca0885c3f76"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d5bdb949-01bc-48fb-9b3d-5ca0885c3f76"
     }
   }
 }

@@ -123,7 +123,9 @@ export async function getSession() {
 }
 
 export async function sendPasswordResetEmail(email: string): Promise<void> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'fotballtrening://reset-password',
+    });
     if (error) throw error;
 }
 
