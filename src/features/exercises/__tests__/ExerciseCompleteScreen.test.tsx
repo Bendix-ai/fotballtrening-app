@@ -109,6 +109,12 @@ jest.mock('../../../components', () => {
 describe('ExerciseCompleteScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.clearAllTimers();
+        jest.useRealTimers();
     });
 
     it('should render the congratulations heading', () => {

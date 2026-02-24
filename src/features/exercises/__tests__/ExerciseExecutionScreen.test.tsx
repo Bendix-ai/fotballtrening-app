@@ -101,9 +101,7 @@ describe('ExerciseExecutionScreen', () => {
 
     afterEach(() => {
         // Clear all pending timers and intervals before restoring real timers
-        act(() => {
-            jest.runOnlyPendingTimers();
-        });
+        jest.clearAllTimers();
         jest.useRealTimers();
     });
 
