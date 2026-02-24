@@ -16,4 +16,12 @@ module.exports = {
     enableGlobally: false,
   },
   forceExit: true,
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 60,
+      lines: 75,
+      statements: 75,
+    },
+  },
 };

@@ -141,6 +141,34 @@ describe('exerciseService', () => {
       expect(mockFrom).toHaveBeenCalledWith('favorites');
       expect(mockChain.insert).toHaveBeenCalledWith({ user_id: 'u1', exercise_id: 'e1' });
     });
+
+    it('should return false on delete error', async () => {
+      mockChain.delete.mockReturnValue(mockChain);
+      mockChain.eq
+        .mockReturnValueOnce(mockChain)
+        .mockResolvedValueOnce({ error: { message: 'delete failed' } });
+
+      const result = await exerciseService.toggleFavorite('u1', 'e1', true);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false on insert error', async () => {
+      mockChain.insert.mockResolvedValueOnce({ error: { message: 'insert failed' } });
+
+      const result = await exerciseService.toggleFavorite('u1', 'e1', false);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when not configured', async () => {
+      (isSupabaseConfigured as jest.Mock).mockReturnValue(false);
+
+      const result = await exerciseService.toggleFavorite('u1', 'e1', false);
+
+      expect(result).toBe(false);
+      expect(mockFrom).not.toHaveBeenCalled();
+    });
   });
 
   describe('createExercise', () => {

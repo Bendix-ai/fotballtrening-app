@@ -39,19 +39,15 @@ name: "Player Login Flow"
         id: "login-gender-dropdown"
     timeout: 15000
 
-# Select gender - open dropdown, tap option via coordinates, then dismiss
+# Select gender - open dropdown, tap option by testID
 - tapOn:
     id: "login-gender-dropdown"
 - extendedWaitUntil:
     visible:
         text: "Gutter"
     timeout: 10000
-# Tap "Gutter" option (first option in dropdown, ~52% from top)
 - tapOn:
-    point: "30%, 52%"
-# Dismiss dropdown overlay
-- tapOn:
-    point: "50%, 10%"
+    id: "login-gender-dropdown-option-boys"
 - waitForAnimationToEnd
 
 # Scroll input fields into view (two swipes to push dropdowns off-screen)
