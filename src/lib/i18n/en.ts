@@ -119,6 +119,9 @@ export const en: Translations = {
         dailyGoalProgress: '{current} of {target} exercises',
         dailyGoalComplete: 'Daily goal reached!',
         yourRank: "You're #{rank} in the club",
+        level: 'Level {level}',
+        pointsToNextLevel: '{points} points to next level',
+        maxLevel: 'Max level!',
     },
 
     // Exercises
@@ -156,6 +159,8 @@ export const en: Translations = {
         exitTitle: 'Exit exercise?',
         exitMessage: 'Are you sure you want to exit? Your progress will be lost.',
         exit: 'Exit',
+        halfway: 'Halfway there!',
+        almostThere: 'Almost there!',
     },
 
     // Leaderboard
@@ -214,6 +219,8 @@ export const en: Translations = {
         exercises_50_desc: 'Complete 50 exercises',
         all_categories: 'All-rounder',
         all_categories_desc: 'Try all exercise categories',
+        nextAchievement: 'Next achievement',
+        progressLabel: '{current}/{target}',
     },
 
     // Settings

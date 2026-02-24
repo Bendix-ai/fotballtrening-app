@@ -15,6 +15,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { LeaderboardEntry, LeaderboardPeriod, LeaderboardScope } from '../../types';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
+import { getLevelInfo } from '../../lib/levelUtils';
 
 const periods: { key: LeaderboardPeriod; label: string }[] = [
     { key: 'week', label: 'thisWeek' },
@@ -166,6 +167,17 @@ export function LeaderboardScreen() {
                         {isCurrentUser && ` (${t('leaderboard.you')})`}
                     </Text>
                     <View style={styles.statsRow}>
+                        {(() => {
+                            const lvl = getLevelInfo(item.total_points);
+                            return (
+                                <View style={styles.levelBadge}>
+                                    <MaterialIcons name={lvl.tierIcon as any} size={12} color={lvl.tierColor} />
+                                    <Text style={[styles.levelText, { color: lvl.tierColor }]}>
+                                        {lvl.level}
+                                    </Text>
+                                </View>
+                            );
+                        })()}
                         <Text style={[styles.stat, { color: colors.textSecondary }]}>
                             {item.exercises_completed} {t('home.exercises')}
                         </Text>
@@ -437,6 +449,15 @@ const styles = StyleSheet.create({
     },
     stat: {
         fontSize: 12,
+    },
+    levelBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    levelText: {
+        fontSize: 11,
+        fontWeight: '700',
     },
     streakContainer: {
         flexDirection: 'row',

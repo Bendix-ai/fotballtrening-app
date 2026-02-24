@@ -117,6 +117,9 @@ export const no = {
         dailyGoalProgress: '{current} av {target} øvelser',
         dailyGoalComplete: 'Dagens mål nådd!',
         yourRank: 'Du er #{rank} i klubben',
+        level: 'Nivå {level}',
+        pointsToNextLevel: '{points} poeng til neste nivå',
+        maxLevel: 'Maks nivå!',
     },
 
     // Exercises
@@ -154,6 +157,8 @@ export const no = {
         exitTitle: 'Avslutt øvelse?',
         exitMessage: 'Er du sikker på at du vil avslutte? Fremgangen din vil gå tapt.',
         exit: 'Avslutt',
+        halfway: 'Halvveis!',
+        almostThere: 'Nesten der!',
     },
 
     // Leaderboard
@@ -212,6 +217,8 @@ export const no = {
         exercises_50_desc: 'Fullfør 50 øvelser',
         all_categories: 'Allsidig',
         all_categories_desc: 'Prøv alle øvelseskategorier',
+        nextAchievement: 'Neste oppnåelse',
+        progressLabel: '{current}/{target}',
     },
 
     // Settings

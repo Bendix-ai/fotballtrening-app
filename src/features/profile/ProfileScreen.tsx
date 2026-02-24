@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
     View,
     Text,
@@ -14,7 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card, StreakCard, useToast } from '../../components';
+import { Card, StreakCard, ProgressBar, useToast } from '../../components';
 import { useAuthStore } from '../../stores';
 import { ProfileStackParamList, AchievementDefinition } from '../../types';
 import { achievementDefinitions } from '../../data/mockData';
@@ -22,6 +22,7 @@ import { AchievementDetailModal } from './AchievementDetailModal';
 import { useCompletions, useExercises } from '../../hooks/useExercises';
 import { useAchievements } from '../../hooks/useAchievements';
 import { useUploadAvatar } from '../../hooks/useProfile';
+import { getLevelInfo, getPointsToNextLevel } from '../../lib/levelUtils';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -41,6 +42,41 @@ export function ProfileScreen() {
     const [showAchievementModal, setShowAchievementModal] = useState(false);
 
     const displayName = user?.display_name || 'Spiller';
+
+    // Compute next achievement progress
+    const nextAchievement = useMemo(() => {
+        const locked = achievements.filter((a) => !a.unlocked);
+        if (locked.length === 0) return null;
+
+        const totalPoints = user?.total_points ?? 0;
+        const totalCompletions = completions.length;
+        const currentStreak = user?.current_streak ?? 0;
+
+        // Progress map: { current, target } for each achievement type
+        const progressMap: Record<string, { current: number; target: number }> = {
+            first_exercise: { current: Math.min(totalCompletions, 1), target: 1 },
+            streak_7: { current: Math.min(currentStreak, 7), target: 7 },
+            streak_30: { current: Math.min(currentStreak, 30), target: 30 },
+            points_100: { current: Math.min(totalPoints, 100), target: 100 },
+            points_500: { current: Math.min(totalPoints, 500), target: 500 },
+            points_1000: { current: Math.min(totalPoints, 1000), target: 1000 },
+            exercises_10: { current: Math.min(totalCompletions, 10), target: 10 },
+            exercises_50: { current: Math.min(totalCompletions, 50), target: 50 },
+            all_categories: { current: 0, target: 5 }, // Hard to calculate exactly
+        };
+
+        // Find the locked achievement with the highest progress percentage
+        let best: { type: string; current: number; target: number; progress: number } | null = null;
+        for (const a of locked) {
+            const p = progressMap[a.type];
+            if (!p) continue;
+            const progress = p.target > 0 ? p.current / p.target : 0;
+            if (!best || progress > best.progress) {
+                best = { type: a.type, current: p.current, target: p.target, progress };
+            }
+        }
+        return best;
+    }, [achievements, completions.length, user?.total_points, user?.current_streak]);
 
     const handleChangePhoto = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -122,6 +158,37 @@ export function ProfileScreen() {
                     </View>
                 </Card>
 
+                {/* Level Card */}
+                {(() => {
+                    const levelInfo = getLevelInfo(user?.total_points ?? 0);
+                    const pointsNeeded = getPointsToNextLevel(user?.total_points ?? 0);
+                    return (
+                        <Card style={styles.levelCard}>
+                            <View style={styles.levelRow}>
+                                <View style={[styles.levelIconContainer, { backgroundColor: levelInfo.tierColor + '20' }]}>
+                                    <MaterialIcons name={levelInfo.tierIcon as any} size={28} color={levelInfo.tierColor} />
+                                </View>
+                                <View style={styles.levelInfo}>
+                                    <Text style={[styles.levelTitle, { color: colors.text }]}>
+                                        {t('home.level', { level: String(levelInfo.level) })}
+                                    </Text>
+                                    <Text style={[styles.levelSubtext, { color: colors.textSecondary }]}>
+                                        {levelInfo.level >= 10
+                                            ? t('home.maxLevel')
+                                            : t('home.pointsToNextLevel', { points: String(pointsNeeded) })
+                                        }
+                                    </Text>
+                                </View>
+                            </View>
+                            {levelInfo.level < 10 && (
+                                <View style={styles.levelProgressContainer}>
+                                    <ProgressBar progress={levelInfo.progressToNext} color={levelInfo.tierColor} />
+                                </View>
+                            )}
+                        </Card>
+                    );
+                })()}
+
                 {/* Stats Grid */}
                 <View style={styles.statsGrid}>
                     <Card style={styles.statCard}>
@@ -186,6 +253,39 @@ export function ProfileScreen() {
                         })}
                     </View>
                 )}
+
+                {/* Next Achievement Preview */}
+                {nextAchievement && (() => {
+                    const def = achievementDefinitions[nextAchievement.type];
+                    return (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                {t('achievements.nextAchievement')}
+                            </Text>
+                            <Card style={styles.nextAchievementCard}>
+                                <View style={styles.nextAchievementRow}>
+                                    <View style={[styles.nextAchievementIcon, { backgroundColor: colors.accent + '18' }]}>
+                                        <MaterialIcons name={(def?.icon as any) ?? 'star'} size={24} color={colors.accent} />
+                                    </View>
+                                    <View style={styles.nextAchievementInfo}>
+                                        <Text style={[styles.nextAchievementTitle, { color: colors.text }]}>
+                                            {def?.title ?? nextAchievement.type}
+                                        </Text>
+                                        <Text style={[styles.nextAchievementDesc, { color: colors.textSecondary }]}>
+                                            {def?.description ?? ''}
+                                        </Text>
+                                    </View>
+                                    <Text style={[styles.nextAchievementProgress, { color: colors.accent }]}>
+                                        {nextAchievement.current}/{nextAchievement.target}
+                                    </Text>
+                                </View>
+                                <View style={styles.nextAchievementBarContainer}>
+                                    <ProgressBar progress={nextAchievement.progress} color={colors.accent} />
+                                </View>
+                            </Card>
+                        </View>
+                    );
+                })()}
 
                 {/* Achievements Preview */}
                 <View style={styles.section}>
@@ -311,6 +411,35 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 4,
     },
+    levelCard: {
+        marginBottom: 20,
+    },
+    levelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    levelIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    levelInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    levelTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    levelSubtext: {
+        fontSize: 13,
+        marginTop: 2,
+    },
+    levelProgressContainer: {
+        marginTop: 12,
+    },
     statsGrid: {
         flexDirection: 'row',
         gap: 12,
@@ -373,6 +502,40 @@ const styles = StyleSheet.create({
     activityPoints: {
         fontSize: 16,
         fontWeight: '700',
+    },
+    // Next Achievement
+    nextAchievementCard: {
+        marginBottom: 0,
+    },
+    nextAchievementRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    nextAchievementIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    nextAchievementInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    nextAchievementTitle: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    nextAchievementDesc: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+    nextAchievementProgress: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    nextAchievementBarContainer: {
+        marginTop: 10,
     },
     // Achievements
     achievementsGrid: {

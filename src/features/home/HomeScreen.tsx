@@ -14,6 +14,7 @@ import { MainTabParamList, RootStackParamList } from '../../types';
 import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
+import { getLevelInfo, getPointsToNextLevel } from '../../lib/levelUtils';
 
 type HomeNavProp = CompositeNavigationProp<
     BottomTabNavigationProp<MainTabParamList, 'Home'>,
@@ -160,6 +161,37 @@ export function HomeScreen() {
                         </Card>
                     </TouchableOpacity>
                 )}
+
+                {/* Level Card */}
+                {(() => {
+                    const levelInfo = getLevelInfo(user?.total_points ?? 0);
+                    const pointsNeeded = getPointsToNextLevel(user?.total_points ?? 0);
+                    return (
+                        <Card style={styles.levelCard}>
+                            <View style={styles.levelRow}>
+                                <View style={[styles.levelIconContainer, { backgroundColor: levelInfo.tierColor + '20' }]}>
+                                    <MaterialIcons name={levelInfo.tierIcon as any} size={24} color={levelInfo.tierColor} />
+                                </View>
+                                <View style={styles.levelInfo}>
+                                    <Text style={[styles.levelTitle, { color: colors.text }]}>
+                                        {t('home.level', { level: String(levelInfo.level) })}
+                                    </Text>
+                                    <Text style={[styles.levelSubtext, { color: colors.textSecondary }]}>
+                                        {levelInfo.level >= 10
+                                            ? t('home.maxLevel')
+                                            : t('home.pointsToNextLevel', { points: String(pointsNeeded) })
+                                        }
+                                    </Text>
+                                </View>
+                            </View>
+                            {levelInfo.level < 10 && (
+                                <View style={styles.levelProgressContainer}>
+                                    <ProgressBar progress={levelInfo.progressToNext} color={levelInfo.tierColor} />
+                                </View>
+                            )}
+                        </Card>
+                    );
+                })()}
 
                 {/* Streak Card */}
                 <View style={styles.section}>
@@ -361,6 +393,35 @@ const styles = StyleSheet.create({
     rankSubtext: {
         fontSize: 13,
         marginTop: 2,
+    },
+    levelCard: {
+        marginBottom: 20,
+    },
+    levelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    levelIconContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    levelInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    levelTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    levelSubtext: {
+        fontSize: 13,
+        marginTop: 2,
+    },
+    levelProgressContainer: {
+        marginTop: 10,
     },
     section: {
         marginBottom: 24,

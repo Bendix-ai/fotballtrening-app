@@ -17,7 +17,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
-import { useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
+import { useExercises, useFavorites, useToggleFavorite, useTodayCompletions } from '../../hooks/useExercises';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import * as Haptics from 'expo-haptics';
 
@@ -56,9 +56,14 @@ export function ExercisesScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const { data: allExercises = [], refetch } = useExercises();
     const { data: favoriteIds = [] } = useFavorites();
+    const { data: todayCompletions = [] } = useTodayCompletions();
     const toggleFavoriteMutation = useToggleFavorite();
 
     const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+    const completedTodaySet = useMemo(
+        () => new Set(todayCompletions.map((c) => c.exercise_id)),
+        [todayCompletions]
+    );
     const isFavorite = useCallback((id: string) => favoriteSet.has(id), [favoriteSet]);
     const favoriteScales = useRef<Record<string, Animated.Value>>({}).current;
 
@@ -106,13 +111,20 @@ export function ExercisesScreen() {
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
                     {/* Category icon */}
-                    <View
-                        style={[
-                            styles.imagePlaceholder,
-                            { backgroundColor: getCategoryColor(item.category) + '18' }
-                        ]}
-                    >
-                        <MaterialIcons name={getCategoryIcon(item.category)} size={28} color={getCategoryColor(item.category)} />
+                    <View style={styles.iconWrapper}>
+                        <View
+                            style={[
+                                styles.imagePlaceholder,
+                                { backgroundColor: getCategoryColor(item.category) + '18' }
+                            ]}
+                        >
+                            <MaterialIcons name={getCategoryIcon(item.category)} size={28} color={getCategoryColor(item.category)} />
+                        </View>
+                        {completedTodaySet.has(item.id) && (
+                            <View style={[styles.completedBadge, { backgroundColor: colors.success }]}>
+                                <MaterialIcons name="check" size={12} color="#ffffff" />
+                            </View>
+                        )}
                     </View>
 
                     <View style={styles.exerciseInfo}>
@@ -175,7 +187,7 @@ export function ExercisesScreen() {
                 </View>
             </Card>
         </TouchableOpacity>
-    ), [colors, navigation, isFavorite, handleToggleFavorite]);
+    ), [colors, navigation, isFavorite, handleToggleFavorite, completedTodaySet]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -322,12 +334,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    iconWrapper: {
+        position: 'relative',
+    },
     imagePlaceholder: {
         width: 60,
         height: 60,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    completedBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#ffffff',
     },
     exerciseInfo: {
         flex: 1,

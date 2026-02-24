@@ -4,6 +4,7 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
+    Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -30,7 +31,11 @@ export function ExerciseExecutionScreen() {
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [showExitDialog, setShowExitDialog] = useState(false);
+    const [motivationalMessage, setMotivationalMessage] = useState<string | null>(null);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const motivationalAnim = useRef(new Animated.Value(0)).current;
+    const shownHalfway = useRef(false);
+    const shownAlmost = useRef(false);
 
     const isComplete = elapsedSeconds >= totalDuration;
     const progress = Math.min(elapsedSeconds / totalDuration, 1);
@@ -100,6 +105,27 @@ export function ExerciseExecutionScreen() {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // Show motivational messages at milestones
+    useEffect(() => {
+        if (progress >= 0.5 && !shownHalfway.current) {
+            shownHalfway.current = true;
+            setMotivationalMessage(t('exercises.halfway'));
+            Animated.sequence([
+                Animated.timing(motivationalAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+                Animated.delay(2000),
+                Animated.timing(motivationalAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+            ]).start(() => setMotivationalMessage(null));
+        } else if (progress >= 0.9 && !shownAlmost.current) {
+            shownAlmost.current = true;
+            setMotivationalMessage(t('exercises.almostThere'));
+            Animated.sequence([
+                Animated.timing(motivationalAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+                Animated.delay(2000),
+                Animated.timing(motivationalAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+            ]).start(() => setMotivationalMessage(null));
+        }
+    }, [progress]);
+
     const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds);
 
     // Get current instruction step based on progress
@@ -138,6 +164,16 @@ export function ExerciseExecutionScreen() {
 
             {/* Main content */}
             <View style={styles.mainContent}>
+                {/* Motivational message */}
+                {motivationalMessage && (
+                    <Animated.View style={[
+                        styles.motivationalBanner,
+                        { backgroundColor: colors.primary, opacity: motivationalAnim, transform: [{ scale: motivationalAnim }] },
+                    ]}>
+                        <Text style={styles.motivationalText}>{motivationalMessage}</Text>
+                    </Animated.View>
+                )}
+
                 {/* Timer circle */}
                 <View testID="exercise-timer" style={[styles.timerCircle, { borderColor: isComplete ? colors.success : colors.primary }]}>
                     {isComplete ? (
@@ -243,6 +279,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 32,
+    },
+    motivationalBanner: {
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+        borderRadius: 20,
+        marginBottom: 20,
+    },
+    motivationalText: {
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: '700',
+        textAlign: 'center',
     },
     timerCircle: {
         width: 200,
