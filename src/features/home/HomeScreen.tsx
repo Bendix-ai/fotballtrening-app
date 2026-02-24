@@ -14,6 +14,9 @@ import { MainTabParamList, RootStackParamList } from '../../types';
 import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
 import { useAnnouncements } from '../../hooks/useAnnouncements';
+import { useActivePlan } from '../../hooks/useTrainingPlans';
+import { useActivityFeed } from '../../hooks/useActivityFeed';
+import { ActivityFeedItem } from '../../types';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import { getLevelInfo, getPointsToNextLevel } from '../../lib/levelUtils';
 
@@ -21,6 +24,48 @@ type HomeNavProp = CompositeNavigationProp<
     BottomTabNavigationProp<MainTabParamList, 'Home'>,
     NativeStackNavigationProp<RootStackParamList>
 >;
+
+function getActivityIcon(type: ActivityFeedItem['type']): string {
+    switch (type) {
+        case 'exercise_completed': return 'fitness-center';
+        case 'achievement_unlocked': return 'military-tech';
+        case 'streak_milestone': return 'local-fire-department';
+    }
+}
+
+function getActivityIconColor(type: ActivityFeedItem['type'], colors: { primary: string; accent: string; warning?: string }): string {
+    switch (type) {
+        case 'exercise_completed': return colors.primary;
+        case 'achievement_unlocked': return colors.accent;
+        case 'streak_milestone': return '#FF6B35';
+    }
+}
+
+function getActivityDescription(item: ActivityFeedItem): string {
+    switch (item.type) {
+        case 'exercise_completed':
+            return t('home.completedExercise', { name: item.display_name, exercise: item.title });
+        case 'achievement_unlocked':
+            return t('home.unlockedAchievement', { name: item.display_name, achievement: item.title });
+        case 'streak_milestone':
+            return t('home.reachedStreak', { name: item.display_name, days: item.title });
+    }
+}
+
+function getRelativeTime(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMinutes < 1) return 'Nå';
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    if (diffHours < 24) return `${diffHours}t`;
+    if (diffDays < 7) return `${diffDays}d`;
+    return date.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+}
 
 export function HomeScreen() {
     const { colors } = useTheme();
@@ -32,11 +77,15 @@ export function HomeScreen() {
     const { data: todayCompletions = [], refetch: refetchToday } = useTodayCompletions();
     const { data: leaderboardData = [] } = useLeaderboard('club');
     const { data: announcements = [] } = useAnnouncements();
+    const { data: activityFeed = [], refetch: refetchActivity } = useActivityFeed();
+    const { data: activePlanData, refetch: refetchPlan } = useActivePlan();
 
     const onRefresh = useCallback(() => {
         refetchExercises();
         refetchToday();
-    }, [refetchExercises, refetchToday]);
+        refetchActivity();
+        refetchPlan();
+    }, [refetchExercises, refetchToday, refetchActivity, refetchPlan]);
 
     const displayName = user?.display_name || 'Spiller';
     const todayExercises = todayCompletions.length;
@@ -62,6 +111,23 @@ export function HomeScreen() {
 
     // Latest 2 announcements for the home feed
     const latestAnnouncements = useMemo(() => announcements.slice(0, 2), [announcements]);
+
+    // Latest 5 activity feed items
+    const latestActivity = useMemo(() => activityFeed.slice(0, 5), [activityFeed]);
+
+    // Today's planned exercises from the training plan
+    const todayPlanExercises = useMemo(() => {
+        if (!activePlanData?.days || exercises.length === 0) return [];
+        const jsDay = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+        const planDay = jsDay === 0 ? 6 : jsDay - 1; // Convert to 0=Mon, 6=Sun
+        const todayPlan = activePlanData.days.find((d) => d.day_of_week === planDay);
+        if (!todayPlan) return [];
+        const exerciseMap: Record<string, typeof exercises[0]> = {};
+        for (const ex of exercises) exerciseMap[ex.id] = ex;
+        return todayPlan.exercise_ids
+            .map((id) => exerciseMap[id])
+            .filter(Boolean);
+    }, [activePlanData, exercises]);
 
     if (exercisesLoading) {
         return (
@@ -162,6 +228,91 @@ export function HomeScreen() {
                                 </Card>
                             );
                         })}
+                    </View>
+                )}
+
+                {/* Team Activity Feed */}
+                {latestActivity.length > 0 && (
+                    <View style={styles.section} testID="activity-feed-section">
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('home.teamActivity')}
+                        </Text>
+                        {latestActivity.map((item) => {
+                            const iconName = getActivityIcon(item.type);
+                            const iconColor = getActivityIconColor(item.type, colors);
+                            const description = getActivityDescription(item);
+                            const relativeTime = getRelativeTime(item.created_at);
+                            const initial = item.display_name.charAt(0).toUpperCase();
+
+                            return (
+                                <Card key={item.id} style={styles.activityCard} testID="activity-feed-item">
+                                    <View style={styles.activityRow}>
+                                        <View style={[styles.activityAvatar, { backgroundColor: iconColor + '18' }]}>
+                                            <Text style={[styles.activityAvatarText, { color: iconColor }]}>
+                                                {initial}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.activityContent}>
+                                            <Text style={[styles.activityText, { color: colors.text }]} numberOfLines={2}>
+                                                {description}
+                                            </Text>
+                                            <View style={styles.activityMeta}>
+                                                <MaterialIcons name={iconName as any} size={14} color={iconColor} />
+                                                <Text style={[styles.activityTime, { color: colors.textTertiary }]}>
+                                                    {relativeTime}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        {item.points != null && item.points > 0 && (
+                                            <View style={[styles.activityPoints, { backgroundColor: colors.accent + '18' }]}>
+                                                <Text style={[styles.activityPointsText, { color: colors.accent }]}>
+                                                    +{item.points}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </Card>
+                            );
+                        })}
+                    </View>
+                )}
+
+                {/* Today's Training Plan */}
+                {todayPlanExercises.length > 0 && (
+                    <View style={styles.section} testID="todays-plan-section">
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('admin.todaysPlan')}
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.planScrollContent}
+                        >
+                            {todayPlanExercises.map((exercise) => (
+                                <TouchableOpacity
+                                    key={exercise.id}
+                                    activeOpacity={0.7}
+                                    onPress={() => navigation.navigate('ExercisesTab')}
+                                    testID={`plan-exercise-${exercise.id}`}
+                                >
+                                    <Card style={styles.planExerciseCard}>
+                                        <View style={[styles.planExerciseIcon, { backgroundColor: getCategoryColor(exercise.category) + '18' }]}>
+                                            <MaterialIcons
+                                                name={getCategoryIcon(exercise.category)}
+                                                size={24}
+                                                color={getCategoryColor(exercise.category)}
+                                            />
+                                        </View>
+                                        <Text style={[styles.planExerciseTitle, { color: colors.text }]} numberOfLines={2}>
+                                            {exercise.title}
+                                        </Text>
+                                        <Text style={[styles.planExerciseMeta, { color: colors.textSecondary }]}>
+                                            +{exercise.points} {t('exercises.points')}
+                                        </Text>
+                                    </Card>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
                     </View>
                 )}
 
@@ -597,5 +748,80 @@ const styles = StyleSheet.create({
     announcementMessage: {
         fontSize: 13,
         lineHeight: 18,
+    },
+    activityCard: {
+        marginBottom: 10,
+    },
+    activityRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    activityAvatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    activityAvatarText: {
+        fontSize: 15,
+        fontWeight: '700',
+    },
+    activityContent: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    activityText: {
+        fontSize: 14,
+        fontWeight: '500',
+        lineHeight: 19,
+    },
+    activityMeta: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 3,
+        gap: 4,
+    },
+    activityTime: {
+        fontSize: 12,
+    },
+    activityPoints: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 14,
+        marginLeft: 8,
+    },
+    activityPointsText: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    planScrollContent: {
+        paddingRight: 20,
+        gap: 12,
+    },
+    planExerciseCard: {
+        width: 130,
+        marginBottom: 0,
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+    },
+    planExerciseIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8,
+    },
+    planExerciseTitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 4,
+    },
+    planExerciseMeta: {
+        fontSize: 12,
+        textAlign: 'center',
     },
 });

@@ -230,6 +230,13 @@ export function ExercisesScreen() {
                 <Text style={[styles.title, { color: colors.text }]}>
                     {t('exercises.title')}
                 </Text>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('Challenges')}
+                    style={[styles.challengesButton, { backgroundColor: colors.secondary + '18' }]}
+                    testID="challenges-button"
+                >
+                    <MaterialIcons name="sports-kabaddi" size={20} color={colors.secondary} />
+                </TouchableOpacity>
             </View>
 
             {/* Search Bar */}
@@ -322,9 +329,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 20,
         paddingTop: 16,
         paddingBottom: 8,
+    },
+    challengesButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 28,

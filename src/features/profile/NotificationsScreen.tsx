@@ -12,20 +12,50 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card } from '../../components';
+import { Card, useToast } from '../../components';
 import { useAppStore } from '../../stores';
+import { registerForPushNotifications, scheduleDailyReminder, cancelDailyReminder, scheduleStreakReminder } from '../../lib/notifications';
 
 export function NotificationsScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation();
+    const { showToast } = useToast();
     const { notificationPrefs, setNotificationPref } = useAppStore();
+
+    const handleToggleDailyReminder = async (v: boolean) => {
+        if (v) {
+            const token = await registerForPushNotifications();
+            if (!token) {
+                showToast(t('notifications.permissionDenied'), 'error');
+                return;
+            }
+            await scheduleDailyReminder(17, 0);
+        } else {
+            await cancelDailyReminder();
+        }
+        setNotificationPref('dailyReminder', v);
+    };
+
+    const handleToggleStreakReminder = async (v: boolean) => {
+        if (v) {
+            const token = await registerForPushNotifications();
+            if (!token) {
+                showToast(t('notifications.permissionDenied'), 'error');
+                return;
+            }
+            await scheduleStreakReminder();
+        } else {
+            await cancelDailyReminder(); // cancels all scheduled
+        }
+        setNotificationPref('streakReminder', v);
+    };
 
     const notificationItems = [
         {
             label: t('notifications.dailyReminder'),
             description: t('notifications.dailyReminderDesc'),
             value: notificationPrefs.dailyReminder,
-            onToggle: (v: boolean) => setNotificationPref('dailyReminder', v),
+            onToggle: handleToggleDailyReminder,
         },
         {
             label: t('notifications.newExercises'),
@@ -43,7 +73,7 @@ export function NotificationsScreen() {
             label: t('notifications.streakReminder'),
             description: t('notifications.streakReminderDesc'),
             value: notificationPrefs.streakReminder,
-            onToggle: (v: boolean) => setNotificationPref('streakReminder', v),
+            onToggle: handleToggleStreakReminder,
         },
     ];
 

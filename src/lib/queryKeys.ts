@@ -29,4 +29,17 @@ export const queryKeys = {
     announcements: {
         all: (clubId: string) => ['announcements', clubId] as const,
     },
+    activityFeed: {
+        all: (clubId: string) => ['activityFeed', clubId] as const,
+        team: (clubId: string, teamId: string) => ['activityFeed', clubId, teamId] as const,
+    },
+    challenges: {
+        all: (userId: string) => ['challenges', userId] as const,
+        active: (userId: string) => ['challenges', 'active', userId] as const,
+    },
+    trainingPlans: {
+        active: (clubId: string, teamId?: string | null) =>
+            ['trainingPlans', 'active', clubId, teamId ?? 'all'] as const,
+        detail: (planId: string) => ['trainingPlans', 'detail', planId] as const,
+    },
 };

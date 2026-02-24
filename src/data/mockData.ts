@@ -1,4 +1,4 @@
-import { Club, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint, PlayerCompletion } from '../types';
+import { Club, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint, PlayerCompletion, TrainingPlan, TrainingPlanDay } from '../types';
 
 export const mockClubs: Club[] = [
     { id: '1', name: 'Vaganes IL', logo_url: null, created_by: 'admin1', created_at: '2024-01-01' },
@@ -295,4 +295,31 @@ export const mockPlayerCompletions: PlayerCompletion[] = [
     { exercise_title: 'Stige-øvelser', points_earned: 20, completed_at: '2024-12-08T14:00:00' },
     { exercise_title: 'Sprintøvelser', points_earned: 25, completed_at: '2024-12-07T12:00:00' },
     { exercise_title: 'Pasningstrening', points_earned: 15, completed_at: '2024-12-06T11:00:00' },
+];
+
+// Helper to get the Monday of the current week
+function getCurrentWeekMonday(): string {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = day === 0 ? -6 : 1 - day; // Monday = 1, Sunday = 0 => go back 6
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diff);
+    return monday.toISOString().split('T')[0];
+}
+
+export const mockTrainingPlan: TrainingPlan = {
+    id: 'tp1',
+    club_id: '1',
+    team_id: null,
+    week_start: getCurrentWeekMonday(),
+    created_by: 'admin1',
+    created_at: '2024-12-15T10:00:00',
+};
+
+export const mockTrainingPlanDays: TrainingPlanDay[] = [
+    { id: 'tpd1', plan_id: 'tp1', day_of_week: 0, exercise_ids: ['1', '2'] },       // Monday
+    { id: 'tpd2', plan_id: 'tp1', day_of_week: 1, exercise_ids: ['3', '4'] },       // Tuesday
+    { id: 'tpd3', plan_id: 'tp1', day_of_week: 2, exercise_ids: ['5'] },            // Wednesday
+    { id: 'tpd4', plan_id: 'tp1', day_of_week: 3, exercise_ids: ['6', '7', '8'] },  // Thursday
+    { id: 'tpd5', plan_id: 'tp1', day_of_week: 4, exercise_ids: ['1', '5'] },       // Friday
 ];

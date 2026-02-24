@@ -212,6 +212,54 @@ export interface Announcement {
     author_name?: string;
 }
 
+// Training Plan types
+export interface TrainingPlan {
+    id: string;
+    club_id: string;
+    team_id?: string | null;
+    week_start: string; // ISO date of Monday
+    created_by: string;
+    created_at: string;
+}
+
+export interface TrainingPlanDay {
+    id: string;
+    plan_id: string;
+    day_of_week: number; // 0=Monday, 6=Sunday
+    exercise_ids: string[];
+}
+
+// Activity feed types
+export interface ActivityFeedItem {
+    id: string;
+    user_id: string;
+    display_name: string;
+    avatar_url: string | null;
+    type: 'exercise_completed' | 'achievement_unlocked' | 'streak_milestone';
+    title: string;
+    points?: number;
+    created_at: string;
+}
+
+// Challenge types
+export type ChallengeStatus = 'pending' | 'accepted' | 'completed' | 'expired';
+
+export interface Challenge {
+    id: string;
+    exercise_id: string;
+    exercise_title: string;
+    challenger_id: string;
+    challenger_name: string;
+    opponent_id: string;
+    opponent_name: string;
+    status: ChallengeStatus;
+    challenger_completed: boolean;
+    opponent_completed: boolean;
+    bonus_points: number;
+    created_at: string;
+    expires_at: string;
+}
+
 // Navigation types
 export type RootStackParamList = {
     Onboarding: undefined;
@@ -241,6 +289,8 @@ export type ExercisesStackParamList = {
     ExerciseDetail: { exerciseId: string };
     ExerciseExecution: { exerciseId: string };
     ExerciseComplete: { exerciseId: string; pointsEarned: number };
+    Challenges: undefined;
+    CreateChallenge: { exerciseId: string };
 };
 
 export type ProfileStackParamList = {
@@ -259,6 +309,7 @@ export type AdminDrawerParamList = {
     Exercises: undefined;
     ExerciseStore: undefined;
     Announcements: undefined;
+    TrainingPlans: undefined;
     Reports: undefined;
     AdminSettings: undefined;
 };

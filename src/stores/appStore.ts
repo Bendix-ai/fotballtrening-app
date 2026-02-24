@@ -14,6 +14,13 @@ interface NotificationPreferences {
     pushNotifications: boolean;
 }
 
+interface PendingCompletion {
+    userId: string;
+    exerciseId: string;
+    pointsEarned: number;
+    timestamp: string;
+}
+
 interface AppState {
     // Theme
     themeMode: ThemeMode;
@@ -38,6 +45,12 @@ interface AppState {
     // Notification preferences
     notificationPrefs: NotificationPreferences;
     setNotificationPref: (key: keyof NotificationPreferences, value: boolean) => void;
+
+    // Offline sync queue
+    pendingCompletions: PendingCompletion[];
+    addPendingCompletion: (completion: PendingCompletion) => void;
+    removePendingCompletion: (timestamp: string) => void;
+    clearPendingCompletions: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -79,6 +92,18 @@ export const useAppStore = create<AppState>()(
                 set((state) => ({
                     notificationPrefs: { ...state.notificationPrefs, [key]: value },
                 })),
+
+            // Offline sync queue
+            pendingCompletions: [],
+            addPendingCompletion: (completion) =>
+                set((state) => ({
+                    pendingCompletions: [...state.pendingCompletions, completion],
+                })),
+            removePendingCompletion: (timestamp) =>
+                set((state) => ({
+                    pendingCompletions: state.pendingCompletions.filter((c) => c.timestamp !== timestamp),
+                })),
+            clearPendingCompletions: () => set({ pendingCompletions: [] }),
         }),
         {
             name: 'fotballtrening-app-storage',

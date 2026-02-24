@@ -121,6 +121,10 @@ export const no = {
         pointsToNextLevel: '{points} poeng til neste nivå',
         maxLevel: 'Maks nivå!',
         announcements: 'Kunngjøringer',
+        teamActivity: 'Lagaktivitet',
+        completedExercise: '{name} fullførte {exercise}',
+        unlockedAchievement: '{name} låste opp {achievement}',
+        reachedStreak: '{name} nådde {days} dagers streak!',
     },
 
     // Exercises
@@ -254,6 +258,7 @@ export const no = {
         streakReminderDesc: 'Få en påminnelse før streaken brytes',
         note: 'Varsler kan ta noen minutter å aktivere. Du kan endre disse innstillingene når som helst.',
         pushComingSoon: 'Push-varsler kommer i en fremtidig oppdatering. Innstillingene dine lagres og vil gjelde når funksjonen er klar.',
+        permissionDenied: 'Varslingstillatelse ble avslått. Slå på varsler i innstillingene.',
     },
 
     // About
@@ -403,6 +408,22 @@ export const no = {
         noAnnouncements: 'Ingen kunngjøringer ennå',
         sendAnnouncement: 'Send kunngjøring',
         announcementSent: 'Kunngjøring sendt!',
+
+        // Training Plans
+        trainingPlans: 'Treningsplan',
+        weeklyPlan: 'Ukesplan',
+        monday: 'Mandag',
+        tuesday: 'Tirsdag',
+        wednesday: 'Onsdag',
+        thursday: 'Torsdag',
+        friday: 'Fredag',
+        addExerciseToDay: 'Legg til øvelse',
+        noPlannedExercises: 'Ingen planlagte øvelser i dag',
+        todaysPlan: 'Dagens plan',
+        planSaved: 'Plan lagret!',
+        selectExercise: 'Velg øvelse',
+        removeExercise: 'Fjern øvelse',
+        thisWeeksPlan: 'Denne ukens plan',
     },
 
     // Help Center
@@ -436,6 +457,33 @@ export const no = {
         keepItUp: 'Fortsett sånn!',
         broken: 'Streak brutt',
         newRecord: 'Ny rekord!',
+    },
+
+    // Challenges
+    challenges: {
+        title: 'Utfordringer',
+        challengeFriend: 'Utfordre en venn',
+        createChallenge: 'Send utfordring',
+        selectOpponent: 'Velg motstander',
+        bonusPoints: 'Bonuspoeng',
+        pending: 'Venter',
+        accepted: 'Akseptert',
+        completed: 'Fullført',
+        expired: 'Utløpt',
+        noChallenges: 'Ingen utfordringer ennå',
+        noChallengesDesc: 'Utfordre en lagkamerat til å gjøre en øvelse!',
+        challengeSent: 'Utfordring sendt!',
+        challengeAccepted: 'Utfordring akseptert!',
+        youWon: 'Du vant!',
+        youLost: 'Du tapte',
+        draw: 'Uavgjort!',
+        accept: 'Aksepter',
+        decline: 'Avslå',
+        vs: 'mot',
+        active: 'Aktive',
+        history: 'Historikk',
+        expiresIn: 'Utløper om {hours}t',
+        winnerBonus: '+{points} bonuspoeng til vinneren!',
     },
 };
 

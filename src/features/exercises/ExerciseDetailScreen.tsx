@@ -251,6 +251,16 @@ export function ExerciseDetailScreen() {
                     size="large"
                     testID="exercise-start-button"
                 />
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('CreateChallenge', { exerciseId: exercise.id })}
+                    style={[styles.challengeButton, { borderColor: colors.secondary }]}
+                    testID="challenge-friend-button"
+                >
+                    <MaterialIcons name="sports-kabaddi" size={18} color={colors.secondary} />
+                    <Text style={[styles.challengeButtonText, { color: colors.secondary }]}>
+                        {t('challenges.challengeFriend')}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -433,6 +443,20 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingBottom: 32,
         borderTopWidth: 1,
+    },
+    challengeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        borderWidth: 1.5,
+        borderRadius: 12,
+        paddingVertical: 10,
+        marginTop: 8,
+    },
+    challengeButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     errorText: {
         fontSize: 16,

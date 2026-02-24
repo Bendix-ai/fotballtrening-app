@@ -5,6 +5,8 @@ import { ExercisesScreen } from '../features/exercises/ExercisesScreen';
 import { ExerciseDetailScreen } from '../features/exercises/ExerciseDetailScreen';
 import { ExerciseExecutionScreen } from '../features/exercises/ExerciseExecutionScreen';
 import { ExerciseCompleteScreen } from '../features/exercises/ExerciseCompleteScreen';
+import { ChallengesScreen } from '../features/exercises/ChallengesScreen';
+import { CreateChallengeScreen } from '../features/exercises/CreateChallengeScreen';
 
 const Stack = createNativeStackNavigator<ExercisesStackParamList>();
 
@@ -23,6 +25,8 @@ export function ExercisesStack() {
                 component={ExerciseCompleteScreen}
                 options={{ gestureEnabled: false }}
             />
+            <Stack.Screen name="Challenges" component={ChallengesScreen} />
+            <Stack.Screen name="CreateChallenge" component={CreateChallengeScreen} />
         </Stack.Navigator>
     );
 }

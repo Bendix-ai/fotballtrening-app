@@ -123,6 +123,10 @@ export const en: Translations = {
         pointsToNextLevel: '{points} points to next level',
         maxLevel: 'Max level!',
         announcements: 'Announcements',
+        teamActivity: 'Team activity',
+        completedExercise: '{name} completed {exercise}',
+        unlockedAchievement: '{name} unlocked {achievement}',
+        reachedStreak: '{name} reached {days} day streak!',
     },
 
     // Exercises
@@ -256,6 +260,7 @@ export const en: Translations = {
         streakReminderDesc: 'Get a reminder before your streak breaks',
         note: 'Notifications may take a few minutes to activate. You can change these settings at any time.',
         pushComingSoon: 'Push notifications are coming in a future update. Your settings are saved and will apply when the feature is ready.',
+        permissionDenied: 'Notification permission was denied. Enable notifications in settings.',
     },
 
     // About
@@ -405,6 +410,22 @@ export const en: Translations = {
         noAnnouncements: 'No announcements yet',
         sendAnnouncement: 'Send announcement',
         announcementSent: 'Announcement sent!',
+
+        // Training Plans
+        trainingPlans: 'Training plans',
+        weeklyPlan: 'Weekly plan',
+        monday: 'Monday',
+        tuesday: 'Tuesday',
+        wednesday: 'Wednesday',
+        thursday: 'Thursday',
+        friday: 'Friday',
+        addExerciseToDay: 'Add exercise',
+        noPlannedExercises: 'No planned exercises today',
+        todaysPlan: "Today's plan",
+        planSaved: 'Plan saved!',
+        selectExercise: 'Select exercise',
+        removeExercise: 'Remove exercise',
+        thisWeeksPlan: "This week's plan",
     },
 
     // Help Center
@@ -438,6 +459,33 @@ export const en: Translations = {
         keepItUp: 'Keep it up!',
         broken: 'Streak broken',
         newRecord: 'New record!',
+    },
+
+    // Challenges
+    challenges: {
+        title: 'Challenges',
+        challengeFriend: 'Challenge a friend',
+        createChallenge: 'Send challenge',
+        selectOpponent: 'Select opponent',
+        bonusPoints: 'Bonus points',
+        pending: 'Pending',
+        accepted: 'Accepted',
+        completed: 'Completed',
+        expired: 'Expired',
+        noChallenges: 'No challenges yet',
+        noChallengesDesc: 'Challenge a teammate to complete an exercise!',
+        challengeSent: 'Challenge sent!',
+        challengeAccepted: 'Challenge accepted!',
+        youWon: 'You won!',
+        youLost: 'You lost',
+        draw: 'Draw!',
+        accept: 'Accept',
+        decline: 'Decline',
+        vs: 'vs',
+        active: 'Active',
+        history: 'History',
+        expiresIn: 'Expires in {hours}h',
+        winnerBonus: '+{points} bonus points to the winner!',
     },
 };
 
