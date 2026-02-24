@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
+import { t } from '../lib/i18n';
 
 interface SearchBarProps {
     value: string;
@@ -10,7 +11,8 @@ interface SearchBarProps {
     testID?: string;
 }
 
-export function SearchBar({ value, onChangeText, placeholder = 'Søk...', testID }: SearchBarProps) {
+export function SearchBar({ value, onChangeText, placeholder, testID }: SearchBarProps) {
+    const resolvedPlaceholder = placeholder ?? `${t('common.search')}...`;
     const { colors } = useTheme();
 
     return (
@@ -18,11 +20,11 @@ export function SearchBar({ value, onChangeText, placeholder = 'Søk...', testID
             <MaterialIcons name="search" size={20} color={colors.textTertiary} />
             <TextInput
                 style={[styles.input, { color: colors.text }]}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 placeholderTextColor={colors.textTertiary}
                 value={value}
                 onChangeText={onChangeText}
-                accessibilityLabel={placeholder}
+                accessibilityLabel={resolvedPlaceholder}
                 accessibilityRole="search"
                 testID={testID}
             />

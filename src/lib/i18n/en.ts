@@ -5,8 +5,9 @@ export const en: Translations = {
     // Common
     common: {
         loading: 'Loading...',
-        error: 'Something went wrong',
+        error: 'Oops! Something went wrong',
         retry: 'Try again',
+        errorDesc: "Don't worry, just try again!",
         cancel: 'Cancel',
         save: 'Save',
         delete: 'Delete',
@@ -46,7 +47,7 @@ export const en: Translations = {
         password: 'Password',
         forgotPassword: 'Forgot password?',
         loginButton: 'Log in',
-        loginError: 'Incorrect username or password',
+        loginError: 'Hmm, that username or password was wrong. Try again!',
         welcomeBack: 'Welcome back!',
         selectClub: 'Select club',
         selectYear: 'Select year group',
@@ -59,7 +60,7 @@ export const en: Translations = {
         alreadyHaveAccount: 'Already have an account?',
         noAccount: "Don't have an account?",
         registrationSuccess: 'Account created!',
-        registrationFailed: 'Registration failed',
+        registrationFailed: 'Oops! Registration failed. Try again!',
         clubNotFound: "Can't find your club?",
         createNewClub: 'Create new club',
         clubName: 'Club name',
@@ -114,6 +115,10 @@ export const en: Translations = {
         startTraining: 'Start training',
         todayChallenge: "Today's challenge",
         recentExercises: 'Recent exercises',
+        dailyGoal: 'Daily goal',
+        dailyGoalProgress: '{current} of {target} exercises',
+        dailyGoalComplete: 'Daily goal reached!',
+        yourRank: "You're #{rank} in the club",
     },
 
     // Exercises
@@ -337,6 +342,8 @@ export const en: Translations = {
         importStarterPack: 'Import starter pack',
         starterPackImported: 'Starter pack imported!',
         starterPackDesc: 'Download featured exercises to your club',
+        searchStore: 'Search the store...',
+        results: 'results',
 
         // Reports
         dateRange: 'Date range',

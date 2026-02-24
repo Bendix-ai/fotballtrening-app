@@ -31,6 +31,10 @@ interface AppState {
     selectedClubId: string | null;
     setSelectedClubId: (clubId: string | null) => void;
 
+    // Daily goal
+    dailyGoal: number;
+    setDailyGoal: (goal: number) => void;
+
     // Notification preferences
     notificationPrefs: NotificationPreferences;
     setNotificationPref: (key: keyof NotificationPreferences, value: boolean) => void;
@@ -57,6 +61,10 @@ export const useAppStore = create<AppState>()(
             // Selected club
             selectedClubId: null,
             setSelectedClubId: (selectedClubId) => set({ selectedClubId }),
+
+            // Daily goal
+            dailyGoal: 5,
+            setDailyGoal: (dailyGoal) => set({ dailyGoal }),
 
             // Notification preferences
             notificationPrefs: {

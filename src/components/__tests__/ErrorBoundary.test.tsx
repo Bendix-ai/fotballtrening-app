@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { t } from '../../lib/i18n';
 
 // Component that throws
 function ThrowingComponent({ shouldThrow }: { shouldThrow: boolean }) {
@@ -36,8 +37,8 @@ describe('ErrorBoundary', () => {
         <ThrowingComponent shouldThrow={true} />
       </ErrorBoundary>
     );
-    expect(screen.getByText('Noe gikk galt')).toBeTruthy();
-    expect(screen.getByText('En uventet feil oppstod. Vennligst prøv igjen.')).toBeTruthy();
+    expect(screen.getByText(t('common.error'))).toBeTruthy();
+    expect(screen.getByText(t('common.errorDesc'))).toBeTruthy();
   });
 
   it('should show retry button', () => {
@@ -46,7 +47,7 @@ describe('ErrorBoundary', () => {
         <ThrowingComponent shouldThrow={true} />
       </ErrorBoundary>
     );
-    expect(screen.getByText('Prøv igjen')).toBeTruthy();
+    expect(screen.getByText(t('common.retry'))).toBeTruthy();
   });
 
   it('should reset error state on retry press', () => {
@@ -63,11 +64,11 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Noe gikk galt')).toBeTruthy();
+    expect(screen.getByText(t('common.error'))).toBeTruthy();
 
     // Stop throwing before retry
     shouldThrow = false;
-    fireEvent.press(screen.getByText('Prøv igjen'));
+    fireEvent.press(screen.getByText(t('common.retry')));
 
     expect(screen.getByText('Alt fungerer')).toBeTruthy();
   });

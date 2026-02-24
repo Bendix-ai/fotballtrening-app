@@ -3,8 +3,9 @@ export const no = {
     // Common
     common: {
         loading: 'Laster...',
-        error: 'Noe gikk galt',
+        error: 'Oisann! Noe gikk galt',
         retry: 'Prøv igjen',
+        errorDesc: 'Ikke bekymre deg, bare prøv igjen!',
         cancel: 'Avbryt',
         save: 'Lagre',
         delete: 'Slett',
@@ -44,7 +45,7 @@ export const no = {
         password: 'Passord',
         forgotPassword: 'Glemt passord?',
         loginButton: 'Logg inn',
-        loginError: 'Feil brukernavn eller passord',
+        loginError: 'Hmm, det var feil brukernavn eller passord. Prøv igjen!',
         welcomeBack: 'Velkommen tilbake!',
         selectClub: 'Velg klubb',
         selectYear: 'Velg årgang',
@@ -57,7 +58,7 @@ export const no = {
         alreadyHaveAccount: 'Har du allerede en konto?',
         noAccount: 'Har du ikke en konto?',
         registrationSuccess: 'Konto opprettet!',
-        registrationFailed: 'Registrering feilet',
+        registrationFailed: 'Oisann! Registrering feilet. Prøv igjen!',
         clubNotFound: 'Klubben finnes ikke?',
         createNewClub: 'Opprett ny klubb',
         clubName: 'Klubbnavn',
@@ -112,6 +113,10 @@ export const no = {
         startTraining: 'Start trening',
         todayChallenge: 'Dagens utfordring',
         recentExercises: 'Nylige øvelser',
+        dailyGoal: 'Dagens mål',
+        dailyGoalProgress: '{current} av {target} øvelser',
+        dailyGoalComplete: 'Dagens mål nådd!',
+        yourRank: 'Du er #{rank} i klubben',
     },
 
     // Exercises
@@ -335,6 +340,8 @@ export const no = {
         importStarterPack: 'Importer startpakke',
         starterPackImported: 'Startpakke importert!',
         starterPackDesc: 'Last ned utvalgte øvelser til klubben din',
+        searchStore: 'Søk i butikken...',
+        results: 'resultater',
 
         // Reports
         dateRange: 'Tidsperiode',

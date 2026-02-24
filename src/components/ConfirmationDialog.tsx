@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { useTheme } from '../lib/theme';
+import { t } from '../lib/i18n';
 import { Button } from './Button';
 
 interface ConfirmationDialogProps {
@@ -19,12 +20,13 @@ export function ConfirmationDialog({
     title,
     message,
     confirmLabel = 'OK',
-    cancelLabel = 'Avbryt',
+    cancelLabel,
     onConfirm,
     onCancel,
     destructive = false,
 }: ConfirmationDialogProps) {
     const { colors } = useTheme();
+    const resolvedCancelLabel = cancelLabel ?? t('common.cancel');
 
     return (
         <Modal
@@ -48,7 +50,7 @@ export function ConfirmationDialog({
                     </Text>
                     <View style={styles.actions}>
                         <Button
-                            title={cancelLabel}
+                            title={resolvedCancelLabel}
                             onPress={onCancel}
                             variant="ghost"
                             style={styles.actionButton}

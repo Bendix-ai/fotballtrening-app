@@ -119,7 +119,7 @@ export function ExerciseStoreScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Search */}
                 <View style={styles.searchContainer}>
-                    <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder="Søk i butikken..." />
+                    <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder={t('admin.searchStore')} />
                 </View>
 
                 {/* Starter Pack Button */}
@@ -240,7 +240,7 @@ export function ExerciseStoreScreen() {
                 ) : (
                     <View style={styles.section}>
                         <Text style={[styles.resultCount, { color: colors.textSecondary }]}>
-                            {filteredExercises.length} resultater
+                            {filteredExercises.length} {t('admin.results')}
                         </Text>
                         {filteredExercises.map((e) => renderStoreCard(e))}
                     </View>

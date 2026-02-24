@@ -43,6 +43,8 @@ export function ExerciseCompleteScreen() {
     // Animation
     const scaleAnim = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const pointsScaleAnim = useRef(new Animated.Value(0)).current;
+    const pointsBounceAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         // Record the completion
@@ -64,6 +66,27 @@ export function ExerciseCompleteScreen() {
                 duration: 400,
                 useNativeDriver: true,
             }),
+            // Points card bounce-in
+            Animated.spring(pointsScaleAnim, {
+                toValue: 1,
+                tension: 40,
+                friction: 5,
+                useNativeDriver: true,
+            }),
+            // Extra bounce pulse on the points value
+            Animated.sequence([
+                Animated.timing(pointsBounceAnim, {
+                    toValue: 1.15,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+                Animated.spring(pointsBounceAnim, {
+                    toValue: 1,
+                    tension: 100,
+                    friction: 6,
+                    useNativeDriver: true,
+                }),
+            ]),
         ]).start();
 
         // Celebration particle burst
@@ -159,12 +182,18 @@ export function ExerciseCompleteScreen() {
                 </Animated.View>
 
                 {/* Points earned */}
-                <Animated.View style={{ opacity: fadeAnim }}>
+                <Animated.View style={{
+                    opacity: fadeAnim,
+                    transform: [{ scale: pointsScaleAnim }],
+                }}>
                     <Card style={styles.pointsCard}>
                         <MaterialIcons name="star" size={32} color={colors.primary} />
-                        <Text style={[styles.pointsValue, { color: colors.primary }]}>
+                        <Animated.Text style={[
+                            styles.pointsValue,
+                            { color: colors.primary, transform: [{ scale: pointsBounceAnim }] },
+                        ]}>
                             +{pointsEarned}
-                        </Text>
+                        </Animated.Text>
                         <Text style={[styles.pointsLabel, { color: colors.textSecondary }]}>
                             {t('exercises.points')}
                         </Text>
@@ -175,7 +204,7 @@ export function ExerciseCompleteScreen() {
             {/* Continue button */}
             <View style={styles.buttonContainer}>
                 <Button
-                    title={t('exercises.backToExercises')}
+                    title={t('exercises.continueTraining')}
                     onPress={handleContinue}
                     fullWidth
                     size="large"

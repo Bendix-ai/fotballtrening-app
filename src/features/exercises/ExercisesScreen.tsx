@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     TextInput,
     RefreshControl,
+    Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -59,10 +60,24 @@ export function ExercisesScreen() {
 
     const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
     const isFavorite = useCallback((id: string) => favoriteSet.has(id), [favoriteSet]);
+    const favoriteScales = useRef<Record<string, Animated.Value>>({}).current;
+
+    const getFavoriteScale = useCallback((id: string) => {
+        if (!favoriteScales[id]) {
+            favoriteScales[id] = new Animated.Value(1);
+        }
+        return favoriteScales[id];
+    }, [favoriteScales]);
+
     const handleToggleFavorite = useCallback((id: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        const scale = getFavoriteScale(id);
+        Animated.sequence([
+            Animated.timing(scale, { toValue: 1.4, duration: 100, useNativeDriver: true }),
+            Animated.spring(scale, { toValue: 1, tension: 100, friction: 5, useNativeDriver: true }),
+        ]).start();
         toggleFavoriteMutation.mutate({ exerciseId: id, isFavorite: favoriteSet.has(id) });
-    }, [toggleFavoriteMutation, favoriteSet]);
+    }, [toggleFavoriteMutation, favoriteSet, getFavoriteScale]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -142,11 +157,13 @@ export function ExercisesScreen() {
                             }}
                             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                         >
-                            <MaterialIcons
-                                name={isFavorite(item.id) ? 'favorite' : 'favorite-border'}
-                                size={22}
-                                color={isFavorite(item.id) ? colors.error : colors.textTertiary}
-                            />
+                            <Animated.View style={{ transform: [{ scale: getFavoriteScale(item.id) }] }}>
+                                <MaterialIcons
+                                    name={isFavorite(item.id) ? 'favorite' : 'favorite-border'}
+                                    size={22}
+                                    color={isFavorite(item.id) ? colors.error : colors.textTertiary}
+                                />
+                            </Animated.View>
                         </TouchableOpacity>
                         <Text style={[styles.points, { color: colors.primary }]}>
                             +{item.points}

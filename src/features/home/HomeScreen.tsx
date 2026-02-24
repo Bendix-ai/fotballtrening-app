@@ -8,10 +8,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card, Button, StreakCard } from '../../components';
-import { useAuthStore } from '../../stores';
+import { Card, Button, StreakCard, ProgressBar } from '../../components';
+import { useAuthStore, useAppStore } from '../../stores';
 import { MainTabParamList, RootStackParamList } from '../../types';
 import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
+import { useLeaderboard } from '../../hooks/useLeaderboard';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 
 type HomeNavProp = CompositeNavigationProp<
@@ -23,9 +24,11 @@ export function HomeScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<HomeNavProp>();
     const { user } = useAuthStore();
+    const { dailyGoal } = useAppStore();
 
     const { data: exercises = [], isLoading: exercisesLoading, refetch: refetchExercises } = useExercises();
     const { data: todayCompletions = [], refetch: refetchToday } = useTodayCompletions();
+    const { data: leaderboardData = [] } = useLeaderboard('club');
 
     const onRefresh = useCallback(() => {
         refetchExercises();
@@ -45,6 +48,11 @@ export function HomeScreen() {
         const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
         return exercises[dayOfYear % exercises.length];
     }, [exercises]);
+
+    const myRank = useMemo(() => {
+        const entry = leaderboardData.find((e) => e.is_current_user);
+        return entry?.rank ?? null;
+    }, [leaderboardData]);
 
     // Show the 3 most recent exercises as suggestions
     const suggestedExercises = useMemo(() => exercises.slice(0, 3), [exercises]);
@@ -106,6 +114,52 @@ export function HomeScreen() {
                         </View>
                     </View>
                 </Card>
+
+                {/* Daily Goal */}
+                <Card style={styles.dailyGoalCard}>
+                    <View style={styles.dailyGoalHeader}>
+                        <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
+                            {t('home.dailyGoal')}
+                        </Text>
+                        <Text style={[styles.dailyGoalCount, { color: todayExercises >= dailyGoal ? colors.success : colors.primary }]}>
+                            {todayExercises}/{dailyGoal}
+                        </Text>
+                    </View>
+                    <View style={styles.dailyGoalBarContainer}>
+                        <ProgressBar progress={Math.min(todayExercises / dailyGoal, 1)} />
+                    </View>
+                    <Text style={[styles.dailyGoalText, { color: todayExercises >= dailyGoal ? colors.success : colors.textSecondary }]}>
+                        {todayExercises >= dailyGoal
+                            ? t('home.dailyGoalComplete')
+                            : t('home.dailyGoalProgress', { current: String(todayExercises), target: String(dailyGoal) })
+                        }
+                    </Text>
+                </Card>
+
+                {/* Leaderboard Rank */}
+                {myRank !== null && (
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        onPress={() => navigation.navigate('Leaderboard')}
+                    >
+                        <Card style={styles.rankCard}>
+                            <View style={styles.rankRow}>
+                                <View style={[styles.rankBadge, { backgroundColor: colors.accent + '18' }]}>
+                                    <MaterialIcons name="leaderboard" size={24} color={colors.accent} />
+                                </View>
+                                <View style={styles.rankInfo}>
+                                    <Text style={[styles.rankText, { color: colors.text }]}>
+                                        {t('home.yourRank', { rank: String(myRank) })}
+                                    </Text>
+                                    <Text style={[styles.rankSubtext, { color: colors.textSecondary }]}>
+                                        {t('leaderboard.club')}
+                                    </Text>
+                                </View>
+                                <MaterialIcons name="chevron-right" size={24} color={colors.textTertiary} />
+                            </View>
+                        </Card>
+                    </TouchableOpacity>
+                )}
 
                 {/* Streak Card */}
                 <View style={styles.section}>
@@ -262,6 +316,51 @@ const styles = StyleSheet.create({
     divider: {
         width: 1,
         height: 50,
+    },
+    dailyGoalCard: {
+        marginBottom: 20,
+    },
+    dailyGoalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    dailyGoalCount: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    dailyGoalBarContainer: {
+        marginBottom: 8,
+    },
+    dailyGoalText: {
+        fontSize: 13,
+    },
+    rankCard: {
+        marginBottom: 20,
+    },
+    rankRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    rankBadge: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    rankInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    rankText: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    rankSubtext: {
+        fontSize: 13,
+        marginTop: 2,
     },
     section: {
         marginBottom: 24,
