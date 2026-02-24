@@ -206,6 +206,7 @@ export function AddEditPlayerScreen() {
                         total_points: 0,
                         exercises_completed: 0,
                         current_streak: 0,
+                        longest_streak: 0,
                         last_active: new Date().toISOString().split('T')[0],
                         is_active: true,
                     });

@@ -162,6 +162,7 @@ export const en: Translations = {
         exit: 'Exit',
         halfway: 'Halfway there!',
         almostThere: 'Almost there!',
+        watchVideo: 'Watch video',
     },
 
     // Leaderboard
@@ -390,6 +391,12 @@ export const en: Translations = {
         setupPlayers: 'Add players',
         setupExercises: 'Add exercises',
 
+        // Player Detail
+        playerDetail: 'Player details',
+        recentCompletions: 'Recent completions',
+        noCompletions: 'No completions yet',
+        memberSince: 'Member since',
+
         // Announcements
         announcements: 'Announcements',
         newAnnouncement: 'New announcement',
@@ -398,6 +405,31 @@ export const en: Translations = {
         noAnnouncements: 'No announcements yet',
         sendAnnouncement: 'Send announcement',
         announcementSent: 'Announcement sent!',
+    },
+
+    // Help Center
+    helpCenter: {
+        title: 'Help center',
+        gettingStarted: 'Getting started',
+        gettingStartedDesc: 'Follow these steps to set up your club and get started with FotballTrening.',
+        quickSteps: 'Quick start',
+        step1: 'Add year groups under Club Structure',
+        step2: 'Create players with username and password',
+        step3: 'Add exercises or download from the store',
+        step4: 'Players log in and start training!',
+        faq: 'Frequently asked questions',
+        faqAddPlayers: 'How do I add players?',
+        faqAddPlayersAnswer: 'Go to Players in the menu, tap the + button, and fill in name, username, and password. Select year group and gender.',
+        faqAddExercises: 'How do I create exercises?',
+        faqAddExercisesAnswer: 'Go to Exercises in the menu, tap the + button. Fill in title, description, category, difficulty, and instructions.',
+        faqStore: 'What is the exercise store?',
+        faqStoreAnswer: 'The exercise store contains ready-made exercises you can download to your club. Tap Download to add them.',
+        faqReports: 'How do I view reports?',
+        faqReportsAnswer: 'Go to Reports in the menu. You can see activity, points, and distribution. Use the export buttons for PDF or CSV.',
+        faqPlayerLogin: 'How do players log in?',
+        faqPlayerLoginAnswer: 'Players select club, year group, and gender on the login page, then enter the username and password you created.',
+        faqResetPassword: 'How do I reset a password?',
+        faqResetPasswordAnswer: 'Go to Players, tap the player, and select Reset Password. A new password is sent or can be set manually.',
     },
 
     // Streak

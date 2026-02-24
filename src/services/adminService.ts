@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { AdminPlayer, DashboardMetrics, AdminActivity, Gender, ReportData, ChartDataPoint } from '../types';
-import { mockAdminPlayers, mockDashboardMetrics, mockAdminActivity, mockReportData } from '../data/mockData';
+import { AdminPlayer, DashboardMetrics, AdminActivity, Gender, ReportData, ChartDataPoint, PlayerCompletion } from '../types';
+import { mockAdminPlayers, mockDashboardMetrics, mockAdminActivity, mockReportData, mockPlayerCompletions } from '../data/mockData';
 
 export async function getPlayers(
     clubId: string,
@@ -18,7 +18,7 @@ export async function getPlayers(
         .from('profiles')
         .select(`
             id, username, display_name, avatar_url,
-            total_points, current_streak, is_active, last_login,
+            total_points, current_streak, longest_streak, is_active, last_login, created_at,
             teams:team_id (gender, year_group_id, year_groups:year_group_id (year))
         `)
         .eq('club_id', clubId)
@@ -46,8 +46,10 @@ export async function getPlayers(
         total_points: p.total_points,
         exercises_completed: 0, // will be enriched later if needed
         current_streak: p.current_streak,
+        longest_streak: p.longest_streak ?? 0,
         last_active: p.last_login || p.created_at || '',
         is_active: p.is_active,
+        created_at: p.created_at,
     }));
 
     if (filters?.yearGroup) {
@@ -162,7 +164,7 @@ export async function getPlayerById(playerId: string): Promise<AdminPlayer | nul
         .from('profiles')
         .select(`
             id, username, display_name, avatar_url,
-            total_points, current_streak, is_active, last_login,
+            total_points, current_streak, longest_streak, is_active, last_login, created_at,
             teams:team_id (gender, year_group_id, year_groups:year_group_id (year))
         `)
         .eq('id', playerId)
@@ -184,8 +186,10 @@ export async function getPlayerById(playerId: string): Promise<AdminPlayer | nul
         total_points: p.total_points,
         exercises_completed: 0,
         current_streak: p.current_streak,
+        longest_streak: p.longest_streak ?? 0,
         last_active: p.last_login || '',
         is_active: p.is_active,
+        created_at: p.created_at,
     };
 }
 
@@ -313,4 +317,32 @@ export async function getReportData(
     }
 
     return { weeklyActivity, monthlyPoints, categoryDistribution, difficultyDistribution };
+}
+
+export async function getPlayerCompletions(playerId: string): Promise<PlayerCompletion[]> {
+    if (!isSupabaseConfigured()) {
+        return mockPlayerCompletions;
+    }
+
+    const { data, error } = await supabase
+        .from('exercise_completions')
+        .select(`
+            points_earned,
+            completed_at,
+            exercises:exercise_id (title)
+        `)
+        .eq('user_id', playerId)
+        .order('completed_at', { ascending: false })
+        .limit(10);
+
+    if (error || !data) {
+        console.error('getPlayerCompletions error:', error);
+        return mockPlayerCompletions;
+    }
+
+    return (data as any[]).map((d) => ({
+        exercise_title: d.exercises?.title ?? 'Ukjent øvelse',
+        points_earned: d.points_earned ?? 0,
+        completed_at: d.completed_at,
+    }));
 }

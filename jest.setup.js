@@ -1,3 +1,22 @@
+// Mock react-native-svg
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const Svg = (props) => React.createElement(View, props);
+  const Circle = (props) => React.createElement(View, props);
+  Svg.default = Svg;
+  return {
+    __esModule: true,
+    default: Svg,
+    Circle,
+    Rect: (props) => React.createElement(View, props),
+    Path: (props) => React.createElement(View, props),
+    Line: (props) => React.createElement(View, props),
+    G: (props) => React.createElement(View, props),
+    Text: (props) => React.createElement(View, props),
+  };
+});
+
 // Mock expo-print
 jest.mock('expo-print', () => ({
   printToFileAsync: jest.fn().mockResolvedValue({ uri: 'file:///mock/report.pdf' }),

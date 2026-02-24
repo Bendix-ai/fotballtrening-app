@@ -15,6 +15,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { LeaderboardEntry, LeaderboardPeriod, LeaderboardScope } from '../../types';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
+import { LoadingSkeleton } from '../../components';
 import { getLevelInfo } from '../../lib/levelUtils';
 
 const periods: { key: LeaderboardPeriod; label: string }[] = [
@@ -106,13 +107,33 @@ function Podium({ top3, colors }: { top3: LeaderboardEntry[]; colors: any }) {
     );
 }
 
+function AnimatedListItem({ children, index }: { children: React.ReactNode; index: number }) {
+    const anim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        Animated.timing(anim, {
+            toValue: 1,
+            duration: 350,
+            delay: Math.min(index * 60, 300),
+            useNativeDriver: true,
+        }).start();
+    }, []);
+    return (
+        <Animated.View style={{
+            opacity: anim,
+            transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+        }}>
+            {children}
+        </Animated.View>
+    );
+}
+
 export function LeaderboardScreen() {
     const { colors } = useTheme();
     const [selectedPeriod, setSelectedPeriod] = useState<LeaderboardPeriod>('week');
     const [selectedScope, setSelectedScope] = useState<LeaderboardScope>('club');
     const [refreshing, setRefreshing] = useState(false);
 
-    const { data: leaderboardData = [], refetch } = useLeaderboard(selectedScope, null, selectedPeriod);
+    const { data: leaderboardData = [], refetch, isLoading: leaderboardLoading } = useLeaderboard(selectedScope, null, selectedPeriod);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -123,10 +144,10 @@ export function LeaderboardScreen() {
     const rest = useMemo(() => leaderboardData.slice(3), [leaderboardData]);
     const currentUser = useMemo(() => leaderboardData.find((e) => e.is_current_user), [leaderboardData]);
 
-    const renderLeaderboardEntry = useCallback(({ item }: { item: LeaderboardEntry }) => {
+    const renderLeaderboardEntry = useCallback(({ item, index }: { item: LeaderboardEntry; index?: number }) => {
         const isCurrentUser = item.is_current_user;
 
-        return (
+        const card = (
             <View
                 style={[
                     styles.entryCard,
@@ -202,6 +223,11 @@ export function LeaderboardScreen() {
                 </View>
             </View>
         );
+
+        if (index !== undefined) {
+            return <AnimatedListItem index={index}>{card}</AnimatedListItem>;
+        }
+        return card;
     }, [colors]);
 
     return (
@@ -284,17 +310,33 @@ export function LeaderboardScreen() {
                 ))}
             </View>
 
-            <FlatList
-                data={rest}
-                keyExtractor={(item) => item.user_id}
-                renderItem={renderLeaderboardEntry}
-                contentContainerStyle={styles.list}
-                showsVerticalScrollIndicator={false}
-                ListHeaderComponent={<Podium top3={top3} colors={colors} />}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-                }
-            />
+            {leaderboardLoading ? (
+                <View style={styles.list}>
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <View key={i} style={[styles.entryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                            <LoadingSkeleton width={36} height={24} borderRadius={6} />
+                            <LoadingSkeleton width={44} height={44} borderRadius={22} style={{ marginLeft: 8 }} />
+                            <View style={{ flex: 1, marginLeft: 12, gap: 6 }}>
+                                <LoadingSkeleton width="60%" height={16} />
+                                <LoadingSkeleton width="40%" height={12} />
+                            </View>
+                            <LoadingSkeleton width={50} height={24} borderRadius={6} />
+                        </View>
+                    ))}
+                </View>
+            ) : (
+                <FlatList
+                    data={rest}
+                    keyExtractor={(item) => item.user_id}
+                    renderItem={renderLeaderboardEntry}
+                    contentContainerStyle={styles.list}
+                    showsVerticalScrollIndicator={false}
+                    ListHeaderComponent={<Podium top3={top3} colors={colors} />}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                    }
+                />
+            )}
 
             {/* Sticky current user card */}
             {currentUser && currentUser.rank > 3 && (

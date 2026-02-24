@@ -160,6 +160,7 @@ export const no = {
         exit: 'Avslutt',
         halfway: 'Halvveis!',
         almostThere: 'Nesten der!',
+        watchVideo: 'Se video',
     },
 
     // Leaderboard
@@ -388,6 +389,12 @@ export const no = {
         setupPlayers: 'Legg til spillere',
         setupExercises: 'Legg til øvelser',
 
+        // Player Detail
+        playerDetail: 'Spillerdetaljer',
+        recentCompletions: 'Siste fullføringer',
+        noCompletions: 'Ingen fullføringer ennå',
+        memberSince: 'Medlem siden',
+
         // Announcements
         announcements: 'Kunngjøringer',
         newAnnouncement: 'Ny kunngjøring',
@@ -396,6 +403,31 @@ export const no = {
         noAnnouncements: 'Ingen kunngjøringer ennå',
         sendAnnouncement: 'Send kunngjøring',
         announcementSent: 'Kunngjøring sendt!',
+    },
+
+    // Help Center
+    helpCenter: {
+        title: 'Hjelpesenter',
+        gettingStarted: 'Kom i gang',
+        gettingStartedDesc: 'Følg disse stegene for å sette opp klubben din og komme i gang med FotballTrening.',
+        quickSteps: 'Hurtigstart',
+        step1: 'Legg til årsgrupper under Klubbstruktur',
+        step2: 'Opprett spillere med brukernavn og passord',
+        step3: 'Legg til øvelser eller last ned fra butikken',
+        step4: 'Spillerne logger inn og starter trening!',
+        faq: 'Vanlige spørsmål',
+        faqAddPlayers: 'Hvordan legger jeg til spillere?',
+        faqAddPlayersAnswer: 'Gå til Spillere i menyen, trykk på + knappen, og fyll ut navn, brukernavn og passord. Velg årsgruppe og kjønn.',
+        faqAddExercises: 'Hvordan lager jeg øvelser?',
+        faqAddExercisesAnswer: 'Gå til Øvelser i menyen, trykk på + knappen. Fyll ut tittel, beskrivelse, kategori, vanskelighetsgrad og instruksjoner.',
+        faqStore: 'Hva er øvelsesbutikken?',
+        faqStoreAnswer: 'Øvelsesbutikken inneholder ferdige øvelser du kan laste ned til klubben din. Trykk Last ned for å legge dem til.',
+        faqReports: 'Hvordan ser jeg rapporter?',
+        faqReportsAnswer: 'Gå til Rapporter i menyen. Du kan se aktivitet, poeng og fordeling. Bruk eksportknappene for PDF eller CSV.',
+        faqPlayerLogin: 'Hvordan logger spillerne inn?',
+        faqPlayerLoginAnswer: 'Spillerne velger klubb, årsgruppe og kjønn på innloggingssiden, og skriver inn brukernavn og passord du opprettet.',
+        faqResetPassword: 'Hvordan tilbakestiller jeg et passord?',
+        faqResetPasswordAnswer: 'Gå til Spillere, trykk på spilleren, og velg Tilbakestill passord. Nytt passord sendes eller kan settes manuelt.',
     },
 
     // Streak

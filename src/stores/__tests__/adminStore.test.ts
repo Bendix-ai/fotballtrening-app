@@ -10,6 +10,7 @@ const mockPlayer: AdminPlayer = {
   total_points: 100,
   exercises_completed: 5,
   current_streak: 3,
+  longest_streak: 7,
   last_active: '2026-01-01',
   is_active: true,
 };

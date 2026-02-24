@@ -74,6 +74,12 @@ export interface ExerciseCompletion {
     completed_at: string;
 }
 
+export interface PlayerCompletion {
+    exercise_title: string;
+    points_earned: number;
+    completed_at: string;
+}
+
 // Leaderboard types
 export interface LeaderboardEntry {
     rank: number;
@@ -127,8 +133,10 @@ export interface AdminPlayer {
     total_points: number;
     exercises_completed: number;
     current_streak: number;
+    longest_streak: number;
     last_active: string;
     is_active: boolean;
+    created_at?: string;
 }
 
 export interface AdminActivity {
@@ -262,4 +270,6 @@ export type AdminStackParamList = {
     ExercisePreview: { exerciseId: string };
     ExerciseStoreDetail: { exerciseId: string };
     AddYearGroup: undefined;
+    PlayerDetail: { playerId: string };
+    HelpCenter: undefined;
 };

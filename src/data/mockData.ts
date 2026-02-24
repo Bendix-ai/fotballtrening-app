@@ -1,4 +1,4 @@
-import { Club, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint } from '../types';
+import { Club, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint, PlayerCompletion } from '../types';
 
 export const mockClubs: Club[] = [
     { id: '1', name: 'Vaganes IL', logo_url: null, created_by: 'admin1', created_at: '2024-01-01' },
@@ -190,18 +190,18 @@ export const achievementDefinitions: Record<string, AchievementDefinition> = {
 
 // Admin mock data
 export const mockAdminPlayers: AdminPlayer[] = [
-    { id: 'p1', display_name: 'Martin Solberg', username: 'martin.s', year_group: 2015, gender: 'boys', total_points: 520, exercises_completed: 42, current_streak: 12, last_active: '2024-12-15', is_active: true },
-    { id: 'p2', display_name: 'Emma Larsen', username: 'emma.l', year_group: 2015, gender: 'girls', total_points: 485, exercises_completed: 38, current_streak: 8, last_active: '2024-12-15', is_active: true },
-    { id: 'p3', display_name: 'Jonas Kristiansen', username: 'jonas.k', year_group: 2014, gender: 'boys', total_points: 460, exercises_completed: 35, current_streak: 15, last_active: '2024-12-14', is_active: true },
-    { id: 'p4', display_name: 'Sofia Mikkelsen', username: 'sofia.m', year_group: 2015, gender: 'girls', total_points: 350, exercises_completed: 28, current_streak: 3, last_active: '2024-12-13', is_active: true },
-    { id: 'p5', display_name: 'Oliver Thomsen', username: 'oliver.t', year_group: 2014, gender: 'boys', total_points: 320, exercises_completed: 25, current_streak: 7, last_active: '2024-12-15', is_active: true },
-    { id: 'p6', display_name: 'Nora Berg', username: 'nora.b', year_group: 2016, gender: 'girls', total_points: 280, exercises_completed: 22, current_streak: 4, last_active: '2024-12-12', is_active: true },
-    { id: 'p7', display_name: 'Henrik Andersen', username: 'henrik.a', year_group: 2014, gender: 'boys', total_points: 250, exercises_completed: 20, current_streak: 2, last_active: '2024-12-11', is_active: false },
-    { id: 'p8', display_name: 'Ingrid Nilsen', username: 'ingrid.n', year_group: 2016, gender: 'girls', total_points: 220, exercises_completed: 18, current_streak: 0, last_active: '2024-12-10', is_active: false },
-    { id: 'p9', display_name: 'Aksel Hansen', username: 'aksel.h', year_group: 2015, gender: 'boys', total_points: 190, exercises_completed: 15, current_streak: 1, last_active: '2024-12-14', is_active: true },
-    { id: 'p10', display_name: 'Ella Johansen', username: 'ella.j', year_group: 2016, gender: 'girls', total_points: 150, exercises_completed: 12, current_streak: 5, last_active: '2024-12-15', is_active: true },
-    { id: 'p11', display_name: 'Lars Eriksen', username: 'lars.e', year_group: 2013, gender: 'boys', total_points: 130, exercises_completed: 10, current_streak: 0, last_active: '2024-12-08', is_active: false },
-    { id: 'p12', display_name: 'Maja Pedersen', username: 'maja.p', year_group: 2013, gender: 'girls', total_points: 100, exercises_completed: 8, current_streak: 2, last_active: '2024-12-14', is_active: true },
+    { id: 'p1', display_name: 'Martin Solberg', username: 'martin.s', year_group: 2015, gender: 'boys', total_points: 520, exercises_completed: 42, current_streak: 12, longest_streak: 18, last_active: '2024-12-15', is_active: true, created_at: '2024-06-01' },
+    { id: 'p2', display_name: 'Emma Larsen', username: 'emma.l', year_group: 2015, gender: 'girls', total_points: 485, exercises_completed: 38, current_streak: 8, longest_streak: 14, last_active: '2024-12-15', is_active: true, created_at: '2024-06-15' },
+    { id: 'p3', display_name: 'Jonas Kristiansen', username: 'jonas.k', year_group: 2014, gender: 'boys', total_points: 460, exercises_completed: 35, current_streak: 15, longest_streak: 22, last_active: '2024-12-14', is_active: true, created_at: '2024-07-01' },
+    { id: 'p4', display_name: 'Sofia Mikkelsen', username: 'sofia.m', year_group: 2015, gender: 'girls', total_points: 350, exercises_completed: 28, current_streak: 3, longest_streak: 10, last_active: '2024-12-13', is_active: true, created_at: '2024-07-15' },
+    { id: 'p5', display_name: 'Oliver Thomsen', username: 'oliver.t', year_group: 2014, gender: 'boys', total_points: 320, exercises_completed: 25, current_streak: 7, longest_streak: 12, last_active: '2024-12-15', is_active: true, created_at: '2024-08-01' },
+    { id: 'p6', display_name: 'Nora Berg', username: 'nora.b', year_group: 2016, gender: 'girls', total_points: 280, exercises_completed: 22, current_streak: 4, longest_streak: 9, last_active: '2024-12-12', is_active: true, created_at: '2024-08-15' },
+    { id: 'p7', display_name: 'Henrik Andersen', username: 'henrik.a', year_group: 2014, gender: 'boys', total_points: 250, exercises_completed: 20, current_streak: 2, longest_streak: 8, last_active: '2024-12-11', is_active: false, created_at: '2024-09-01' },
+    { id: 'p8', display_name: 'Ingrid Nilsen', username: 'ingrid.n', year_group: 2016, gender: 'girls', total_points: 220, exercises_completed: 18, current_streak: 0, longest_streak: 6, last_active: '2024-12-10', is_active: false, created_at: '2024-09-15' },
+    { id: 'p9', display_name: 'Aksel Hansen', username: 'aksel.h', year_group: 2015, gender: 'boys', total_points: 190, exercises_completed: 15, current_streak: 1, longest_streak: 5, last_active: '2024-12-14', is_active: true, created_at: '2024-10-01' },
+    { id: 'p10', display_name: 'Ella Johansen', username: 'ella.j', year_group: 2016, gender: 'girls', total_points: 150, exercises_completed: 12, current_streak: 5, longest_streak: 7, last_active: '2024-12-15', is_active: true, created_at: '2024-10-15' },
+    { id: 'p11', display_name: 'Lars Eriksen', username: 'lars.e', year_group: 2013, gender: 'boys', total_points: 130, exercises_completed: 10, current_streak: 0, longest_streak: 4, last_active: '2024-12-08', is_active: false, created_at: '2024-11-01' },
+    { id: 'p12', display_name: 'Maja Pedersen', username: 'maja.p', year_group: 2013, gender: 'girls', total_points: 100, exercises_completed: 8, current_streak: 2, longest_streak: 3, last_active: '2024-12-14', is_active: true, created_at: '2024-11-15' },
 ];
 
 export const mockAdminActivity: AdminActivity[] = [
@@ -283,3 +283,16 @@ export const mockReportData = {
         { label: 'Vanskelig', value: 20 },
     ] as ChartDataPoint[],
 };
+
+export const mockPlayerCompletions: PlayerCompletion[] = [
+    { exercise_title: 'Sprintøvelser', points_earned: 25, completed_at: '2024-12-15T14:30:00' },
+    { exercise_title: 'Pasningstrening', points_earned: 15, completed_at: '2024-12-14T13:45:00' },
+    { exercise_title: 'Dribling i kjegle-bane', points_earned: 30, completed_at: '2024-12-13T11:30:00' },
+    { exercise_title: 'Planken', points_earned: 15, completed_at: '2024-12-12T16:00:00' },
+    { exercise_title: 'Oppvarming med ball', points_earned: 10, completed_at: '2024-12-11T10:00:00' },
+    { exercise_title: 'Styrke: Knebøy', points_earned: 20, completed_at: '2024-12-10T15:00:00' },
+    { exercise_title: 'Stretching', points_earned: 10, completed_at: '2024-12-09T17:00:00' },
+    { exercise_title: 'Stige-øvelser', points_earned: 20, completed_at: '2024-12-08T14:00:00' },
+    { exercise_title: 'Sprintøvelser', points_earned: 25, completed_at: '2024-12-07T12:00:00' },
+    { exercise_title: 'Pasningstrening', points_earned: 15, completed_at: '2024-12-06T11:00:00' },
+];

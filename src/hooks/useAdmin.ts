@@ -56,6 +56,14 @@ export function useReportData(dateRange: '7d' | '30d' | '90d') {
     });
 }
 
+export function usePlayerCompletions(playerId: string) {
+    return useQuery({
+        queryKey: ['admin', 'player', playerId, 'completions'] as const,
+        queryFn: () => adminService.getPlayerCompletions(playerId),
+        enabled: !!playerId,
+    });
+}
+
 export function useDeletePlayer() {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();

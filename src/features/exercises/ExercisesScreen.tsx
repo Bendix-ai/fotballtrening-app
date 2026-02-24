@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card } from '../../components';
+import { Card, SkeletonCard } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
 import { useExercises, useFavorites, useToggleFavorite, useTodayCompletions } from '../../hooks/useExercises';
 import { useAuthStore } from '../../stores';
@@ -23,6 +23,26 @@ import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import * as Haptics from 'expo-haptics';
 
 type ExercisesNavProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExercisesList'>;
+
+function AnimatedListItem({ children, index }: { children: React.ReactNode; index: number }) {
+    const anim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        Animated.timing(anim, {
+            toValue: 1,
+            duration: 350,
+            delay: Math.min(index * 60, 300),
+            useNativeDriver: true,
+        }).start();
+    }, []);
+    return (
+        <Animated.View style={{
+            opacity: anim,
+            transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+        }}>
+            {children}
+        </Animated.View>
+    );
+}
 
 const categories: (ExerciseCategory | 'all')[] = [
     'all',
@@ -56,7 +76,7 @@ export function ExercisesScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
     const { user } = useAuthStore();
-    const { data: allExercisesRaw = [], refetch } = useExercises();
+    const { data: allExercisesRaw = [], refetch, isLoading: exercisesLoading } = useExercises();
 
     // Filter exercises by team assignment: show exercises with no team restriction or assigned to player's team
     const allExercises = useMemo(() => {
@@ -118,7 +138,8 @@ export function ExercisesScreen() {
         return `${minutes} ${t('exercises.minutes')}`;
     };
 
-    const renderExercise = useCallback(({ item }: { item: Exercise }) => (
+    const renderExercise = useCallback(({ item, index }: { item: Exercise; index: number }) => (
+        <AnimatedListItem index={index}>
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })} testID="exercise-card">
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
@@ -199,6 +220,7 @@ export function ExercisesScreen() {
                 </View>
             </Card>
         </TouchableOpacity>
+        </AnimatedListItem>
     ), [colors, navigation, isFavorite, handleToggleFavorite, completedTodaySet]);
 
     return (
@@ -270,19 +292,27 @@ export function ExercisesScreen() {
             </View>
 
             {/* Exercise List */}
-            <FlatList
-                data={filteredExercises}
-                keyExtractor={(item) => item.id}
-                renderItem={renderExercise}
-                contentContainerStyle={styles.list}
-                showsVerticalScrollIndicator={false}
-                maxToRenderPerBatch={10}
-                windowSize={5}
-                removeClippedSubviews
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-                }
-            />
+            {exercisesLoading ? (
+                <View style={styles.list}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <SkeletonCard key={i} />
+                    ))}
+                </View>
+            ) : (
+                <FlatList
+                    data={filteredExercises}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderExercise}
+                    contentContainerStyle={styles.list}
+                    showsVerticalScrollIndicator={false}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
+                    removeClippedSubviews
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                    }
+                />
+            )}
         </SafeAreaView>
     );
 }

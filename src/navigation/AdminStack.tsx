@@ -7,6 +7,8 @@ import { AddEditExerciseScreen } from '../features/admin/AddEditExerciseScreen';
 import { AddYearGroupScreen } from '../features/admin/AddYearGroupScreen';
 import { ExercisePreviewScreen } from '../features/admin/ExercisePreviewScreen';
 import { ExerciseStoreDetailScreen } from '../features/admin/ExerciseStoreDetailScreen';
+import { PlayerDetailScreen } from '../features/admin/PlayerDetailScreen';
+import { HelpCenterScreen } from '../features/admin/HelpCenterScreen';
 
 const Stack = createNativeStackNavigator<AdminStackParamList>();
 
@@ -36,6 +38,14 @@ export function AdminStack() {
             <Stack.Screen
                 name="ExerciseStoreDetail"
                 component={ExerciseStoreDetailScreen}
+            />
+            <Stack.Screen
+                name="PlayerDetail"
+                component={PlayerDetailScreen}
+            />
+            <Stack.Screen
+                name="HelpCenter"
+                component={HelpCenterScreen}
             />
         </Stack.Navigator>
     );

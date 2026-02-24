@@ -5,6 +5,8 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    Image,
+    Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -92,14 +94,53 @@ export function ExerciseDetailScreen() {
                     />
                 </TouchableOpacity>
 
-                {/* Hero image placeholder */}
-                <View style={[styles.heroImage, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}>
-                    <MaterialIcons
-                        name={getCategoryIcon(exercise.category)}
-                        size={80}
-                        color={getCategoryColor(exercise.category)}
-                    />
-                </View>
+                {/* Hero image / video */}
+                {exercise.image_url ? (
+                    <View style={styles.heroImage}>
+                        <Image
+                            source={{ uri: exercise.image_url }}
+                            style={styles.heroImageContent}
+                            resizeMode="cover"
+                        />
+                        {exercise.video_url && (
+                            <TouchableOpacity
+                                style={styles.playOverlay}
+                                onPress={() => Linking.openURL(exercise.video_url!)}
+                                accessibilityLabel="Play video"
+                            >
+                                <View style={styles.playButton}>
+                                    <MaterialIcons name="play-arrow" size={40} color="#ffffff" />
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                ) : exercise.video_url ? (
+                    <TouchableOpacity
+                        style={[styles.heroImage, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}
+                        onPress={() => Linking.openURL(exercise.video_url!)}
+                        accessibilityLabel="Play video"
+                    >
+                        <MaterialIcons
+                            name={getCategoryIcon(exercise.category)}
+                            size={60}
+                            color={getCategoryColor(exercise.category)}
+                        />
+                        <View style={styles.videoLabel}>
+                            <MaterialIcons name="play-circle-outline" size={24} color={getCategoryColor(exercise.category)} />
+                            <Text style={[styles.videoLabelText, { color: getCategoryColor(exercise.category) }]}>
+                                {t('exercises.watchVideo')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                ) : (
+                    <View style={[styles.heroImage, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}>
+                        <MaterialIcons
+                            name={getCategoryIcon(exercise.category)}
+                            size={80}
+                            color={getCategoryColor(exercise.category)}
+                        />
+                    </View>
+                )}
 
                 {/* Title & meta */}
                 <View style={styles.titleSection}>
@@ -250,6 +291,34 @@ const styles = StyleSheet.create({
         height: 220,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    heroImageContent: {
+        width: '100%',
+        height: '100%',
+    },
+    playOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+    },
+    playButton: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    videoLabel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 12,
+    },
+    videoLabelText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     titleSection: {
         paddingHorizontal: 20,

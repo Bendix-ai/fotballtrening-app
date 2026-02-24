@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
     View,
     Text,
@@ -10,11 +10,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { ProgressBar, Button, ConfirmationDialog } from '../../components';
 import { ExercisesStackParamList } from '../../types';
 import { useExercise } from '../../hooks/useExercises';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const TIMER_SIZE = 200;
+const STROKE_WIDTH = 8;
+const RADIUS = (TIMER_SIZE - STROKE_WIDTH) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 type ExecRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseExecution'>;
 type ExecNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseExecution'>;
@@ -39,6 +46,30 @@ export function ExerciseExecutionScreen() {
 
     const isComplete = elapsedSeconds >= totalDuration;
     const progress = Math.min(elapsedSeconds / totalDuration, 1);
+    const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds);
+
+    // Animated progress for SVG circle
+    const progressAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        Animated.timing(progressAnim, {
+            toValue: progress,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    }, [progress]);
+
+    const strokeDashoffset = progressAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [CIRCUMFERENCE, 0],
+    });
+
+    // Color: green→yellow in last 10s, yellow→red in last 5s
+    const timerColor = useMemo(() => {
+        if (isComplete) return colors.success;
+        if (remainingSeconds <= 5) return colors.error;
+        if (remainingSeconds <= 10) return colors.warning;
+        return colors.primary;
+    }, [remainingSeconds, isComplete, colors]);
 
     const startTimer = useCallback(() => {
         if (intervalRef.current) return;
@@ -126,8 +157,6 @@ export function ExerciseExecutionScreen() {
         }
     }, [progress]);
 
-    const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds);
-
     // Get current instruction step based on progress
     const instructions = exercise?.instructions.split('. ').filter(Boolean) ?? [];
     const currentStepIndex = Math.min(
@@ -174,20 +203,47 @@ export function ExerciseExecutionScreen() {
                     </Animated.View>
                 )}
 
-                {/* Timer circle */}
-                <View testID="exercise-timer" style={[styles.timerCircle, { borderColor: isComplete ? colors.success : colors.primary }]}>
-                    {isComplete ? (
-                        <MaterialIcons name="check" size={60} color={colors.success} />
-                    ) : (
-                        <>
-                            <Text style={[styles.timerValue, { color: colors.text }]}>
-                                {formatTime(remainingSeconds)}
-                            </Text>
-                            <Text style={[styles.timerLabel, { color: colors.textSecondary }]}>
-                                {isPaused ? t('exercises.paused') : t('exercises.remaining')}
-                            </Text>
-                        </>
-                    )}
+                {/* Timer circle with animated ring */}
+                <View testID="exercise-timer" style={styles.timerContainer}>
+                    <Svg width={TIMER_SIZE} height={TIMER_SIZE} style={styles.timerSvg}>
+                        {/* Background track */}
+                        <Circle
+                            cx={TIMER_SIZE / 2}
+                            cy={TIMER_SIZE / 2}
+                            r={RADIUS}
+                            stroke={colors.border}
+                            strokeWidth={STROKE_WIDTH}
+                            fill="none"
+                        />
+                        {/* Animated progress arc */}
+                        <AnimatedCircle
+                            cx={TIMER_SIZE / 2}
+                            cy={TIMER_SIZE / 2}
+                            r={RADIUS}
+                            stroke={timerColor}
+                            strokeWidth={STROKE_WIDTH}
+                            fill="none"
+                            strokeDasharray={CIRCUMFERENCE}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            rotation="-90"
+                            origin={`${TIMER_SIZE / 2}, ${TIMER_SIZE / 2}`}
+                        />
+                    </Svg>
+                    <View style={styles.timerContent}>
+                        {isComplete ? (
+                            <MaterialIcons name="check" size={60} color={colors.success} />
+                        ) : (
+                            <>
+                                <Text style={[styles.timerValue, { color: timerColor }]}>
+                                    {formatTime(remainingSeconds)}
+                                </Text>
+                                <Text style={[styles.timerLabel, { color: colors.textSecondary }]}>
+                                    {isPaused ? t('exercises.paused') : t('exercises.remaining')}
+                                </Text>
+                            </>
+                        )}
+                    </View>
                 </View>
 
                 {/* Current step */}
@@ -292,14 +348,19 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'center',
     },
-    timerCircle: {
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        borderWidth: 6,
+    timerContainer: {
+        width: TIMER_SIZE,
+        height: TIMER_SIZE,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 40,
+    },
+    timerSvg: {
+        position: 'absolute',
+    },
+    timerContent: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     timerValue: {
         fontSize: 40,

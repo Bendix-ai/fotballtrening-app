@@ -57,7 +57,8 @@ export function PlayersManagementScreen() {
     const renderPlayer = ({ item }: { item: AdminPlayer }) => (
         <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('AddEditPlayer', { playerId: item.id })}
+            onPress={() => navigation.navigate('PlayerDetail', { playerId: item.id })}
+            testID={`player-row-${item.id}`}
         >
             <Card style={styles.playerCard}>
                 <View style={styles.playerRow}>

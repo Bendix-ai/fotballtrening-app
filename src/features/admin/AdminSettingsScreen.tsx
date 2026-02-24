@@ -10,15 +10,19 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card, Button, ConfirmationDialog } from '../../components';
 import { useAuthStore, useAppStore } from '../../stores';
 import { useDashboardMetrics } from '../../hooks/useAdmin';
 import { getAppVersion } from '../../lib/version';
+import { AdminStackParamList } from '../../types';
 
 export function AdminSettingsScreen() {
     const { colors } = useTheme();
+    const navigation = useNavigation<NativeStackNavigationProp<AdminStackParamList>>();
     const { user, club, logout } = useAuthStore();
     const { themeMode, setThemeMode, notificationPrefs, setNotificationPref } = useAppStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -159,6 +163,17 @@ export function AdminSettingsScreen() {
                         {t('admin.support')}
                     </Text>
                     <Card style={styles.listCard}>
+                        <TouchableOpacity
+                            style={[styles.settingsRow, { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+                            onPress={() => navigation.navigate('HelpCenter')}
+                            testID="admin-help-center-button"
+                        >
+                            <MaterialIcons name="help-outline" size={20} color={colors.textSecondary} />
+                            <Text style={[styles.settingsLabel, { color: colors.text }]}>
+                                {t('admin.helpCenter')}
+                            </Text>
+                            <MaterialIcons name="chevron-right" size={24} color={colors.textTertiary} />
+                        </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.settingsRow, { borderBottomWidth: 1, borderBottomColor: colors.border }]}
                             onPress={() => Linking.openURL('mailto:support@fotballtrening.no')}
