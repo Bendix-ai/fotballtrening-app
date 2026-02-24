@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
+    Image,
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
@@ -300,7 +301,7 @@ export function RegisterScreen() {
                 >
                     {/* Header */}
                     <View style={styles.header}>
-                        <MaterialIcons name="sports-soccer" size={64} color={colors.primary} />
+                        <Image source={require('../../../assets/Fotballtrening_icon.png')} style={{ width: 80, height: 80, borderRadius: 20 }} />
                         <Text style={[styles.title, { color: colors.text }]}>
                             FotballTrening
                         </Text>

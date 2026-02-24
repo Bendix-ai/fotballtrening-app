@@ -2,6 +2,7 @@ import React from 'react';
 import {
     View,
     Text,
+    Image,
     StyleSheet,
     ScrollView,
     TouchableOpacity,
@@ -13,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card } from '../../components';
+import { getAppVersion, getFullVersion } from '../../lib/version';
 
 export function AboutScreen() {
     const { colors } = useTheme();
@@ -34,14 +36,12 @@ export function AboutScreen() {
 
                 {/* App icon & name */}
                 <View style={styles.appInfo}>
-                    <View style={[styles.appIcon, { backgroundColor: colors.primary }]}>
-                        <MaterialIcons name="sports-soccer" size={48} color="#FFFFFF" />
-                    </View>
+                    <Image source={require('../../../assets/Fotballtrening_icon.png')} style={styles.appIcon} />
                     <Text style={[styles.appName, { color: colors.text }]}>
                         FotballTrening
                     </Text>
                     <Text style={[styles.version, { color: colors.textSecondary }]}>
-                        {t('about.version')} 1.0.0
+                        {t('about.version')} {getAppVersion()}
                     </Text>
                 </View>
 
@@ -69,7 +69,7 @@ export function AboutScreen() {
                             {t('about.version')}
                         </Text>
                         <Text style={[styles.infoValue, { color: colors.textSecondary }]}>
-                            1.0.0 (1)
+                            {getFullVersion()}
                         </Text>
                     </View>
                     <TouchableOpacity
@@ -124,8 +124,6 @@ const styles = StyleSheet.create({
         width: 88,
         height: 88,
         borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
         marginBottom: 16,
     },
     appName: {

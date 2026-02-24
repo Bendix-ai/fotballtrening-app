@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -96,7 +96,7 @@ export function AppNavigator() {
     if (isLoading) {
         return (
             <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-                <MaterialIcons name="sports-soccer" size={48} color={colors.primary} />
+                <Image source={require('../../assets/Fotballtrening_icon.png')} style={{ width: 64, height: 64, borderRadius: 16 }} />
                 <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
                     {t('common.loading')}
                 </Text>

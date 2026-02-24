@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
+    Image,
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
@@ -10,7 +11,6 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Input, Dropdown, useToast } from '../../components';
@@ -253,7 +253,7 @@ export function LoginScreen() {
                 >
                     {/* Header */}
                     <View style={styles.header}>
-                        <MaterialIcons name="sports-soccer" size={64} color={colors.primary} />
+                        <Image source={require('../../../assets/Fotballtrening_icon.png')} style={{ width: 80, height: 80, borderRadius: 20 }} />
                         <Text style={[styles.title, { color: colors.text }]}>
                             FotballTrening
                         </Text>
