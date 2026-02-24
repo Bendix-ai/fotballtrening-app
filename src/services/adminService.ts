@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { AdminPlayer, DashboardMetrics, AdminActivity, Gender } from '../types';
-import { mockAdminPlayers, mockDashboardMetrics, mockAdminActivity } from '../data/mockData';
+import { AdminPlayer, DashboardMetrics, AdminActivity, Gender, ReportData, ChartDataPoint } from '../types';
+import { mockAdminPlayers, mockDashboardMetrics, mockAdminActivity, mockReportData } from '../data/mockData';
 
 export async function getPlayers(
     clubId: string,
@@ -82,8 +82,27 @@ export async function getDashboardMetrics(
     }
 
     if (error || !data || data.length === 0) {
-        console.error('getDashboardMetrics error:', error);
-        return mockDashboardMetrics;
+        console.error('getDashboardMetrics RPC error, falling back to direct count:', error);
+        // Fallback: direct count from profiles table instead of mock data
+        try {
+            let countQuery = supabase
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+                .eq('club_id', clubId)
+                .eq('role', 'player');
+            if (teamIds && teamIds.length > 0) {
+                countQuery = countQuery.in('team_id', teamIds);
+            }
+            const { count } = await countQuery;
+            return {
+                totalPlayers: count ?? 0,
+                activeLast7Days: 0,
+                totalCompletions: 0,
+                engagementRate: 0,
+            };
+        } catch {
+            return mockDashboardMetrics;
+        }
     }
 
     const row = data[0];
@@ -134,6 +153,42 @@ export async function getRecentActivity(
         }));
 }
 
+export async function getPlayerById(playerId: string): Promise<AdminPlayer | null> {
+    if (!isSupabaseConfigured()) {
+        return mockAdminPlayers.find((p) => p.id === playerId) ?? null;
+    }
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+            id, username, display_name, avatar_url,
+            total_points, current_streak, is_active, last_login,
+            teams:team_id (gender, year_group_id, year_groups:year_group_id (year))
+        `)
+        .eq('id', playerId)
+        .single();
+
+    if (error || !data) {
+        console.error('getPlayerById error:', error);
+        return null;
+    }
+
+    const p = data as any;
+    return {
+        id: p.id,
+        display_name: p.display_name,
+        username: p.username,
+        year_group: p.teams?.year_groups?.year ?? 0,
+        year_group_id: p.teams?.year_group_id ?? undefined,
+        gender: (p.teams?.gender as Gender) ?? 'boys',
+        total_points: p.total_points,
+        exercises_completed: 0,
+        current_streak: p.current_streak,
+        last_active: p.last_login || '',
+        is_active: p.is_active,
+    };
+}
+
 export async function deletePlayer(userId: string): Promise<boolean> {
     if (!isSupabaseConfigured()) return false;
 
@@ -147,4 +202,108 @@ export async function deletePlayer(userId: string): Promise<boolean> {
         return false;
     }
     return true;
+}
+
+export async function getReportData(
+    clubId: string,
+    dateRange: '7d' | '30d' | '90d',
+    teamIds?: string[] | null
+): Promise<ReportData> {
+    if (!isSupabaseConfigured()) return mockReportData;
+
+    const daysMap = { '7d': 7, '30d': 30, '90d': 90 };
+    const days = daysMap[dateRange];
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    const sinceStr = since.toISOString();
+
+    // Fetch completions with exercise info
+    const query = supabase
+        .from('exercise_completions')
+        .select(`
+            completed_at,
+            points_earned,
+            exercises:exercise_id (category, difficulty),
+            profiles:user_id (club_id, team_id)
+        `)
+        .gte('completed_at', sinceStr);
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+        console.error('getReportData error:', error);
+        return mockReportData;
+    }
+
+    // Filter to club/team scope
+    const filtered = (data as any[]).filter((d) => {
+        if (d.profiles?.club_id !== clubId) return false;
+        if (teamIds && teamIds.length > 0 && !teamIds.includes(d.profiles?.team_id)) return false;
+        return true;
+    });
+
+    // Weekly activity (day of week)
+    const dayLabels = ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'];
+    const dayCountsArr = [0, 0, 0, 0, 0, 0, 0];
+    filtered.forEach((d) => {
+        const dow = new Date(d.completed_at).getDay();
+        dayCountsArr[dow]++;
+    });
+    // Reorder Mon-Sun
+    const weeklyActivity: ChartDataPoint[] = [1, 2, 3, 4, 5, 6, 0].map((i) => ({
+        label: dayLabels[i],
+        value: dayCountsArr[i],
+    }));
+
+    // Monthly points
+    const monthMap: Record<string, number> = {};
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+    filtered.forEach((d) => {
+        const m = new Date(d.completed_at).getMonth();
+        const key = monthLabels[m];
+        monthMap[key] = (monthMap[key] ?? 0) + (d.points_earned ?? 0);
+    });
+    // Get unique months in order
+    const seenMonths = new Set<string>();
+    filtered.forEach((d) => {
+        seenMonths.add(monthLabels[new Date(d.completed_at).getMonth()]);
+    });
+    const monthlyPoints: ChartDataPoint[] = monthLabels
+        .filter((m) => seenMonths.has(m))
+        .map((m) => ({ label: m, value: monthMap[m] ?? 0 }));
+
+    // Category distribution
+    const catMap: Record<string, number> = {};
+    filtered.forEach((d) => {
+        const cat = d.exercises?.category ?? 'other';
+        catMap[cat] = (catMap[cat] ?? 0) + 1;
+    });
+    const catLabels: Record<string, string> = {
+        warmup: 'Oppvarming', strength: 'Styrke', agility: 'Hurtighet',
+        skill: 'Teknikk', cooldown: 'Nedtrapping', other: 'Annet',
+    };
+    const categoryDistribution: ChartDataPoint[] = Object.entries(catMap).map(([k, v]) => ({
+        label: catLabels[k] ?? k,
+        value: v,
+    }));
+
+    // Difficulty distribution
+    const diffMap: Record<string, number> = {};
+    filtered.forEach((d) => {
+        const diff = d.exercises?.difficulty ?? 'unknown';
+        diffMap[diff] = (diffMap[diff] ?? 0) + 1;
+    });
+    const diffLabels: Record<string, string> = {
+        easy: 'Lett', medium: 'Middels', hard: 'Vanskelig',
+    };
+    const total = filtered.length || 1;
+    const difficultyDistribution: ChartDataPoint[] = Object.entries(diffMap).map(([k, v]) => ({
+        label: diffLabels[k] ?? k,
+        value: Math.round((v / total) * 100),
+    }));
+
+    // Return mock data as fallback if no completions found
+    if (filtered.length === 0) return mockReportData;
+
+    return { weeklyActivity, monthlyPoints, categoryDistribution, difficultyDistribution };
 }

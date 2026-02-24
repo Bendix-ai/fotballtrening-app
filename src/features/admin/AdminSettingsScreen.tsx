@@ -14,14 +14,15 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card, Button, ConfirmationDialog } from '../../components';
 import { useAuthStore, useAppStore } from '../../stores';
+import { useDashboardMetrics } from '../../hooks/useAdmin';
+import { getAppVersion } from '../../lib/version';
 
 export function AdminSettingsScreen() {
     const { colors } = useTheme();
-    const { user, logout } = useAuthStore();
-    const { themeMode, setThemeMode } = useAppStore();
+    const { user, club, logout } = useAuthStore();
+    const { themeMode, setThemeMode, notificationPrefs, setNotificationPref } = useAppStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-    const [emailNotifications, setEmailNotifications] = useState(true);
-    const [pushNotifications, setPushNotifications] = useState(true);
+    const { data: metrics } = useDashboardMetrics();
 
     const displayName = user?.display_name || 'Admin';
 
@@ -71,7 +72,7 @@ export function AdminSettingsScreen() {
                                 {t('admin.clubName')}
                             </Text>
                             <Text style={[styles.settingsValue, { color: colors.textSecondary }]}>
-                                Våganes IL
+                                {club?.name ?? '-'}
                             </Text>
                         </View>
                         <View style={styles.settingsRow}>
@@ -80,7 +81,7 @@ export function AdminSettingsScreen() {
                                 {t('admin.totalPlayers')}
                             </Text>
                             <Text style={[styles.settingsValue, { color: colors.textSecondary }]}>
-                                12
+                                {metrics?.totalPlayers ?? '-'}
                             </Text>
                         </View>
                     </Card>
@@ -98,10 +99,10 @@ export function AdminSettingsScreen() {
                                 {t('admin.emailNotifications')}
                             </Text>
                             <Switch
-                                value={emailNotifications}
-                                onValueChange={setEmailNotifications}
+                                value={notificationPrefs.emailNotifications}
+                                onValueChange={(v) => setNotificationPref('emailNotifications', v)}
                                 trackColor={{ false: colors.border, true: colors.primary + '80' }}
-                                thumbColor={emailNotifications ? colors.primary : colors.textTertiary}
+                                thumbColor={notificationPrefs.emailNotifications ? colors.primary : colors.textTertiary}
                             />
                         </View>
                         <View style={styles.toggleRow}>
@@ -110,10 +111,10 @@ export function AdminSettingsScreen() {
                                 {t('admin.pushNotifications')}
                             </Text>
                             <Switch
-                                value={pushNotifications}
-                                onValueChange={setPushNotifications}
+                                value={notificationPrefs.pushNotifications}
+                                onValueChange={(v) => setNotificationPref('pushNotifications', v)}
                                 trackColor={{ false: colors.border, true: colors.primary + '80' }}
-                                thumbColor={pushNotifications ? colors.primary : colors.textTertiary}
+                                thumbColor={notificationPrefs.pushNotifications ? colors.primary : colors.textTertiary}
                             />
                         </View>
                     </Card>
@@ -168,23 +169,13 @@ export function AdminSettingsScreen() {
                             </Text>
                             <MaterialIcons name="chevron-right" size={24} color={colors.textTertiary} />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.settingsRow, { borderBottomWidth: 1, borderBottomColor: colors.border }]}
-                            onPress={() => Linking.openURL('https://fotballtrening.no/help')}
-                        >
-                            <MaterialIcons name="help-outline" size={20} color={colors.textSecondary} />
-                            <Text style={[styles.settingsLabel, { color: colors.text }]}>
-                                {t('admin.helpCenter')}
-                            </Text>
-                            <MaterialIcons name="chevron-right" size={24} color={colors.textTertiary} />
-                        </TouchableOpacity>
                         <View style={styles.settingsRow}>
                             <MaterialIcons name="info-outline" size={20} color={colors.textSecondary} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>
                                 {t('settings.version')}
                             </Text>
                             <Text style={[styles.settingsValue, { color: colors.textTertiary }]}>
-                                v1.0.0
+                                v{getAppVersion()}
                             </Text>
                         </View>
                     </Card>

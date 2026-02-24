@@ -103,9 +103,9 @@ describe('clubService', () => {
   });
 
   describe('addYearGroup', () => {
-    it('should return false when not configured', async () => {
+    it('should throw when not configured', async () => {
       (isSupabaseConfigured as jest.Mock).mockReturnValue(false);
-      expect(await clubService.addYearGroup('c1', 2015)).toBe(false);
+      await expect(clubService.addYearGroup('c1', 2015)).rejects.toThrow('Supabase not configured');
     });
 
     it('should insert year group and auto-create teams', async () => {

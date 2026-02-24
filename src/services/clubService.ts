@@ -108,7 +108,7 @@ export async function getAllTeamsForClub(clubId: string): Promise<{
 }
 
 export async function addYearGroup(clubId: string, year: number): Promise<boolean> {
-    if (!isSupabaseConfigured()) return false;
+    if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
 
     const { data: yg, error: ygError } = await supabase
         .from('year_groups')
@@ -118,7 +118,7 @@ export async function addYearGroup(clubId: string, year: number): Promise<boolea
 
     if (ygError) {
         console.error('addYearGroup error:', ygError);
-        return false;
+        throw new Error(ygError.message);
     }
 
     // Auto-create boys and girls teams

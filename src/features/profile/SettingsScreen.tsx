@@ -15,6 +15,7 @@ import { t, getSupportedLanguages, Language } from '../../lib/i18n';
 import { Card, Button, ConfirmationDialog } from '../../components';
 import { useAuthStore, useAppStore } from '../../stores';
 import { ProfileStackParamList } from '../../types';
+import { getAppVersion } from '../../lib/version';
 
 type SettingsNavProp = NativeStackNavigationProp<ProfileStackParamList, 'Settings'>;
 
@@ -48,7 +49,7 @@ export function SettingsScreen() {
             onPress: () => navigation.navigate('About'),
             trailing: (
                 <Text style={[styles.versionText, { color: colors.textTertiary }]}>
-                    v1.0.0
+                    v{getAppVersion()}
                 </Text>
             ),
         },

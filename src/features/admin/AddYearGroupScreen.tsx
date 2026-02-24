@@ -14,11 +14,16 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, Input, useToast } from '../../components';
+import { useAuthStore } from '../../stores';
+import { useAddYearGroup } from '../../hooks/useClub';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 export function AddYearGroupScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const { showToast } = useToast();
+    const { user } = useAuthStore();
+    const addYearGroupMutation = useAddYearGroup();
 
     const [year, setYear] = useState('');
     const [hasBoys, setHasBoys] = useState(false);
@@ -39,11 +44,21 @@ export function AddYearGroupScreen() {
         setIsLoading(true);
         setError('');
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+            const clubId = user?.club_id ?? '';
+            if (isSupabaseConfigured() && clubId) {
+                await addYearGroupMutation.mutateAsync({ clubId, year: parseInt(year.trim()) });
+            } else {
+                // Mock fallback
+                await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+            showToast('Årgang lagt til!', 'success');
+            navigation.goBack();
+        } catch (err: any) {
+            setError(err?.message || 'Kunne ikke legge til årgang');
+        }
 
-        showToast('Årgang lagt til!', 'success');
         setIsLoading(false);
-        navigation.goBack();
     };
 
     return (

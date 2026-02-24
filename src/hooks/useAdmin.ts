@@ -37,6 +37,25 @@ export function useRecentActivity() {
     });
 }
 
+export function usePlayer(playerId: string | undefined) {
+    return useQuery({
+        queryKey: ['admin', 'player', playerId] as const,
+        queryFn: () => adminService.getPlayerById(playerId!),
+        enabled: !!playerId,
+    });
+}
+
+export function useReportData(dateRange: '7d' | '30d' | '90d') {
+    const { user, getEffectiveTeamIds } = useAuthStore();
+    const clubId = user?.club_id ?? '';
+    const teamIds = getEffectiveTeamIds();
+    return useQuery({
+        queryKey: ['admin', 'reports', clubId, dateRange, teamIds] as const,
+        queryFn: () => adminService.getReportData(clubId, dateRange, teamIds),
+        enabled: !!clubId,
+    });
+}
+
 export function useDeletePlayer() {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();

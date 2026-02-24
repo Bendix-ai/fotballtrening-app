@@ -8,6 +8,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ import { isSupabaseConfigured } from '../../lib/supabase';
 import { supabase } from '../../lib/supabase';
 import * as authService from '../../services/authService';
 import * as clubService from '../../services/clubService';
+import { usePlayer } from '../../hooks/useAdmin';
 import { AdminStackParamList, Gender } from '../../types';
 
 type EditPlayerRoute = RouteProp<AdminStackParamList, 'AddEditPlayer'>;
@@ -35,22 +37,30 @@ export function AddEditPlayerScreen() {
     const route = useRoute<EditPlayerRoute>();
     const { showToast } = useToast();
     const { user } = useAuthStore();
-    const { players, addPlayer, updatePlayer } = useAdminStore();
+    const { addPlayer, updatePlayer } = useAdminStore();
 
     const playerId = route.params?.playerId;
-    const existingPlayer = playerId ? players.find((p) => p.id === playerId) : null;
-    const isEditing = !!existingPlayer;
+    const { data: existingPlayer, isLoading: loadingPlayer } = usePlayer(playerId);
+    const isEditing = !!playerId && !!existingPlayer;
 
-    const [name, setName] = useState(existingPlayer?.display_name ?? '');
-    const [username, setUsername] = useState(existingPlayer?.username ?? '');
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [selectedYear, setSelectedYear] = useState<string | null>(
-        existingPlayer ? String(existingPlayer.year_group) : null
-    );
-    const [selectedGender, setSelectedGender] = useState<string | null>(
-        existingPlayer?.gender ?? null
-    );
+    const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [selectedGender, setSelectedGender] = useState<string | null>(null);
+    const [formPopulated, setFormPopulated] = useState(false);
+
+    // Populate form when player data loads
+    useEffect(() => {
+        if (existingPlayer && !formPopulated) {
+            setName(existingPlayer.display_name ?? '');
+            setUsername(existingPlayer.username ?? '');
+            setSelectedYear(existingPlayer.year_group_id ?? null);
+            setSelectedGender(existingPlayer.gender ?? null);
+            setFormPopulated(true);
+        }
+    }, [existingPlayer, formPopulated]);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -216,6 +226,17 @@ export function AddEditPlayerScreen() {
         setIsLoading(false);
     };
 
+    // Show loading spinner while fetching player data for edit
+    if (playerId && loadingPlayer) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <KeyboardAvoidingView
@@ -313,6 +334,11 @@ export function AddEditPlayerScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         flexDirection: 'row',

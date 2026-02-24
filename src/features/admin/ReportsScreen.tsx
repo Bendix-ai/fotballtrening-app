@@ -12,7 +12,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card, Button, useToast } from '../../components';
 import { mockReportData } from '../../data/mockData';
-import { useDashboardMetrics } from '../../hooks/useAdmin';
+import { useDashboardMetrics, useReportData } from '../../hooks/useAdmin';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
 
 class ChartErrorBoundary extends Component<
@@ -50,6 +50,8 @@ export function ReportsScreen() {
     const { showToast } = useToast();
     const [selectedRange, setSelectedRange] = useState<DateRange>('30d');
     const { data: metrics } = useDashboardMetrics();
+    const { data: reportData } = useReportData(selectedRange);
+    const report = reportData ?? mockReportData;
     const dashboardMetrics = metrics ?? { totalCompletions: 0, engagementRate: 0 };
 
     const chartConfig = {
@@ -68,17 +70,17 @@ export function ReportsScreen() {
     };
 
     const activityData = {
-        labels: mockReportData.weeklyActivity.map((d) => d.label),
-        datasets: [{ data: mockReportData.weeklyActivity.map((d) => d.value) }],
+        labels: report.weeklyActivity.map((d) => d.label),
+        datasets: [{ data: report.weeklyActivity.map((d) => d.value) }],
     };
 
     const pointsData = {
-        labels: mockReportData.monthlyPoints.map((d) => d.label),
-        datasets: [{ data: mockReportData.monthlyPoints.map((d) => d.value) }],
+        labels: report.monthlyPoints.map((d) => d.label),
+        datasets: [{ data: report.monthlyPoints.map((d) => d.value) }],
     };
 
     const pieColors = ['#2E7D32', '#FF9800', '#2196F3', '#E91E63', '#9C27B0'];
-    const pieData = mockReportData.categoryDistribution.map((d, i) => ({
+    const pieData = report.categoryDistribution.map((d, i) => ({
         name: d.label,
         value: d.value,
         color: pieColors[i % pieColors.length],
@@ -87,8 +89,8 @@ export function ReportsScreen() {
     }));
 
     const difficultyData = {
-        labels: mockReportData.difficultyDistribution.map((d) => d.label),
-        datasets: [{ data: mockReportData.difficultyDistribution.map((d) => d.value) }],
+        labels: report.difficultyDistribution.map((d) => d.label),
+        datasets: [{ data: report.difficultyDistribution.map((d) => d.value) }],
     };
 
     const handleExport = (_format: string) => {

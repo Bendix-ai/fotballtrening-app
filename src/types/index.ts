@@ -121,6 +121,7 @@ export interface AdminPlayer {
     display_name: string;
     username: string;
     year_group: number;
+    year_group_id?: string;
     gender: Gender;
     total_points: number;
     exercises_completed: number;
@@ -181,6 +182,13 @@ export interface ClubYearGroup {
 export interface ChartDataPoint {
     label: string;
     value: number;
+}
+
+export interface ReportData {
+    weeklyActivity: ChartDataPoint[];
+    monthlyPoints: ChartDataPoint[];
+    categoryDistribution: ChartDataPoint[];
+    difficultyDistribution: ChartDataPoint[];
 }
 
 // Navigation types

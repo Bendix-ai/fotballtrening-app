@@ -19,6 +19,7 @@ export const queryKeys = {
         players: (clubId: string) => ['admin', 'players', clubId] as const,
         metrics: (clubId: string) => ['admin', 'metrics', clubId] as const,
         activity: (clubId: string) => ['admin', 'activity', clubId] as const,
+        reports: (clubId: string) => ['admin', 'reports', clubId] as const,
     },
     store: {
         exercises: () => ['store', 'exercises'] as const,

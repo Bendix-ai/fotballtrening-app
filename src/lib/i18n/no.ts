@@ -236,6 +236,7 @@ export const no = {
         streakReminder: 'Streak-påminnelse',
         streakReminderDesc: 'Få en påminnelse før streaken brytes',
         note: 'Varsler kan ta noen minutter å aktivere. Du kan endre disse innstillingene når som helst.',
+        pushComingSoon: 'Push-varsler kommer i en fremtidig oppdatering. Innstillingene dine lagres og vil gjelde når funksjonen er klar.',
     },
 
     // About

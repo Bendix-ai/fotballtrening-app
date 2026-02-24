@@ -77,7 +77,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return;
         }
 
-        // Listen for auth state changes — always register
+        // Track whether initial load is complete to avoid duplicate profile fetch
+        let initialLoadDone = false;
+
+        // Listen for auth state changes — handles subsequent changes after init
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_OUT') {
                 set({
@@ -87,13 +90,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                     managedTeamIds: [],
                     isAuthenticated: false,
                     isPasswordRecovery: false,
+                    isLoading: false,
                 });
             } else if (event === 'PASSWORD_RECOVERY' && session?.user) {
                 set({
                     isAuthenticated: true,
                     isPasswordRecovery: true,
+                    isLoading: false,
                 });
             } else if (event === 'SIGNED_IN' && session?.user) {
+                // Skip during initial load — session check handles it
+                if (!initialLoadDone) return;
                 const profile = await authService.getProfile(session.user.id);
                 if (profile) {
                     set({
@@ -102,6 +109,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                         team: profile.team,
                         managedTeamIds: profile.managedTeamIds,
                         isAuthenticated: true,
+                        isLoading: false,
                     });
                 }
             } else if (event === 'TOKEN_REFRESHED' && session?.user) {
@@ -115,6 +123,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                             team: profile.team,
                             managedTeamIds: profile.managedTeamIds,
                             isAuthenticated: true,
+                            isLoading: false,
                         });
                     }
                 }
@@ -122,37 +131,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
 
         try {
-            // Add timeout to prevent indefinite loading when Supabase is unreachable
-            const timeoutMs = 10000;
+            // Timeout covers the ENTIRE session + profile fetch to prevent infinite loading
+            const timeoutMs = 5000;
             let timeoutId: ReturnType<typeof setTimeout>;
-            const sessionPromise = authService.getSession();
-            const timeoutPromise = new Promise<null>((_, reject) => {
+
+            const initPromise = (async () => {
+                const session = await authService.getSession();
+                if (session?.user) {
+                    const profile = await authService.getProfile(session.user.id);
+                    if (profile) {
+                        set({
+                            user: profile.user,
+                            club: profile.club,
+                            team: profile.team,
+                            managedTeamIds: profile.managedTeamIds,
+                            isAuthenticated: true,
+                            isLoading: false,
+                        });
+                        setUserId(profile.user.id);
+                        logLogin(profile.user.role === 'admin' ? 'admin' : 'player');
+                        return;
+                    }
+                }
+                set({ isLoading: false });
+            })();
+
+            const timeoutPromise = new Promise<void>((_, reject) => {
                 timeoutId = setTimeout(() => reject(new Error('Auth init timeout')), timeoutMs);
             });
-            const session = await Promise.race([sessionPromise, timeoutPromise]).finally(() => {
-                clearTimeout(timeoutId);
+
+            await Promise.race([initPromise, timeoutPromise]).finally(() => {
+                clearTimeout(timeoutId!);
             });
-            if (session?.user) {
-                const profile = await authService.getProfile(session.user.id);
-                if (profile) {
-                    set({
-                        user: profile.user,
-                        club: profile.club,
-                        team: profile.team,
-                        managedTeamIds: profile.managedTeamIds,
-                        isAuthenticated: true,
-                        isLoading: false,
-                    });
-                    setUserId(profile.user.id);
-                    logLogin(profile.user.role === 'admin' ? 'admin' : 'player');
-                    return;
-                }
-            }
         } catch (error) {
             console.error('Auth initialize error:', error);
+            set({ isLoading: false });
+        } finally {
+            initialLoadDone = true;
         }
-
-        set({ isLoading: false });
     },
 
     logout: async () => {

@@ -132,8 +132,8 @@ export async function toggleFavorite(userId: string, exerciseId: string, isFavor
     return true;
 }
 
-export async function createExercise(exercise: Omit<Exercise, 'id' | 'created_at'>): Promise<Exercise | null> {
-    if (!isSupabaseConfigured()) return null;
+export async function createExercise(exercise: Omit<Exercise, 'id' | 'created_at'>): Promise<Exercise> {
+    if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
 
     const { data, error } = await supabase
         .from('exercises')
@@ -143,13 +143,13 @@ export async function createExercise(exercise: Omit<Exercise, 'id' | 'created_at
 
     if (error) {
         console.error('createExercise error:', error);
-        return null;
+        throw new Error(error.message);
     }
     return data as Exercise;
 }
 
-export async function updateExercise(id: string, updates: Partial<Exercise>): Promise<Exercise | null> {
-    if (!isSupabaseConfigured()) return null;
+export async function updateExercise(id: string, updates: Partial<Exercise>): Promise<Exercise> {
+    if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
 
     const { data, error } = await supabase
         .from('exercises')
@@ -160,7 +160,7 @@ export async function updateExercise(id: string, updates: Partial<Exercise>): Pr
 
     if (error) {
         console.error('updateExercise error:', error);
-        return null;
+        throw new Error(error.message);
     }
     return data as Exercise;
 }

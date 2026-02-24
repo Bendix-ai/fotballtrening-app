@@ -238,6 +238,7 @@ export const en: Translations = {
         streakReminder: 'Streak reminder',
         streakReminderDesc: 'Get a reminder before your streak breaks',
         note: 'Notifications may take a few minutes to activate. You can change these settings at any time.',
+        pushComingSoon: 'Push notifications are coming in a future update. Your settings are saved and will apply when the feature is ready.',
     },
 
     // About

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     View,
     Text,
@@ -13,39 +13,37 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card } from '../../components';
+import { useAppStore } from '../../stores';
 
 export function NotificationsScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation();
-    const [dailyReminder, setDailyReminder] = useState(true);
-    const [newExercises, setNewExercises] = useState(true);
-    const [leaderboardUpdates, setLeaderboardUpdates] = useState(false);
-    const [streakReminder, setStreakReminder] = useState(true);
+    const { notificationPrefs, setNotificationPref } = useAppStore();
 
     const notificationItems = [
         {
             label: t('notifications.dailyReminder'),
             description: t('notifications.dailyReminderDesc'),
-            value: dailyReminder,
-            onToggle: setDailyReminder,
+            value: notificationPrefs.dailyReminder,
+            onToggle: (v: boolean) => setNotificationPref('dailyReminder', v),
         },
         {
             label: t('notifications.newExercises'),
             description: t('notifications.newExercisesDesc'),
-            value: newExercises,
-            onToggle: setNewExercises,
+            value: notificationPrefs.newExercises,
+            onToggle: (v: boolean) => setNotificationPref('newExercises', v),
         },
         {
             label: t('notifications.leaderboard'),
             description: t('notifications.leaderboardDesc'),
-            value: leaderboardUpdates,
-            onToggle: setLeaderboardUpdates,
+            value: notificationPrefs.leaderboardUpdates,
+            onToggle: (v: boolean) => setNotificationPref('leaderboardUpdates', v),
         },
         {
             label: t('notifications.streakReminder'),
             description: t('notifications.streakReminderDesc'),
-            value: streakReminder,
-            onToggle: setStreakReminder,
+            value: notificationPrefs.streakReminder,
+            onToggle: (v: boolean) => setNotificationPref('streakReminder', v),
         },
     ];
 
@@ -94,7 +92,7 @@ export function NotificationsScreen() {
                 </Card>
 
                 <Text style={[styles.note, { color: colors.textTertiary }]}>
-                    {t('notifications.note')}
+                    {t('notifications.pushComingSoon')}
                 </Text>
             </ScrollView>
         </SafeAreaView>

@@ -65,20 +65,20 @@ export function AddEditExerciseScreen() {
     const [instructions, setInstructions] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [formInitialized, setFormInitialized] = useState(false);
+    const [populatedId, setPopulatedId] = useState<string | null>(null);
 
-    // Populate form when exercise data loads
+    // Populate form when exercise data loads or changes
     React.useEffect(() => {
-        if (existingExercise && !formInitialized) {
+        if (existingExercise && existingExercise.id !== populatedId) {
             setTitle(existingExercise.title);
             setDescription(existingExercise.description);
             setCategory(existingExercise.category);
             setDifficulty(existingExercise.difficulty);
             setDuration(String(existingExercise.duration_seconds));
             setInstructions(existingExercise.instructions ?? '');
-            setFormInitialized(true);
+            setPopulatedId(existingExercise.id);
         }
-    }, [existingExercise, formInitialized]);
+    }, [existingExercise, populatedId]);
 
     const points = getPointsForDifficulty(difficulty as Difficulty | null);
 

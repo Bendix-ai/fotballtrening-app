@@ -144,10 +144,9 @@ describe('exerciseService', () => {
   });
 
   describe('createExercise', () => {
-    it('should return null when not configured', async () => {
+    it('should throw when not configured', async () => {
       (isSupabaseConfigured as jest.Mock).mockReturnValue(false);
-      const result = await exerciseService.createExercise({} as any);
-      expect(result).toBeNull();
+      await expect(exerciseService.createExercise({} as any)).rejects.toThrow('Supabase not configured');
     });
 
     it('should insert and return exercise', async () => {

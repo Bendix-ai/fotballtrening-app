@@ -27,7 +27,7 @@ export function ClubStructureScreen() {
             <View style={styles.statsRow}>
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                        Gutter:
+                        {t('admin.boysCount')}:
                     </Text>
                     <Text style={[styles.statValue, { color: colors.text }]}>
                         {item.boys_count}
@@ -35,7 +35,7 @@ export function ClubStructureScreen() {
                 </View>
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                        Jenter:
+                        {t('admin.girlsCount')}:
                     </Text>
                     <Text style={[styles.statValue, { color: colors.text }]}>
                         {item.girls_count}
@@ -43,7 +43,7 @@ export function ClubStructureScreen() {
                 </View>
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                        Totalt:
+                        {t('admin.totalCount')}:
                     </Text>
                     <Text style={[styles.statValue, { color: colors.text }]}>
                         {item.total_count}
@@ -68,7 +68,7 @@ export function ClubStructureScreen() {
                                 {club?.name ?? ''}
                             </Text>
                             <Text style={[styles.clubMeta, { color: colors.textSecondary }]}>
-                                {clubStructure.length} årganger
+                                {clubStructure.length} {t('admin.yearGroups').toLowerCase()}
                             </Text>
                         </View>
                     </View>
@@ -76,7 +76,7 @@ export function ClubStructureScreen() {
 
                 {/* Year groups section */}
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                    Årganger
+                    {t('admin.yearGroups')}
                 </Text>
 
                 {clubStructure.map(renderYearGroup)}

@@ -104,10 +104,11 @@ export function useUpdateExercise() {
     return useMutation({
         mutationFn: ({ id, updates }: { id: string; updates: Partial<Exercise> }) =>
             exerciseService.updateExercise(id, updates),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             if (user) {
                 queryClient.invalidateQueries({ queryKey: queryKeys.exercises.all(user.club_id) });
             }
+            queryClient.invalidateQueries({ queryKey: queryKeys.exercises.detail(variables.id) });
         },
     });
 }

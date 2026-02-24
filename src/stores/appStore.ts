@@ -5,6 +5,15 @@ import { Language, setLanguage } from '../lib/i18n';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
+interface NotificationPreferences {
+    dailyReminder: boolean;
+    newExercises: boolean;
+    leaderboardUpdates: boolean;
+    streakReminder: boolean;
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+}
+
 interface AppState {
     // Theme
     themeMode: ThemeMode;
@@ -21,6 +30,10 @@ interface AppState {
     // Selected club (before login)
     selectedClubId: string | null;
     setSelectedClubId: (clubId: string | null) => void;
+
+    // Notification preferences
+    notificationPrefs: NotificationPreferences;
+    setNotificationPref: (key: keyof NotificationPreferences, value: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -44,6 +57,20 @@ export const useAppStore = create<AppState>()(
             // Selected club
             selectedClubId: null,
             setSelectedClubId: (selectedClubId) => set({ selectedClubId }),
+
+            // Notification preferences
+            notificationPrefs: {
+                dailyReminder: true,
+                newExercises: true,
+                leaderboardUpdates: false,
+                streakReminder: true,
+                emailNotifications: true,
+                pushNotifications: true,
+            },
+            setNotificationPref: (key, value) =>
+                set((state) => ({
+                    notificationPrefs: { ...state.notificationPrefs, [key]: value },
+                })),
         }),
         {
             name: 'fotballtrening-app-storage',
