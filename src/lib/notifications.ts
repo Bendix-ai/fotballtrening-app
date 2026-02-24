@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import { t } from './i18n';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -49,8 +50,8 @@ export async function scheduleDailyReminder(hour: number = 17, minute: number = 
 
     await Notifications.scheduleNotificationAsync({
         content: {
-            title: 'Tid for trening!',
-            body: 'Ikke glem å trene i dag. Fortsett streaken din!',
+            title: t('notifications.dailyReminderTitle'),
+            body: t('notifications.dailyReminderBody'),
         },
         trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -71,8 +72,8 @@ export async function scheduleStreakReminder() {
     // Remind at 20:00 if they haven't trained
     await Notifications.scheduleNotificationAsync({
         content: {
-            title: 'Streaken din er i fare!',
-            body: 'Tren litt i dag for å holde streaken gående.',
+            title: t('notifications.streakReminderTitle'),
+            body: t('notifications.streakReminderBody'),
         },
         trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DAILY,

@@ -31,6 +31,7 @@ export function StreakBadge({ days, size = 'medium' }: StreakBadgeProps) {
 
     return (
         <View
+            testID="streak-badge"
             accessibilityLabel={`${t('streak.title')}: ${days} ${t('home.days')}`}
             style={[
                 styles.container,
@@ -66,6 +67,7 @@ export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
 
     return (
         <View
+            testID="streak-card"
             style={[
                 styles.card,
                 {

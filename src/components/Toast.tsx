@@ -63,6 +63,9 @@ function ToastItem({ toast, onDismiss }: { toast: ToastMessage; onDismiss: (id: 
 
     return (
         <Animated.View
+            accessible
+            accessibilityRole="alert"
+            accessibilityLiveRegion="assertive"
             style={[
                 styles.toast,
                 {

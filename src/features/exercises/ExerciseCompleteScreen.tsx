@@ -229,7 +229,7 @@ export function ExerciseCompleteScreen() {
                         {t('exercises.greatJob')}
                     </Text>
                     <Text style={[styles.subheading, { color: colors.textSecondary }]}>
-                        {exercise?.title ?? 'Øvelse'} {t('exercises.completed').toLowerCase()}
+                        {exercise?.title ?? t('exercises.title')} {t('exercises.completed').toLowerCase()}
                     </Text>
                 </Animated.View>
 
