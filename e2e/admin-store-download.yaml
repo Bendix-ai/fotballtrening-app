@@ -1,7 +1,14 @@
-appId: com.fotballtrening.app
+appId: com.bendixen.fotballtrening
 name: "Admin Store Download Flow"
 ---
-# Prerequisite: User must be logged in as admin
+# Login as test admin
+- runFlow: helpers/login-as-admin.yaml
+
+# Open drawer by tapping hamburger menu
+- tapOn:
+    id: "admin-menu-button"
+- waitForAnimationToEnd
+
 # Navigate to Exercise Store via drawer
 - tapOn:
     id: "drawer-store"
@@ -9,7 +16,6 @@ name: "Admin Store Download Flow"
 # Verify store screen loaded
 - assertVisible:
     text: ".*Butikk.*"
-    timeout: 5000
 
 # Tap on first store exercise
 - tapOn:
@@ -19,7 +25,6 @@ name: "Admin Store Download Flow"
 # Verify store exercise detail screen
 - assertVisible:
     id: "store-download-button"
-    timeout: 3000
 
 # Download exercise to club
 - tapOn:
@@ -28,10 +33,6 @@ name: "Admin Store Download Flow"
 # Verify success toast or confirmation
 - assertVisible:
     text: ".*lastet ned.*|.*lagt til.*"
-    timeout: 5000
 
 # Go back to store
-- tapOn:
-    id: "store-back-button"
-    optional: true
 - back

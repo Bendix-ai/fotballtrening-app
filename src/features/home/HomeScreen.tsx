@@ -171,7 +171,7 @@ export function HomeScreen() {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                                Nylige øvelser
+                                {t('home.recentExercises')}
                             </Text>
                             <TouchableOpacity
                                 onPress={() => navigation.navigate('ExercisesTab')}

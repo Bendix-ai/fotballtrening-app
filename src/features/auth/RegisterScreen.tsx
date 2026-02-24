@@ -33,7 +33,7 @@ export function RegisterScreen() {
     const [registrationMode, setRegistrationMode] = useState<RegistrationMode>('player');
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedGender, setSelectedGender] = useState<string | null>(null);
-    const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+    const [, setSelectedTeamId] = useState<string | null>(null);
     const [username, setUsername] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [password, setPassword] = useState('');
@@ -350,6 +350,7 @@ export function RegisterScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg klubb..."
+                                    testID="register-club-dropdown"
                                 />
                                 <TouchableOpacity
                                     onPress={() => setIsCreatingClub(true)}
@@ -374,6 +375,7 @@ export function RegisterScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg argang..."
+                                    testID="register-year-dropdown"
                                 />
 
                                 <Dropdown
@@ -386,6 +388,7 @@ export function RegisterScreen() {
                                         setError('');
                                     }}
                                     placeholder="Velg kjonn..."
+                                    testID="register-gender-dropdown"
                                 />
                             </>
                         )}
@@ -446,6 +449,7 @@ export function RegisterScreen() {
                             autoCapitalize="none"
                             autoCorrect={false}
                             keyboardType={isAdminMode ? 'email-address' : 'default'}
+                            testID="register-username-input"
                         />
 
                         <Input
@@ -456,6 +460,7 @@ export function RegisterScreen() {
                                 setError('');
                             }}
                             placeholder="Visningsnavn"
+                            testID="register-displayname-input"
                         />
 
                         <Input
@@ -467,6 +472,7 @@ export function RegisterScreen() {
                             }}
                             placeholder="Passord"
                             secureTextEntry
+                            testID="register-password-input"
                         />
 
                         <Input
@@ -478,6 +484,7 @@ export function RegisterScreen() {
                             }}
                             placeholder="Bekreft passord"
                             secureTextEntry
+                            testID="register-confirm-password-input"
                         />
 
                         {error ? (
@@ -493,6 +500,7 @@ export function RegisterScreen() {
                             fullWidth
                             size="large"
                             style={styles.registerButton}
+                            testID="register-button"
                         />
 
                         <TouchableOpacity

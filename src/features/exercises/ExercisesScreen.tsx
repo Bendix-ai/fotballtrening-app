@@ -84,7 +84,7 @@ export function ExercisesScreen() {
     };
 
     const renderExercise = useCallback(({ item }: { item: Exercise }) => (
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })} testID="exercise-card">
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
                     {/* Placeholder image */}

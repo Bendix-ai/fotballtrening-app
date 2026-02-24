@@ -6,8 +6,8 @@ export const queryKeys = {
         todayCompletions: (userId: string) => ['exercises', 'today', userId] as const,
         favorites: (userId: string) => ['exercises', 'favorites', userId] as const,
     },
-    leaderboard: (clubId: string, scope: string, period: string) =>
-        ['leaderboard', clubId, scope, period] as const,
+    leaderboard: (clubId: string, scope: string, scopeId: string | null, period: string) =>
+        ['leaderboard', clubId, scope, scopeId, period] as const,
     achievements: (userId: string) => ['achievements', userId] as const,
     clubs: {
         all: () => ['clubs'] as const,

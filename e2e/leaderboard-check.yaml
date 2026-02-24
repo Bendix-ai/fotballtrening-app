@@ -1,15 +1,20 @@
-appId: com.fotballtrening.app
+appId: com.bendixen.fotballtrening
 name: "Leaderboard Check Flow"
 ---
-# Prerequisite: User must be logged in as a player
-# Navigate to leaderboard tab
+# Login as test player
+- runFlow: helpers/login-as-player.yaml
+
+# Dismiss Expo debug banner by tapping its X button (circle-X at right side of banner)
 - tapOn:
-    id: "tab-leaderboard"
+    point: "93%, 94%"
+- waitForAnimationToEnd
+
+# Navigate to leaderboard tab (3rd of 4 tabs)
+- tapOn: "Toppliste"
 
 # Verify leaderboard screen loaded
 - assertVisible:
     text: "Toppliste"
-    timeout: 5000
 
 # Verify scope filter chips are visible
 - assertVisible: "Klubb"
@@ -32,7 +37,6 @@ name: "Leaderboard Check Flow"
 # Verify podium is visible (at least one player name should appear)
 - assertVisible:
     text: ".*"
-    timeout: 3000
 
 # Switch scope to team
 - tapOn: "Lag"

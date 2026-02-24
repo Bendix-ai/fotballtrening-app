@@ -1,0 +1,4 @@
+appId: com.bendixen.fotballtrening
+name: "Tap Open Dialog"
+---
+- tapOn: "Open"

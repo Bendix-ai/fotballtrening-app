@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, ViewStyle } from 'react-native';
+import { View, StyleSheet, Animated, ViewStyle, DimensionValue } from 'react-native';
 import { useTheme } from '../lib/theme';
 
 interface LoadingSkeletonProps {
-    width?: number | string;
+    width?: DimensionValue;
     height?: number;
     borderRadius?: number;
     style?: ViewStyle;
@@ -41,7 +41,7 @@ export function LoadingSkeleton({
         <Animated.View
             style={[
                 {
-                    width: width as any,
+                    width,
                     height,
                     borderRadius,
                     backgroundColor: colors.border,

@@ -19,16 +19,17 @@ interface DrawerItem {
     label: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     showFor: 'all' | 'club_admin';
+    testID: string;
 }
 
 const drawerItems: DrawerItem[] = [
-    { name: 'Dashboard', label: 'admin.dashboard', icon: 'dashboard', showFor: 'all' },
-    { name: 'Players', label: 'admin.players', icon: 'people', showFor: 'all' },
-    { name: 'ClubStructure', label: 'admin.clubStructure', icon: 'account-tree', showFor: 'club_admin' },
-    { name: 'Exercises', label: 'admin.exercises', icon: 'fitness-center', showFor: 'all' },
-    { name: 'ExerciseStore', label: 'admin.exerciseStore', icon: 'store', showFor: 'all' },
-    { name: 'Reports', label: 'admin.reports', icon: 'bar-chart', showFor: 'all' },
-    { name: 'AdminSettings', label: 'admin.adminSettings', icon: 'settings', showFor: 'all' },
+    { name: 'Dashboard', label: 'admin.dashboard', icon: 'dashboard', showFor: 'all', testID: 'drawer-dashboard' },
+    { name: 'Players', label: 'admin.players', icon: 'people', showFor: 'all', testID: 'drawer-players' },
+    { name: 'ClubStructure', label: 'admin.clubStructure', icon: 'account-tree', showFor: 'club_admin', testID: 'drawer-structure' },
+    { name: 'Exercises', label: 'admin.exercises', icon: 'fitness-center', showFor: 'all', testID: 'drawer-exercises' },
+    { name: 'ExerciseStore', label: 'admin.exerciseStore', icon: 'store', showFor: 'all', testID: 'drawer-store' },
+    { name: 'Reports', label: 'admin.reports', icon: 'bar-chart', showFor: 'all', testID: 'drawer-reports' },
+    { name: 'AdminSettings', label: 'admin.adminSettings', icon: 'settings', showFor: 'all', testID: 'drawer-settings' },
 ];
 
 export function AdminDrawerContent(props: DrawerContentComponentProps) {
@@ -80,6 +81,7 @@ export function AdminDrawerContent(props: DrawerContentComponentProps) {
                         <TouchableOpacity
                             key={item.name}
                             onPress={() => props.navigation.navigate(item.name)}
+                            testID={item.testID}
                             style={[
                                 styles.menuItem,
                                 {

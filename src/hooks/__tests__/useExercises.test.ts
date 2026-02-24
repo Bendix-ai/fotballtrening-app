@@ -105,7 +105,7 @@ describe('useExercises hooks', () => {
 
   describe('useToggleFavorite', () => {
     it('should call toggleFavorite service', async () => {
-      mockService.toggleFavorite.mockResolvedValue(undefined);
+      mockService.toggleFavorite.mockResolvedValue(true);
 
       const { result } = renderHook(() => useToggleFavorite(), { wrapper: createWrapper() });
 

@@ -39,9 +39,10 @@ describe('Input', () => {
   it('should toggle password visibility', () => {
     render(<Input secureTextEntry placeholder="Passord" />);
     // Initially shows "visibility" icon
-    const toggleButton = screen.getByText('visibility');
-    fireEvent.press(toggleButton);
-    // After toggle, shows "visibility-off"
+    expect(screen.getByText('visibility')).toBeTruthy();
+    fireEvent.press(screen.getByText('visibility'));
+    // After toggle, shows "visibility-off" and "visibility" is gone
     expect(screen.getByText('visibility-off')).toBeTruthy();
+    expect(screen.queryByText('visibility')).toBeNull();
   });
 });

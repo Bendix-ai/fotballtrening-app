@@ -1,4 +1,4 @@
-import { Club, YearGroup, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint } from '../types';
+import { Club, Gender, Exercise, LeaderboardEntry, AchievementDefinition, AdminPlayer, AdminActivity, DashboardMetrics, StoreExercise, StoreReview, ClubYearGroup, ChartDataPoint } from '../types';
 
 export const mockClubs: Club[] = [
     { id: '1', name: 'Vaganes IL', logo_url: null, created_by: 'admin1', created_at: '2024-01-01' },

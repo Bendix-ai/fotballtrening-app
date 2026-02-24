@@ -1,15 +1,23 @@
-appId: com.fotballtrening.app
+appId: com.bendixen.fotballtrening
 name: "Exercise Completion Flow"
 ---
-# Prerequisite: User must be logged in as a player
-# Navigate to exercises tab
-- tapOn:
-    id: "tab-exercises"
+# Login as test player
+- runFlow: helpers/login-as-player.yaml
+
+# Navigate to exercises via "Se alle" link on home screen (avoids tab bar which
+# is blocked by Expo debug banner in dev builds)
+- scrollUntilVisible:
+    element:
+        text: "Se alle"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Se alle"
 
 # Wait for exercise list to load
-- assertVisible:
-    text: ".*"
-    timeout: 5000
+- extendedWaitUntil:
+    visible:
+        id: "exercise-card"
+    timeout: 10000
 
 # Tap on first exercise card
 - tapOn:
@@ -27,21 +35,20 @@ name: "Exercise Completion Flow"
 # Verify execution screen loaded (timer should be visible)
 - assertVisible:
     id: "exercise-timer"
-    timeout: 3000
 
-# Wait for the exercise to complete (or fast-forward by pressing complete when available)
-# In test mode, exercises should have a short duration
-- waitForAnimationToEnd
+# Wait for exercise timer to complete (exercises range 120–300s, add buffer)
+- extendedWaitUntil:
+    visible:
+        id: "exercise-complete-button"
+    timeout: 360000
 
-# When complete button appears, tap it
+# Tap complete button
 - tapOn:
     id: "exercise-complete-button"
-    timeout: 120000  # Max 2 min for exercise
 
 # Verify completion screen
 - assertVisible:
     text: ".*poeng.*"
-    timeout: 5000
 
 # Go back to exercises list
 - tapOn:
@@ -49,4 +56,4 @@ name: "Exercise Completion Flow"
 
 # Verify we're back on exercises list
 - assertVisible:
-    id: "tab-exercises"
+    text: ".*[Øø]velser.*"

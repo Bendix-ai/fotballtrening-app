@@ -25,14 +25,14 @@ export async function getLeaderboard(
         return mockLeaderboard;
     }
 
-    return (data as any[]).map(row => ({
+    return (data as Record<string, unknown>[]).map(row => ({
         rank: Number(row.rank),
-        user_id: row.user_id,
-        display_name: row.display_name,
-        avatar_url: row.avatar_url,
+        user_id: String(row.user_id),
+        display_name: String(row.display_name),
+        avatar_url: row.avatar_url as string | null,
         total_points: Number(row.total_points),
         exercises_completed: Number(row.exercises_completed),
-        current_streak: row.current_streak,
-        is_current_user: row.is_current_user,
+        current_streak: Number(row.current_streak),
+        is_current_user: Boolean(row.is_current_user),
     }));
 }

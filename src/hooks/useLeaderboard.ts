@@ -13,7 +13,7 @@ export function useLeaderboard(
     const clubId = user?.club_id ?? '';
 
     return useQuery({
-        queryKey: queryKeys.leaderboard(clubId, scope, period),
+        queryKey: queryKeys.leaderboard(clubId, scope, scopeId, period),
         queryFn: () => leaderboardService.getLeaderboard(clubId, scope, scopeId, period, user?.id ?? null),
         enabled: !!clubId,
     });

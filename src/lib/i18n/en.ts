@@ -17,12 +17,21 @@ export const en: Translations = {
         yes: 'Yes',
         no: 'No',
         ok: 'OK',
+        add: 'Add',
+        search: 'Search',
+        close: 'Close',
+        confirm: 'Confirm',
     },
 
     // Onboarding
     onboarding: {
         welcome: 'Welcome to FotballTrening!',
         subtitle: 'Train smarter, compete with teammates',
+        welcomeDesc: 'Train smarter, compete with teammates, and become a better football player.',
+        howItWorks: 'How it works',
+        howItWorksDesc: 'Choose an exercise, complete it, and earn points! Exercises are adapted to your level.',
+        competeTitle: 'Compete and win',
+        competeDesc: 'Climb the leaderboard, unlock achievements, and keep your streak going!',
         selectClub: 'Select your club',
         selectTeam: 'Select your team',
         getStarted: 'Get started',
@@ -70,6 +79,14 @@ export const en: Translations = {
         resetPasswordDesc: 'Enter your new password below.',
         passwordUpdated: 'Password updated!',
         playerForgotPassword: 'Contact your coach to get a new password',
+        changePassword: 'Change password',
+        currentPassword: 'Current password',
+        newPassword: 'New password',
+        confirmNewPassword: 'Confirm new password',
+        enterCurrentPassword: 'Enter current password',
+        passwordMinLength: 'New password must be at least 6 characters',
+        enterPasswordAgain: 'Enter password again',
+        minChars: 'At least 6 characters',
         adminResetPassword: 'Reset password',
         adminResetPasswordConfirm: "Are you sure you want to reset this player's password?",
         adminResetPasswordSuccess: 'Password has been reset',
@@ -96,6 +113,7 @@ export const en: Translations = {
         keepGoing: 'Keep it up!',
         startTraining: 'Start training',
         todayChallenge: "Today's challenge",
+        recentExercises: 'Recent exercises',
     },
 
     // Exercises
@@ -125,6 +143,14 @@ export const en: Translations = {
         backToExercises: 'Back to exercises',
         search: 'Search exercises...',
         favorites: 'Favorites',
+        paused: 'Paused',
+        remaining: 'Remaining',
+        stepOf: 'Step {current} of {total}',
+        resume: 'Resume',
+        pause: 'Pause',
+        exitTitle: 'Exit exercise?',
+        exitMessage: 'Are you sure you want to exit? Your progress will be lost.',
+        exit: 'Exit',
     },
 
     // Leaderboard
@@ -154,6 +180,7 @@ export const en: Translations = {
         viewAll: 'View all',
         settings: 'Settings',
         days: 'days',
+        activityHistory: 'Activity history',
     },
 
     // Achievements
@@ -195,6 +222,9 @@ export const en: Translations = {
         version: 'Version',
         logout: 'Log out',
         logoutConfirm: 'Are you sure you want to log out?',
+        changePassword: 'Change password',
+        language: 'Language',
+        general: 'General',
     },
 
     // Notifications
@@ -324,6 +354,9 @@ export const en: Translations = {
         clubAdministrator: 'Club administrator',
         teamCoach: 'Coach',
         managedTeams: 'Your teams',
+        administrator: 'Administrator',
+        emailNotifications: 'Email notifications',
+        pushNotifications: 'Push notifications',
     },
 
     // Streak

@@ -18,7 +18,8 @@ export function ProgressBar({
     style,
 }: ProgressBarProps) {
     const { colors } = useTheme();
-    const clampedProgress = Math.min(Math.max(progress, 0), 1);
+    const safeProgress = Number.isNaN(progress) ? 0 : progress;
+    const clampedProgress = Math.min(Math.max(safeProgress, 0), 1);
 
     return (
         <View

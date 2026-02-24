@@ -20,7 +20,7 @@ import { useAuthStore, useAppStore } from '../../stores';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import * as authService from '../../services/authService';
 import * as clubService from '../../services/clubService';
-import { Club, Gender, RootStackParamList } from '../../types';
+import { Club, RootStackParamList } from '../../types';
 
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -33,7 +33,7 @@ export function LoginScreen() {
 
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedGender, setSelectedGender] = useState<string | null>(null);
-    const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+    const [, setSelectedTeamId] = useState<string | null>(null);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);

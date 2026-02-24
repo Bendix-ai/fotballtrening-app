@@ -52,6 +52,7 @@ export function ConfirmationDialog({
                             onPress={onCancel}
                             variant="ghost"
                             style={styles.actionButton}
+                            testID="confirmation-cancel-button"
                         />
                         <Button
                             title={confirmLabel}
@@ -61,6 +62,7 @@ export function ConfirmationDialog({
                                 ...styles.actionButton,
                                 ...(destructive ? { backgroundColor: colors.error } : {}),
                             }}
+                            testID="confirmation-confirm-button"
                         />
                     </View>
                 </View>

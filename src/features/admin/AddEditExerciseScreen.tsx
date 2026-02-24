@@ -181,6 +181,7 @@ export function AddEditExerciseScreen() {
                             value={title}
                             onChangeText={(text) => { setTitle(text); setError(''); }}
                             placeholder="Øvelsens tittel"
+                            testID="exercise-title-input"
                         />
 
                         <Input
@@ -190,6 +191,7 @@ export function AddEditExerciseScreen() {
                             placeholder="Kort beskrivelse av øvelsen"
                             multiline
                             numberOfLines={3}
+                            testID="exercise-description-input"
                         />
 
                         <Dropdown
@@ -198,6 +200,7 @@ export function AddEditExerciseScreen() {
                             selectedValue={category}
                             onValueChange={(value) => { setCategory(value); setError(''); }}
                             placeholder="Velg kategori..."
+                            testID="exercise-category-dropdown"
                         />
 
                         <Dropdown
@@ -206,6 +209,7 @@ export function AddEditExerciseScreen() {
                             selectedValue={difficulty}
                             onValueChange={(value) => { setDifficulty(value); setError(''); }}
                             placeholder="Velg vanskelighetsgrad..."
+                            testID="exercise-difficulty-dropdown"
                         />
 
                         <Input
@@ -214,6 +218,7 @@ export function AddEditExerciseScreen() {
                             onChangeText={(text) => { setDuration(text); setError(''); }}
                             placeholder="f.eks. 180"
                             keyboardType="numeric"
+                            testID="exercise-duration-input"
                         />
 
                         <View style={styles.pointsRow}>
@@ -232,6 +237,7 @@ export function AddEditExerciseScreen() {
                             placeholder="Steg-for-steg instruksjoner"
                             multiline
                             numberOfLines={5}
+                            testID="exercise-instructions-input"
                         />
 
                         {error ? (
@@ -247,6 +253,7 @@ export function AddEditExerciseScreen() {
                             fullWidth
                             size="large"
                             style={styles.saveButton}
+                            testID="save-exercise-button"
                         />
                     </Card>
                 </ScrollView>

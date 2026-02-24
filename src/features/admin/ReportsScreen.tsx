@@ -8,7 +8,6 @@ import {
     Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { AdminHeader, Card, Button, useToast } from '../../components';
@@ -92,7 +91,7 @@ export function ReportsScreen() {
         datasets: [{ data: mockReportData.difficultyDistribution.map((d) => d.value) }],
     };
 
-    const handleExport = (format: string) => {
+    const handleExport = (_format: string) => {
         showToast(t('admin.exportSuccess'), 'success');
     };
 

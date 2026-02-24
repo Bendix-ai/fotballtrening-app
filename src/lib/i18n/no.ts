@@ -15,12 +15,21 @@ export const no = {
         yes: 'Ja',
         no: 'Nei',
         ok: 'OK',
+        add: 'Legg til',
+        search: 'Søk',
+        close: 'Lukk',
+        confirm: 'Bekreft',
     },
 
     // Onboarding
     onboarding: {
         welcome: 'Velkommen til FotballTrening!',
         subtitle: 'Tren smartere, konkurrer med lagkamerater',
+        welcomeDesc: 'Tren smartere, konkurrer med lagkamerater, og bli en bedre fotballspiller.',
+        howItWorks: 'Slik fungerer det',
+        howItWorksDesc: 'Velg en øvelse, fullfør den, og tjen poeng! Øvelsene er tilpasset ditt nivå.',
+        competeTitle: 'Konkurrer og vinn',
+        competeDesc: 'Klatre på topplisten, lås opp prestasjoner, og hold streaken din i gang!',
         selectClub: 'Velg din klubb',
         selectTeam: 'Velg ditt lag',
         getStarted: 'Kom i gang',
@@ -68,6 +77,14 @@ export const no = {
         resetPasswordDesc: 'Skriv inn ditt nye passord nedenfor.',
         passwordUpdated: 'Passord oppdatert!',
         playerForgotPassword: 'Kontakt treneren din for å få nytt passord',
+        changePassword: 'Endre passord',
+        currentPassword: 'Nåværende passord',
+        newPassword: 'Nytt passord',
+        confirmNewPassword: 'Bekreft nytt passord',
+        enterCurrentPassword: 'Skriv inn nåværende passord',
+        passwordMinLength: 'Nytt passord må være minst 6 tegn',
+        enterPasswordAgain: 'Skriv inn passord på nytt',
+        minChars: 'Minst 6 tegn',
         adminResetPassword: 'Tilbakestill passord',
         adminResetPasswordConfirm: 'Er du sikker på at du vil tilbakestille passordet til denne spilleren?',
         adminResetPasswordSuccess: 'Passordet er tilbakestilt',
@@ -94,6 +111,7 @@ export const no = {
         keepGoing: 'Fortsett sånn!',
         startTraining: 'Start trening',
         todayChallenge: 'Dagens utfordring',
+        recentExercises: 'Nylige øvelser',
     },
 
     // Exercises
@@ -123,6 +141,14 @@ export const no = {
         backToExercises: 'Tilbake til øvelser',
         search: 'Søk etter øvelser...',
         favorites: 'Favoritter',
+        paused: 'Pauset',
+        remaining: 'Gjenstår',
+        stepOf: 'Steg {current} av {total}',
+        resume: 'Fortsett',
+        pause: 'Pause',
+        exitTitle: 'Avslutt øvelse?',
+        exitMessage: 'Er du sikker på at du vil avslutte? Fremgangen din vil gå tapt.',
+        exit: 'Avslutt',
     },
 
     // Leaderboard
@@ -152,6 +178,7 @@ export const no = {
         viewAll: 'Se alle',
         settings: 'Innstillinger',
         days: 'dager',
+        activityHistory: 'Aktivitetshistorikk',
     },
 
     // Achievements
@@ -193,6 +220,9 @@ export const no = {
         version: 'Versjon',
         logout: 'Logg ut',
         logoutConfirm: 'Er du sikker på at du vil logge ut?',
+        changePassword: 'Endre passord',
+        language: 'Språk',
+        general: 'Generelt',
     },
 
     // Notifications
@@ -322,6 +352,9 @@ export const no = {
         clubAdministrator: 'Klubb-administrator',
         teamCoach: 'Trener',
         managedTeams: 'Dine lag',
+        administrator: 'Administrator',
+        emailNotifications: 'E-postvarsler',
+        pushNotifications: 'Push-varsler',
     },
 
     // Streak

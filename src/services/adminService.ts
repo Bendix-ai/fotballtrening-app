@@ -111,7 +111,7 @@ export async function getRecentActivity(
             exercises:exercise_id (title)
         `)
         .order('completed_at', { ascending: false })
-        .limit(15);
+        .limit(100);
 
     if (error) {
         console.error('getRecentActivity error:', error);
@@ -124,7 +124,8 @@ export async function getRecentActivity(
             if (teamIds && teamIds.length > 0 && !teamIds.includes(d.profiles?.team_id)) return false;
             return true;
         })
-        .map((d, i) => ({
+        .slice(0, 15)
+        .map((d) => ({
             id: d.id,
             player_name: d.profiles?.display_name ?? 'Ukjent',
             action: `Fullførte ${d.exercises?.title ?? 'øvelse'}`,

@@ -101,6 +101,7 @@ export function ForgotPasswordScreen() {
                                     autoCapitalize="none"
                                     autoCorrect={false}
                                     keyboardType="email-address"
+                                    testID="forgot-email-input"
                                 />
 
                                 {error ? (
@@ -116,6 +117,7 @@ export function ForgotPasswordScreen() {
                                     fullWidth
                                     size="large"
                                     style={styles.button}
+                                    testID="forgot-send-button"
                                 />
 
                                 <TouchableOpacity

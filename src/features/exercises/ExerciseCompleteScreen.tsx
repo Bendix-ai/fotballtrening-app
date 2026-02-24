@@ -4,7 +4,6 @@ import {
     Text,
     StyleSheet,
     Animated,
-    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -26,8 +25,6 @@ export function ExerciseCompleteScreen() {
     const { exerciseId, pointsEarned } = route.params;
     const { data: exercise } = useExercise(exerciseId);
     const completeExercise = useCompleteExercise();
-
-    const { width: screenWidth } = Dimensions.get('window');
 
     // Celebration particles
     const NUM_PARTICLES = 12;
@@ -178,6 +175,7 @@ export function ExerciseCompleteScreen() {
                     onPress={handleContinue}
                     fullWidth
                     size="large"
+                    testID="exercise-back-button"
                 />
             </View>
         </SafeAreaView>

@@ -185,6 +185,7 @@ export function ExercisesManagementScreen() {
             <TouchableOpacity
                 onPress={() => navigation.navigate('AddEditExercise', {})}
                 style={[styles.fab, { backgroundColor: colors.primary }]}
+                testID="add-exercise-fab"
             >
                 <MaterialIcons name="add" size={28} color="#ffffff" />
             </TouchableOpacity>

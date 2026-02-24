@@ -75,6 +75,7 @@ export function AddYearGroupScreen() {
                             onChangeText={(text) => { setYear(text); setError(''); }}
                             placeholder="f.eks. 2017"
                             keyboardType="numeric"
+                            testID="yeargroup-year-input"
                         />
 
                         <Text style={[styles.checkboxLabel, { color: colors.textSecondary }]}>
@@ -85,6 +86,7 @@ export function AddYearGroupScreen() {
                             onPress={() => { setHasBoys(!hasBoys); setError(''); }}
                             style={styles.checkboxRow}
                             activeOpacity={0.7}
+                            testID="yeargroup-boys-checkbox"
                         >
                             <MaterialIcons
                                 name={hasBoys ? 'check-box' : 'check-box-outline-blank'}
@@ -100,6 +102,7 @@ export function AddYearGroupScreen() {
                             onPress={() => { setHasGirls(!hasGirls); setError(''); }}
                             style={styles.checkboxRow}
                             activeOpacity={0.7}
+                            testID="yeargroup-girls-checkbox"
                         >
                             <MaterialIcons
                                 name={hasGirls ? 'check-box' : 'check-box-outline-blank'}
@@ -124,6 +127,7 @@ export function AddYearGroupScreen() {
                             fullWidth
                             size="large"
                             style={styles.saveButton}
+                            testID="save-yeargroup-button"
                         />
                     </Card>
                 </ScrollView>

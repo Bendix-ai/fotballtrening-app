@@ -37,7 +37,7 @@ export function Button({
     textStyle,
     testID,
 }: ButtonProps) {
-    const { colors, isDark } = useTheme();
+    const { colors } = useTheme();
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = useCallback(() => {

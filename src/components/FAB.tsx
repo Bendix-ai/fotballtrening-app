@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
+import { t } from '../lib/i18n';
 
 interface FABProps {
   onPress: () => void;
@@ -43,7 +44,7 @@ export function FAB({
       activeOpacity={0.8}
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={icon === 'add' ? 'Add' : icon}
+      accessibilityLabel={icon === 'add' ? t('common.add') : icon}
       style={[
         styles.fab,
         {

@@ -122,7 +122,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
 
         try {
-            const session = await authService.getSession();
+            // Add timeout to prevent indefinite loading when Supabase is unreachable
+            const timeoutMs = 10000;
+            let timeoutId: ReturnType<typeof setTimeout>;
+            const sessionPromise = authService.getSession();
+            const timeoutPromise = new Promise<null>((_, reject) => {
+                timeoutId = setTimeout(() => reject(new Error('Auth init timeout')), timeoutMs);
+            });
+            const session = await Promise.race([sessionPromise, timeoutPromise]).finally(() => {
+                clearTimeout(timeoutId);
+            });
             if (session?.user) {
                 const profile = await authService.getProfile(session.user.id);
                 if (profile) {

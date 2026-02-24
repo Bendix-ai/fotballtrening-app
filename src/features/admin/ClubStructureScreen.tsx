@@ -86,6 +86,7 @@ export function ClubStructureScreen() {
             <TouchableOpacity
                 onPress={() => navigation.navigate('AddYearGroup')}
                 style={[styles.fab, { backgroundColor: colors.primary }]}
+                testID="add-yeargroup-fab"
             >
                 <MaterialIcons name="add" size={28} color="#ffffff" />
             </TouchableOpacity>

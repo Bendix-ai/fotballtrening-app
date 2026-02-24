@@ -8,6 +8,7 @@ interface CardProps {
     subtitle?: string;
     style?: ViewStyle;
     padding?: 'none' | 'small' | 'medium' | 'large';
+    testID?: string;
 }
 
 export function Card({
@@ -16,6 +17,7 @@ export function Card({
     subtitle,
     style,
     padding = 'medium',
+    testID,
 }: CardProps) {
     const { colors } = useTheme();
 
@@ -34,6 +36,7 @@ export function Card({
 
     return (
         <View
+            testID={testID}
             style={[
                 styles.card,
                 {

@@ -44,7 +44,7 @@ export function ExerciseStoreDetailScreen() {
     const handleAddToClub = () => {
         downloadMutation.mutate(exerciseId, {
             onSuccess: () => showToast(t('admin.addedToClub'), 'success'),
-            onError: () => showToast('Noe gikk galt', 'error'),
+            onError: () => showToast(t('common.error'), 'error'),
         });
     };
 
@@ -52,7 +52,7 @@ export function ExerciseStoreDetailScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Back button */}
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} testID="store-back-button">
                     <MaterialIcons name="arrow-back" size={24} color={colors.text} />
                 </TouchableOpacity>
 
@@ -178,6 +178,7 @@ export function ExerciseStoreDetailScreen() {
                     onPress={handleAddToClub}
                     fullWidth
                     size="large"
+                    testID="store-download-button"
                 />
             </View>
         </SafeAreaView>

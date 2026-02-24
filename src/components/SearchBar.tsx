@@ -7,9 +7,10 @@ interface SearchBarProps {
     value: string;
     onChangeText: (text: string) => void;
     placeholder?: string;
+    testID?: string;
 }
 
-export function SearchBar({ value, onChangeText, placeholder = 'Søk...' }: SearchBarProps) {
+export function SearchBar({ value, onChangeText, placeholder = 'Søk...', testID }: SearchBarProps) {
     const { colors } = useTheme();
 
     return (
@@ -23,6 +24,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'Søk...' }: Sear
                 onChangeText={onChangeText}
                 accessibilityLabel={placeholder}
                 accessibilityRole="search"
+                testID={testID}
             />
             {value.length > 0 && (
                 <TouchableOpacity

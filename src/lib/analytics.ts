@@ -12,6 +12,7 @@ const PREFIX = '[Analytics]';
 
 function log(event: string, params?: EventParams) {
     if (__DEV__) {
+        // eslint-disable-next-line no-console
         console.log(PREFIX, event, params ?? '');
     }
 }

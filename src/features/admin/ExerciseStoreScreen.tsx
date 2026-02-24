@@ -5,7 +5,6 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -18,10 +17,6 @@ import { AdminStackParamList, StoreExercise } from '../../types';
 import { useStoreExercises, useDownloadExercise } from '../../hooks/useStore';
 
 type StoreNavProp = NativeStackNavigationProp<AdminStackParamList>;
-
-const getCategoryLabel = (category: string): string => {
-    return t(`exercises.${category}`);
-};
 
 export function ExerciseStoreScreen() {
     const { colors } = useTheme();
@@ -45,7 +40,7 @@ export function ExerciseStoreScreen() {
     const handleAddToClub = (exercise: StoreExercise) => {
         downloadMutation.mutate(exercise.id, {
             onSuccess: () => showToast(t('admin.addedToClub'), 'success'),
-            onError: () => showToast('Noe gikk galt', 'error'),
+            onError: () => showToast(t('common.error'), 'error'),
         });
     };
 
@@ -55,6 +50,7 @@ export function ExerciseStoreScreen() {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('ExerciseStoreDetail', { exerciseId: exercise.id })}
             style={compact ? styles.compactCard : undefined}
+            testID="store-exercise-card"
         >
             <Card style={compact ? styles.horizontalCard : styles.verticalCard}>
                 <View style={[styles.cardIcon, { backgroundColor: colors.primaryLight }]}>

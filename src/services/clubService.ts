@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { Club, YearGroup, Team, ClubYearGroup, Gender } from '../types';
+import { Club, ClubYearGroup, Gender } from '../types';
 import { mockClubs, mockYearGroups, mockGenders, mockClubStructure } from '../data/mockData';
 
 export async function getClubs(): Promise<Club[]> {

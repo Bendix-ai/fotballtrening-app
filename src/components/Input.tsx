@@ -33,13 +33,14 @@ export function Input({
     const isPassword = secureTextEntry !== undefined;
 
     return (
-        <View style={[styles.container, containerStyle]}>
+        <View accessible={false} style={[styles.container, containerStyle]}>
             {label && (
                 <Text style={[styles.label, { color: colors.textSecondary }]}>
                     {label}
                 </Text>
             )}
             <View
+                accessible={false}
                 style={[
                     styles.inputContainer,
                     {

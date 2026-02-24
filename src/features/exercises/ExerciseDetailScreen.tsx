@@ -13,7 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Badge, Button } from '../../components';
-import { ExercisesStackParamList, Exercise } from '../../types';
+import { ExercisesStackParamList } from '../../types';
 import { useExercise, useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
 
 type DetailRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseDetail'>;
@@ -93,6 +93,7 @@ export function ExerciseDetailScreen() {
                     accessibilityRole="button"
                     accessibilityLabel={favorited ? 'Remove from favorites' : 'Add to favorites'}
                     accessibilityState={{ selected: favorited }}
+                    testID="exercise-favorite-button"
                 >
                     <MaterialIcons
                         name={favorited ? 'favorite' : 'favorite-border'}
@@ -217,6 +218,7 @@ export function ExerciseDetailScreen() {
                     onPress={() => navigation.navigate('ExerciseExecution', { exerciseId: exercise.id })}
                     fullWidth
                     size="large"
+                    testID="exercise-start-button"
                 />
             </View>
         </SafeAreaView>

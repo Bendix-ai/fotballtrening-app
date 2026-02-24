@@ -54,7 +54,7 @@ function MainTabs() {
                     fontSize: 12,
                     fontWeight: '600',
                 },
-                tabBarIcon: ({ focused, color, size }) => (
+                tabBarIcon: ({ color, size }) => (
                     <MaterialIcons
                         name={TAB_ICONS[route.name] || 'circle'}
                         size={size}
@@ -66,22 +66,22 @@ function MainTabs() {
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}
-                options={{ tabBarLabel: t('tabs.home') }}
+                options={{ tabBarLabel: t('tabs.home'), tabBarButtonTestID: 'tab-home' }}
             />
             <Tab.Screen
                 name="ExercisesTab"
                 component={ExercisesStack}
-                options={{ tabBarLabel: t('tabs.exercises') }}
+                options={{ tabBarLabel: t('tabs.exercises'), tabBarButtonTestID: 'tab-exercises' }}
             />
             <Tab.Screen
                 name="Leaderboard"
                 component={LeaderboardScreen}
-                options={{ tabBarLabel: t('tabs.leaderboard') }}
+                options={{ tabBarLabel: t('tabs.leaderboard'), tabBarButtonTestID: 'tab-leaderboard' }}
             />
             <Tab.Screen
                 name="ProfileTab"
                 component={ProfileStack}
-                options={{ tabBarLabel: t('tabs.profile') }}
+                options={{ tabBarLabel: t('tabs.profile'), tabBarButtonTestID: 'tab-profile' }}
             />
         </Tab.Navigator>
     );

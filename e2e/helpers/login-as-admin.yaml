@@ -1,0 +1,48 @@
+appId: com.bendixen.fotballtrening
+name: "Helper: Login as test admin"
+---
+# Launch app and wait for login screen
+- runFlow: launch-to-login.yaml
+
+# Switch to admin mode
+- tapOn: "Admin"
+
+# Enter admin email
+- tapOn:
+    id: "login-username"
+- inputText: "e2eadmin@fotballtrening.app"
+
+# Dismiss keyboard by tapping non-interactive label
+- tapOn: "FotballTrening"
+- waitForAnimationToEnd
+
+# Enter admin password
+- tapOn:
+    id: "login-password"
+- inputText: "Admin1234!"
+
+# Dismiss keyboard by tapping non-interactive label
+- tapOn: "E-post"
+- waitForAnimationToEnd
+
+# Login
+- tapOn:
+    id: "login-button"
+
+# Dismiss iOS "Save Password?" dialog if it appears
+- runFlow:
+    when:
+        visible: "Not Now"
+    commands:
+        - tapOn: "Not Now"
+
+# Wait for admin dashboard (Supabase auth can be slow)
+- extendedWaitUntil:
+    visible:
+        text: "Dashboard"
+    timeout: 30000
+
+# Dismiss debug banner if present
+- tapOn:
+    point: "93%, 94%"
+- waitForAnimationToEnd

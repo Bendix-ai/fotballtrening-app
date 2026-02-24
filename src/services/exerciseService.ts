@@ -107,20 +107,29 @@ export async function getFavorites(userId: string): Promise<string[]> {
     return data.map(f => f.exercise_id);
 }
 
-export async function toggleFavorite(userId: string, exerciseId: string, isFavorite: boolean) {
-    if (!isSupabaseConfigured()) return;
+export async function toggleFavorite(userId: string, exerciseId: string, isFavorite: boolean): Promise<boolean> {
+    if (!isSupabaseConfigured()) return false;
 
     if (isFavorite) {
-        await supabase
+        const { error } = await supabase
             .from('favorites')
             .delete()
             .eq('user_id', userId)
             .eq('exercise_id', exerciseId);
+        if (error) {
+            console.error('toggleFavorite remove error:', error);
+            return false;
+        }
     } else {
-        await supabase
+        const { error } = await supabase
             .from('favorites')
             .insert({ user_id: userId, exercise_id: exerciseId });
+        if (error) {
+            console.error('toggleFavorite add error:', error);
+            return false;
+        }
     }
+    return true;
 }
 
 export async function createExercise(exercise: Omit<Exercise, 'id' | 'created_at'>): Promise<Exercise | null> {

@@ -1,0 +1,27 @@
+appId: com.bendixen.fotballtrening
+name: "Helper: Launch app and get to login screen"
+---
+# Clear app state and cold start (ensures fresh login screen every time)
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Wait for either onboarding or login screen
+- extendedWaitUntil:
+    visible:
+        text: ".*Spiller.*|.*Velkommen til.*"
+    timeout: 60000
+
+# If onboarding is showing, skip it
+- runFlow:
+    when:
+        visible: "Hopp over"
+    commands:
+        - tapOn: "Hopp over"
+        - extendedWaitUntil:
+            visible:
+                text: "Spiller"
+            timeout: 30000
+
+# Verify login screen is loaded
+- assertVisible: "Admin"

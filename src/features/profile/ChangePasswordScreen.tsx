@@ -30,15 +30,15 @@ export function ChangePasswordScreen() {
 
     const handleChangePassword = async () => {
         if (!currentPassword.trim()) {
-            setError('Skriv inn nåværende passord');
+            setError(t('auth.enterCurrentPassword'));
             return;
         }
         if (newPassword.length < 6) {
-            setError('Nytt passord må være minst 6 tegn');
+            setError(t('auth.passwordMinLength'));
             return;
         }
         if (newPassword !== confirmPassword) {
-            setError('Passordene stemmer ikke overens');
+            setError(t('auth.passwordMismatch'));
             return;
         }
 
@@ -52,7 +52,7 @@ export function ChangePasswordScreen() {
             showToast(t('auth.passwordUpdated'), 'success');
             navigation.goBack();
         } catch (err: any) {
-            setError(err?.message || 'Noe gikk galt');
+            setError(err?.message || t('common.error'));
         }
 
         setIsLoading(false);
@@ -71,32 +71,32 @@ export function ChangePasswordScreen() {
                             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
                         </TouchableOpacity>
                         <Text style={[styles.title, { color: colors.text }]}>
-                            Endre passord
+                            {t('auth.changePassword')}
                         </Text>
                         <View style={{ width: 40 }} />
                     </View>
 
                     <Card style={styles.formCard}>
                         <Input
-                            label="Nåværende passord"
+                            label={t('auth.currentPassword')}
                             value={currentPassword}
                             onChangeText={(text) => { setCurrentPassword(text); setError(''); }}
                             secureTextEntry
-                            placeholder="Skriv inn nåværende passord"
+                            placeholder={t('auth.enterCurrentPassword')}
                         />
                         <Input
-                            label="Nytt passord"
+                            label={t('auth.newPassword')}
                             value={newPassword}
                             onChangeText={(text) => { setNewPassword(text); setError(''); }}
                             secureTextEntry
-                            placeholder="Minst 6 tegn"
+                            placeholder={t('auth.minChars')}
                         />
                         <Input
-                            label="Bekreft nytt passord"
+                            label={t('auth.confirmNewPassword')}
                             value={confirmPassword}
                             onChangeText={(text) => { setConfirmPassword(text); setError(''); }}
                             secureTextEntry
-                            placeholder="Skriv inn passord på nytt"
+                            placeholder={t('auth.enterPasswordAgain')}
                         />
 
                         {error ? (

@@ -17,6 +17,7 @@ export function AdminHeader({ title }: AdminHeaderProps) {
             <TouchableOpacity
                 onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
                 style={styles.menuButton}
+                testID="admin-menu-button"
             >
                 <MaterialIcons name="menu" size={24} color={colors.text} />
             </TouchableOpacity>

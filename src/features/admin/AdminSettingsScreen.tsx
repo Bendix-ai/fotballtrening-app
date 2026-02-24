@@ -52,7 +52,7 @@ export function AdminSettingsScreen() {
                                     {displayName}
                                 </Text>
                                 <Text style={[styles.profileRole, { color: colors.textSecondary }]}>
-                                    Administrator
+                                    {t('admin.administrator')}
                                 </Text>
                             </View>
                         </View>
@@ -95,7 +95,7 @@ export function AdminSettingsScreen() {
                         <View style={[styles.toggleRow, { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
                             <MaterialIcons name="email" size={20} color={colors.textSecondary} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>
-                                E-postvarsler
+                                {t('admin.emailNotifications')}
                             </Text>
                             <Switch
                                 value={emailNotifications}
@@ -107,7 +107,7 @@ export function AdminSettingsScreen() {
                         <View style={styles.toggleRow}>
                             <MaterialIcons name="notifications" size={20} color={colors.textSecondary} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>
-                                Push-varsler
+                                {t('admin.pushNotifications')}
                             </Text>
                             <Switch
                                 value={pushNotifications}

@@ -1,15 +1,13 @@
 appId: com.bendixen.fotballtrening
-name: "Player Login Flow"
+name: "Helper: Login as test player"
 ---
-# Prerequisite: onboarding completed, not logged in
-
 # Launch app and wait for login screen
-- runFlow: helpers/launch-to-login.yaml
+- runFlow: launch-to-login.yaml
 
-# Ensure player tab is selected (default)
+# Ensure player tab is selected
 - tapOn: "Spiller"
 
-# Select club from dropdown (Våganes FK has year groups and test users)
+# Select club
 - tapOn:
     id: "login-club-dropdown"
 - extendedWaitUntil:
@@ -18,13 +16,11 @@ name: "Player Login Flow"
     timeout: 5000
 - tapOn: "Våganes FK"
 
-# Wait for year groups to load after club selection
+# Select year
 - extendedWaitUntil:
     visible:
         id: "login-year-dropdown"
     timeout: 10000
-
-# Select year group
 - tapOn:
     id: "login-year-dropdown"
 - extendedWaitUntil:
@@ -33,28 +29,24 @@ name: "Player Login Flow"
     timeout: 5000
 - tapOn: "2016"
 
-# Wait for gender dropdown to be populated (async loadTeams after year selection)
+# Select gender - open dropdown, coordinate tap option, dismiss overlay
 - extendedWaitUntil:
     visible:
         id: "login-gender-dropdown"
     timeout: 15000
-
-# Select gender - open dropdown, tap option via coordinates, then dismiss
 - tapOn:
     id: "login-gender-dropdown"
 - extendedWaitUntil:
     visible:
         text: "Gutter"
     timeout: 10000
-# Tap "Gutter" option (first option in dropdown, ~52% from top)
 - tapOn:
     point: "30%, 52%"
-# Dismiss dropdown overlay
 - tapOn:
     point: "50%, 10%"
 - waitForAnimationToEnd
 
-# Scroll input fields into view (two swipes to push dropdowns off-screen)
+# Scroll input fields into view
 - swipe:
     direction: UP
     duration: 500
@@ -67,7 +59,7 @@ name: "Player Login Flow"
     id: "login-username"
 - inputText: "e2etester"
 
-# Dismiss keyboard by tapping a non-interactive label on the form
+# Dismiss keyboard by tapping non-interactive label
 - tapOn: "Velg kjønn"
 - waitForAnimationToEnd
 
@@ -76,11 +68,11 @@ name: "Player Login Flow"
     id: "login-password"
 - inputText: "Test1234!"
 
-# Dismiss keyboard by tapping a non-interactive label
+# Dismiss keyboard by tapping non-interactive label
 - tapOn: "Brukernavn"
 - waitForAnimationToEnd
 
-# Scroll to login button if needed and tap
+# Login
 - scrollUntilVisible:
     element:
         text: "Logg inn"
@@ -95,8 +87,13 @@ name: "Player Login Flow"
     commands:
         - tapOn: "Not Now"
 
-# Wait for login to complete - should show home screen or error
+# Wait for home screen
 - extendedWaitUntil:
     visible:
-        text: ".*Hjem.*|.*Hei.*|.*feil.*|.*Ugyldig.*"
+        id: "tab-home"
     timeout: 15000
+
+# Dismiss debug warning banner (native overlay — always tap X at bottom right)
+- tapOn:
+    point: "95%, 97%"
+- waitForAnimationToEnd

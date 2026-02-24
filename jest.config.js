@@ -12,4 +12,8 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
+  fakeTimers: {
+    enableGlobally: false,
+  },
+  forceExit: true,
 };

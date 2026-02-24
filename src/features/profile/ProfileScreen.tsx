@@ -60,6 +60,7 @@ export function ProfileScreen() {
                         onPress={() => navigation.navigate('Settings')}
                         accessibilityRole="button"
                         accessibilityLabel={t('profile.settings')}
+                        testID="profile-settings-button"
                     >
                         <MaterialIcons name="settings" size={24} color={colors.textSecondary} />
                     </TouchableOpacity>
@@ -121,7 +122,7 @@ export function ProfileScreen() {
                 {recentCompletions.length > 0 && (
                     <View style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            Aktivitetshistorikk
+                            {t('profile.activityHistory')}
                         </Text>
                         {recentCompletions.map((completion) => {
                             const exercise = allExercises.find((e) => e.id === completion.exercise_id);

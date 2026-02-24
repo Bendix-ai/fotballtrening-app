@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { User, Club, Team } from '../types';
 
 function buildSyntheticEmail(username: string, teamId: string): string {

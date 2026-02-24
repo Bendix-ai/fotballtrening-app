@@ -88,21 +88,24 @@ export function Dropdown({
                 onRequestClose={() => setIsOpen(false)}
             >
                 <TouchableOpacity
+                    accessible={false}
                     style={styles.overlay}
                     activeOpacity={1}
                     onPress={() => setIsOpen(false)}
                 >
-                    <View style={[styles.dropdown, { backgroundColor: colors.card }]}>
+                    <View accessible={false} style={[styles.dropdown, { backgroundColor: colors.card }]}>
                         {label && (
                             <Text style={[styles.dropdownTitle, { color: colors.text }]}>
                                 {label}
                             </Text>
                         )}
                         <FlatList
+                            accessible={false}
                             data={options}
                             keyExtractor={(item) => item.value}
                             renderItem={({ item }) => (
                                 <TouchableOpacity
+                                    accessible={true}
                                     onPress={() => {
                                         onValueChange(item.value);
                                         setIsOpen(false);
@@ -119,6 +122,7 @@ export function Dropdown({
                                     accessibilityRole="menuitem"
                                     accessibilityLabel={item.label}
                                     accessibilityState={{ selected: item.value === selectedValue }}
+                                    testID={testID ? `${testID}-option-${item.value}` : undefined}
                                 >
                                     <Text
                                         style={[

@@ -139,7 +139,7 @@ export function ExerciseExecutionScreen() {
             {/* Main content */}
             <View style={styles.mainContent}>
                 {/* Timer circle */}
-                <View style={[styles.timerCircle, { borderColor: isComplete ? colors.success : colors.primary }]}>
+                <View testID="exercise-timer" style={[styles.timerCircle, { borderColor: isComplete ? colors.success : colors.primary }]}>
                     {isComplete ? (
                         <MaterialIcons name="check" size={60} color={colors.success} />
                     ) : (
@@ -148,7 +148,7 @@ export function ExerciseExecutionScreen() {
                                 {formatTime(remainingSeconds)}
                             </Text>
                             <Text style={[styles.timerLabel, { color: colors.textSecondary }]}>
-                                {isPaused ? 'Pauset' : 'Gjenstår'}
+                                {isPaused ? t('exercises.paused') : t('exercises.remaining')}
                             </Text>
                         </>
                     )}
@@ -158,7 +158,7 @@ export function ExerciseExecutionScreen() {
                 {currentStep ? (
                     <View style={[styles.stepCard, { backgroundColor: colors.card }]}>
                         <Text style={[styles.stepLabel, { color: colors.primary }]}>
-                            Steg {currentStepIndex + 1} av {instructions.length}
+                            {t('exercises.stepOf', { current: String(currentStepIndex + 1), total: String(instructions.length) })}
                         </Text>
                         <Text style={[styles.stepText, { color: colors.text }]}>
                             {currentStep.trim()}{currentStep.endsWith('.') ? '' : '.'}
@@ -175,10 +175,11 @@ export function ExerciseExecutionScreen() {
                         onPress={handleComplete}
                         fullWidth
                         size="large"
+                        testID="exercise-complete-button"
                     />
                 ) : (
                     <Button
-                        title={isPaused ? 'Fortsett' : 'Pause'}
+                        title={isPaused ? t('exercises.resume') : t('exercises.pause')}
                         onPress={handlePauseResume}
                         variant={isPaused ? 'primary' : 'secondary'}
                         fullWidth
@@ -190,9 +191,9 @@ export function ExerciseExecutionScreen() {
             {/* Exit confirmation */}
             <ConfirmationDialog
                 visible={showExitDialog}
-                title="Avslutt øvelse?"
-                message="Er du sikker på at du vil avslutte? Fremgangen din vil gå tapt."
-                confirmLabel="Avslutt"
+                title={t('exercises.exitTitle')}
+                message={t('exercises.exitMessage')}
+                confirmLabel={t('exercises.exit')}
                 cancelLabel={t('common.cancel')}
                 onConfirm={handleConfirmExit}
                 onCancel={handleCancelExit}

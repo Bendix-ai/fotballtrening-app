@@ -22,21 +22,21 @@ interface OnboardingPage {
     description: string;
 }
 
-const pages: OnboardingPage[] = [
+const getPages = (): OnboardingPage[] => [
     {
         icon: 'sports-soccer',
-        title: 'Velkommen til FotballTrening!',
-        description: 'Tren smartere, konkurrer med lagkamerater, og bli en bedre fotballspiller.',
+        title: t('onboarding.welcome'),
+        description: t('onboarding.welcomeDesc'),
     },
     {
         icon: 'fitness-center',
-        title: 'Slik fungerer det',
-        description: 'Velg en ovelse, fullfor den, og tjen poeng! Ovelses er tilpasset ditt niva.',
+        title: t('onboarding.howItWorks'),
+        description: t('onboarding.howItWorksDesc'),
     },
     {
         icon: 'emoji-events',
-        title: 'Konkurrer og vinn',
-        description: 'Klatr pa topplisten, las opp prestasjoner, og hold streaken din i gang!',
+        title: t('onboarding.competeTitle'),
+        description: t('onboarding.competeDesc'),
     },
 ];
 
@@ -45,6 +45,7 @@ export function OnboardingScreen() {
     const { setOnboardingComplete } = useAppStore();
     const flatListRef = useRef<FlatList>(null);
     const [currentPage, setCurrentPage] = useState(0);
+    const pages = getPages();
 
     const isLastPage = currentPage === pages.length - 1;
 
@@ -80,7 +81,7 @@ export function OnboardingScreen() {
             {/* Skip button */}
             <View style={styles.header}>
                 {!isLastPage ? (
-                    <TouchableOpacity onPress={handleSkip}>
+                    <TouchableOpacity onPress={handleSkip} testID="onboarding-skip-button">
                         <Text style={[styles.skipText, { color: colors.textSecondary }]}>
                             {t('onboarding.skip')}
                         </Text>
@@ -129,6 +130,7 @@ export function OnboardingScreen() {
                     onPress={handleNext}
                     fullWidth
                     size="large"
+                    testID="onboarding-action-button"
                 />
             </View>
         </SafeAreaView>

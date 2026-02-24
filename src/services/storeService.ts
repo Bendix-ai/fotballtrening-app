@@ -88,7 +88,7 @@ export async function downloadToClub(storeExerciseId: string, clubId: string): P
 
     // Increment download count (best effort)
     try {
-        await supabase.rpc('increment_downloads' as any, { exercise_id: storeExerciseId });
+        await supabase.rpc('increment_downloads', { exercise_id: storeExerciseId });
     } catch {
         // Not critical if this fails
     }

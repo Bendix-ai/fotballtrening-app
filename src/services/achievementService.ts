@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { Achievement, AchievementType } from '../types';
+import { AchievementType } from '../types';
 import { mockAchievements } from '../data/mockData';
 
 export async function getAchievements(userId: string): Promise<{ type: AchievementType; unlocked: boolean }[]> {

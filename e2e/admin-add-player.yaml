@@ -1,11 +1,17 @@
-appId: com.fotballtrening.app
+appId: com.bendixen.fotballtrening
 name: "Admin Add Player Flow"
 ---
-# Prerequisite: User must be logged in as admin
+# Login as test admin
+- runFlow: helpers/login-as-admin.yaml
+
 # Verify admin dashboard loaded
 - assertVisible:
     text: "Dashboard"
-    timeout: 5000
+
+# Open drawer by tapping hamburger menu
+- tapOn:
+    id: "admin-menu-button"
+- waitForAnimationToEnd
 
 # Navigate to Players management via drawer
 - tapOn:
@@ -14,7 +20,6 @@ name: "Admin Add Player Flow"
 # Verify players list loaded
 - assertVisible:
     text: "Spillere"
-    timeout: 5000
 
 # Tap add player button (FAB)
 - tapOn:
@@ -23,7 +28,6 @@ name: "Admin Add Player Flow"
 # Verify add player form loaded
 - assertVisible:
     text: ".*spiller.*"
-    timeout: 3000
 
 # Fill in player details
 - tapOn:
@@ -41,18 +45,12 @@ name: "Admin Add Player Flow"
 # Select year group if dropdown exists
 - tapOn:
     id: "player-year-dropdown"
-    optional: true
-- tapOn:
-    text: "2015"
-    optional: true
+- tapOn: "2015"
 
 # Select gender if dropdown exists
 - tapOn:
     id: "player-gender-dropdown"
-    optional: true
-- tapOn:
-    text: "Gutter"
-    optional: true
+- tapOn: "Gutter"
 
 # Save player
 - tapOn:
@@ -61,4 +59,3 @@ name: "Admin Add Player Flow"
 # Verify success (back on players list with new player visible)
 - assertVisible:
     text: "Test Spiller E2E"
-    timeout: 5000

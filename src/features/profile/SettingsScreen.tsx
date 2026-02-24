@@ -33,7 +33,7 @@ export function SettingsScreen() {
     const settingsItems = [
         {
             icon: 'lock' as const,
-            label: 'Endre passord',
+            label: t('settings.changePassword'),
             onPress: () => navigation.navigate('ChangePassword'),
         },
         {
@@ -119,7 +119,7 @@ export function SettingsScreen() {
                 <View style={styles.section}>
                     <Card>
                         <Text style={[styles.settingLabel, { color: colors.text }]}>
-                            {language === 'no' ? 'Språk' : 'Language'}
+                            {t('settings.language')}
                         </Text>
                         <View style={styles.themeButtons}>
                             {getSupportedLanguages().map((lang) => (
@@ -159,7 +159,7 @@ export function SettingsScreen() {
                 {/* Other settings */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                        Generelt
+                        {t('settings.general')}
                     </Text>
                     <Card style={styles.settingsListCard}>
                         {settingsItems.map((item, index) => (
@@ -193,6 +193,7 @@ export function SettingsScreen() {
                         onPress={() => setShowLogoutDialog(true)}
                         variant="outline"
                         fullWidth
+                        testID="settings-logout-button"
                     />
                 </View>
             </ScrollView>
