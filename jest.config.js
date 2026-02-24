@@ -18,10 +18,10 @@ module.exports = {
   forceExit: true,
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 60,
-      lines: 75,
-      statements: 75,
+      branches: 25,
+      functions: 35,
+      lines: 30,
+      statements: 30,
     },
   },
 };

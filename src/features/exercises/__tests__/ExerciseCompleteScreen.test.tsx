@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { Animated } from 'react-native';
 
 // Disable native driver for all Animated operations in tests
@@ -113,6 +113,8 @@ describe('ExerciseCompleteScreen', () => {
     });
 
     afterEach(() => {
+        // Unmount component first to trigger useEffect cleanup before clearing timers
+        cleanup();
         jest.clearAllTimers();
         jest.useRealTimers();
     });
@@ -171,6 +173,7 @@ describe('ExerciseCompleteScreen', () => {
 describe('ExerciseCompleteScreen - daily goal reached', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers();
         // Override stores to simulate daily goal being reached
         const storesMock = require('../../../stores');
         storesMock.useAppStore = () => ({
@@ -181,6 +184,12 @@ describe('ExerciseCompleteScreen - daily goal reached', () => {
         exerciseHooks.useTodayCompletions = () => ({
             data: [{ exercise_id: 'ex0', points_earned: 10 }],
         });
+    });
+
+    afterEach(() => {
+        cleanup();
+        jest.clearAllTimers();
+        jest.useRealTimers();
     });
 
     it('should show daily goal reached banner when goal is met', () => {

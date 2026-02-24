@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react-native';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react-native';
 import { Animated } from 'react-native';
 import { ExerciseExecutionScreen } from '../ExerciseExecutionScreen';
 
@@ -100,7 +100,8 @@ describe('ExerciseExecutionScreen', () => {
     });
 
     afterEach(() => {
-        // Clear all pending timers and intervals before restoring real timers
+        // Unmount component first to trigger useEffect cleanup before clearing timers
+        cleanup();
         jest.clearAllTimers();
         jest.useRealTimers();
     });
