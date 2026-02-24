@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
+import { t } from '../lib/i18n';
 
 interface DropdownOption {
     value: string;
@@ -33,7 +34,7 @@ export function Dropdown({
     options,
     selectedValue,
     onValueChange,
-    placeholder = 'Velg...',
+    placeholder = t('common.select'),
     error,
     required,
     containerStyle,

@@ -26,11 +26,6 @@ import { AdminStackParamList, Gender } from '../../types';
 
 type EditPlayerRoute = RouteProp<AdminStackParamList, 'AddEditPlayer'>;
 
-const staticGenderOptions = [
-    { value: 'boys', label: 'Gutter' },
-    { value: 'girls', label: 'Jenter' },
-];
-
 export function AddEditPlayerScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation();
@@ -38,6 +33,11 @@ export function AddEditPlayerScreen() {
     const { showToast } = useToast();
     const { user } = useAuthStore();
     const { addPlayer, updatePlayer } = useAdminStore();
+
+    const genderOptions = [
+        { value: 'boys', label: t('admin.boys') },
+        { value: 'girls', label: t('admin.girls') },
+    ];
 
     const playerId = route.params?.playerId;
     const { data: existingPlayer, isLoading: loadingPlayer } = usePlayer(playerId);
@@ -117,31 +117,31 @@ export function AddEditPlayerScreen() {
 
     const handleSave = async () => {
         if (!name.trim()) {
-            setError('Fyll inn spillernavn');
+            setError(t('admin.fillPlayerName'));
             return;
         }
         if (!username.trim()) {
-            setError('Fyll inn brukernavn');
+            setError(t('admin.fillUsername'));
             return;
         }
         if (!isEditing && !password.trim()) {
-            setError('Fyll inn passord');
+            setError(t('admin.fillPassword'));
             return;
         }
         if (password && password.length < 6) {
-            setError('Passord må være minst 6 tegn');
+            setError(t('auth.passwordMinLength'));
             return;
         }
         if (password && password !== confirmPassword) {
-            setError('Passordene stemmer ikke overens');
+            setError(t('auth.passwordMismatch'));
             return;
         }
         if (!selectedYear) {
-            setError('Velg årgang');
+            setError(t('admin.selectYearGroup'));
             return;
         }
         if (!selectedGender) {
-            setError('Velg kjønn');
+            setError(t('admin.selectGender'));
             return;
         }
 
@@ -171,7 +171,7 @@ export function AddEditPlayerScreen() {
                         await authService.adminResetPlayerPassword(existingPlayer.id, password);
                         showToast(t('auth.adminResetPasswordSuccess'), 'success');
                     } else {
-                        showToast('Spiller oppdatert', 'success');
+                        showToast(t('admin.playerUpdated'), 'success');
                     }
                 } else {
                     // Create new player via Supabase Auth
@@ -182,7 +182,7 @@ export function AddEditPlayerScreen() {
                         teamId,
                         name.trim()
                     );
-                    showToast('Spiller opprettet', 'success');
+                    showToast(t('admin.playerCreated'), 'success');
                 }
             } else {
                 // Mock fallback
@@ -195,7 +195,7 @@ export function AddEditPlayerScreen() {
                         year_group: parseInt(selectedYear),
                         gender: selectedGender as Gender,
                     });
-                    showToast('Spiller oppdatert', 'success');
+                    showToast(t('admin.playerUpdated'), 'success');
                 } else {
                     addPlayer({
                         id: `p${Date.now()}`,
@@ -210,15 +210,15 @@ export function AddEditPlayerScreen() {
                         last_active: new Date().toISOString().split('T')[0],
                         is_active: true,
                     });
-                    showToast('Spiller opprettet', 'success');
+                    showToast(t('admin.playerCreated'), 'success');
                 }
             }
 
             navigation.goBack();
         } catch (err: any) {
-            const message = err?.message || 'Noe gikk galt';
+            const message = err?.message || t('common.error');
             if (message.includes('already registered')) {
-                setError('Brukernavnet er allerede i bruk');
+                setError(t('admin.usernameInUse'));
             } else {
                 setError(message);
             }
@@ -265,7 +265,7 @@ export function AddEditPlayerScreen() {
                             label={t('admin.playerName')}
                             value={name}
                             onChangeText={(text) => { setName(text); setError(''); }}
-                            placeholder="Fullt navn"
+                            placeholder={t('admin.fullNamePlaceholder')}
                             required
                         />
 
@@ -273,7 +273,7 @@ export function AddEditPlayerScreen() {
                             label={t('admin.username')}
                             value={username}
                             onChangeText={(text) => { setUsername(text); setError(''); }}
-                            placeholder="brukernavn"
+                            placeholder={t('admin.usernamePlaceholder')}
                             autoCapitalize="none"
                             autoCorrect={false}
                             required
@@ -283,7 +283,7 @@ export function AddEditPlayerScreen() {
                             label={t('admin.password')}
                             value={password}
                             onChangeText={(text) => { setPassword(text); setError(''); }}
-                            placeholder={isEditing ? 'La tom for å beholde' : 'Passord'}
+                            placeholder={isEditing ? t('admin.keepCurrentPassword') : t('auth.password')}
                             secureTextEntry
                             required={!isEditing}
                         />
@@ -293,7 +293,7 @@ export function AddEditPlayerScreen() {
                                 label={t('admin.confirmPassword')}
                                 value={confirmPassword}
                                 onChangeText={(text) => { setConfirmPassword(text); setError(''); }}
-                                placeholder="Bekreft passord"
+                                placeholder={t('auth.confirmPassword')}
                                 secureTextEntry
                             />
                         )}
@@ -303,16 +303,16 @@ export function AddEditPlayerScreen() {
                             options={yearGroups}
                             selectedValue={selectedYear}
                             onValueChange={(value) => { setSelectedYear(value); setError(''); }}
-                            placeholder="Velg årgang..."
+                            placeholder={t('admin.selectYearPlaceholder')}
                             required
                         />
 
                         <Dropdown
                             label={t('admin.gender')}
-                            options={staticGenderOptions}
+                            options={genderOptions}
                             selectedValue={selectedGender}
                             onValueChange={(value) => { setSelectedGender(value); setError(''); }}
-                            placeholder="Velg kjønn..."
+                            placeholder={t('admin.selectGenderPlaceholder')}
                             required
                         />
 

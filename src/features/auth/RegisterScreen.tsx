@@ -164,7 +164,7 @@ export function RegisterScreen() {
             return;
         }
         if (isCreatingClub && newClubName.trim().length < 2) {
-            setError('Klubbnavn må være minst 2 tegn');
+            setError(t('auth.clubNameMinLength'));
             return;
         }
 
@@ -185,15 +185,15 @@ export function RegisterScreen() {
         }
 
         if (!username.trim()) {
-            setError(isAdminMode ? 'Fyll inn e-post' : 'Fyll inn brukernavn');
+            setError(isAdminMode ? t('auth.fillEmail') : t('auth.fillUsername'));
             return;
         }
         if (!displayName.trim()) {
-            setError('Fyll inn visningsnavn');
+            setError(t('auth.fillDisplayName'));
             return;
         }
         if (!password.trim()) {
-            setError('Fyll inn passord');
+            setError(t('auth.fillPassword'));
             return;
         }
         if (password !== confirmPassword) {
@@ -242,7 +242,7 @@ export function RegisterScreen() {
             // If no session returned (email confirmation still enabled),
             // navigate to Login instead of leaving user stuck
             if (!signUpData?.session) {
-                showToast('Konto opprettet! Logg inn for å fortsette.', 'success');
+                showToast(t('auth.accountCreatedLogin'), 'success');
                 navigation.navigate('Login');
                 setIsLoading(false);
                 return;
@@ -329,7 +329,7 @@ export function RegisterScreen() {
                                         setNewClubName(text);
                                         setError('');
                                     }}
-                                    placeholder="Skriv klubbnavn..."
+                                    placeholder={t('auth.clubNamePlaceholder')}
                                 />
                                 <TouchableOpacity
                                     onPress={() => { setIsCreatingClub(false); setNewClubName(''); }}
@@ -350,7 +350,7 @@ export function RegisterScreen() {
                                         setSelectedClubId(value);
                                         setError('');
                                     }}
-                                    placeholder="Velg klubb..."
+                                    placeholder={t('auth.selectClubPlaceholder')}
                                     testID="register-club-dropdown"
                                 />
                                 <TouchableOpacity
@@ -375,7 +375,7 @@ export function RegisterScreen() {
                                         setSelectedYear(value);
                                         setError('');
                                     }}
-                                    placeholder="Velg argang..."
+                                    placeholder={t('auth.selectYearPlaceholder')}
                                     testID="register-year-dropdown"
                                 />
 
@@ -388,7 +388,7 @@ export function RegisterScreen() {
                                         setSelectedTeamId(teamMap[value] ?? null);
                                         setError('');
                                     }}
-                                    placeholder="Velg kjonn..."
+                                    placeholder={t('auth.selectGenderPlaceholder')}
                                     testID="register-gender-dropdown"
                                 />
                             </>
@@ -404,7 +404,7 @@ export function RegisterScreen() {
                                     <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
                                 ) : allClubTeams.length === 0 ? (
                                     <Text style={[styles.noTeamsText, { color: colors.textSecondary }]}>
-                                        Ingen lag funnet for denne klubben
+                                        {t('auth.noTeamsFound')}
                                     </Text>
                                 ) : (
                                     allClubTeams.map(team => {
@@ -440,13 +440,13 @@ export function RegisterScreen() {
                         )}
 
                         <Input
-                            label={isAdminMode ? 'E-post' : t('auth.username')}
+                            label={isAdminMode ? t('auth.emailLabel') : t('auth.username')}
                             value={username}
                             onChangeText={(text) => {
                                 setUsername(text);
                                 setError('');
                             }}
-                            placeholder={isAdminMode ? 'admin@klubb.no' : 'Brukernavn'}
+                            placeholder={isAdminMode ? 'admin@klubb.no' : t('auth.username')}
                             autoCapitalize="none"
                             autoCorrect={false}
                             keyboardType={isAdminMode ? 'email-address' : 'default'}
@@ -460,7 +460,7 @@ export function RegisterScreen() {
                                 setDisplayName(text);
                                 setError('');
                             }}
-                            placeholder="Visningsnavn"
+                            placeholder={t('auth.displayNamePlaceholder')}
                             testID="register-displayname-input"
                         />
 
@@ -471,7 +471,7 @@ export function RegisterScreen() {
                                 setPassword(text);
                                 setError('');
                             }}
-                            placeholder="Passord"
+                            placeholder={t('auth.password')}
                             secureTextEntry
                             testID="register-password-input"
                         />
@@ -483,7 +483,7 @@ export function RegisterScreen() {
                                 setConfirmPassword(text);
                                 setError('');
                             }}
-                            placeholder="Bekreft passord"
+                            placeholder={t('auth.confirmPassword')}
                             secureTextEntry
                             testID="register-confirm-password-input"
                         />

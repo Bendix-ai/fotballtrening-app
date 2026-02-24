@@ -44,7 +44,7 @@ export function ExerciseDetailScreen() {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
                 <Text style={[styles.errorText, { color: colors.error }]}>
-                    Øvelse ikke funnet
+                    {t('exercises.notFound')}
                 </Text>
             </SafeAreaView>
         );
@@ -83,7 +83,7 @@ export function ExerciseDetailScreen() {
                     onPress={handleToggleFavorite}
                     style={styles.favoriteButton}
                     accessibilityRole="button"
-                    accessibilityLabel={favorited ? 'Remove from favorites' : 'Add to favorites'}
+                    accessibilityLabel={favorited ? t('exercises.removeFromFavorites') : t('exercises.addToFavorites')}
                     accessibilityState={{ selected: favorited }}
                     testID="exercise-favorite-button"
                 >
@@ -106,7 +106,7 @@ export function ExerciseDetailScreen() {
                             <TouchableOpacity
                                 style={styles.playOverlay}
                                 onPress={() => Linking.openURL(exercise.video_url!)}
-                                accessibilityLabel="Play video"
+                                accessibilityLabel={t('exercises.watchVideo')}
                             >
                                 <View style={styles.playButton}>
                                     <MaterialIcons name="play-arrow" size={40} color="#ffffff" />
@@ -118,7 +118,7 @@ export function ExerciseDetailScreen() {
                     <TouchableOpacity
                         style={[styles.heroImage, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}
                         onPress={() => Linking.openURL(exercise.video_url!)}
-                        accessibilityLabel="Play video"
+                        accessibilityLabel={t('exercises.watchVideo')}
                     >
                         <MaterialIcons
                             name={getCategoryIcon(exercise.category)}
@@ -164,7 +164,7 @@ export function ExerciseDetailScreen() {
                     <View style={styles.equipmentRow}>
                         <MaterialIcons name="sports-soccer" size={16} color={colors.textSecondary} />
                         <Text style={[styles.equipmentText, { color: colors.textSecondary }]}>
-                            Utstyr: {exercise.equipment}
+                            {t('exercises.equipment')}: {exercise.equipment}
                         </Text>
                     </View>
                 ) : null}
@@ -199,7 +199,7 @@ export function ExerciseDetailScreen() {
                 {relatedExercises.length > 0 && (
                     <View style={styles.relatedSection}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            Lignende øvelser
+                            {t('exercises.relatedExercises')}
                         </Text>
                         <ScrollView
                             horizontal

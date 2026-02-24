@@ -33,11 +33,16 @@ export function AddYearGroupScreen() {
 
     const handleSave = async () => {
         if (!year.trim()) {
-            setError('Fyll inn årstall');
+            setError(t('admin.fillYear'));
+            return;
+        }
+        const parsedYear = parseInt(year.trim(), 10);
+        if (isNaN(parsedYear) || parsedYear < 1990 || parsedYear > 2030) {
+            setError(t('admin.invalidYear'));
             return;
         }
         if (!hasBoys && !hasGirls) {
-            setError('Velg minst ett kjønn');
+            setError(t('admin.selectAtLeastOneGender'));
             return;
         }
 
@@ -47,15 +52,15 @@ export function AddYearGroupScreen() {
         try {
             const clubId = user?.club_id ?? '';
             if (isSupabaseConfigured() && clubId) {
-                await addYearGroupMutation.mutateAsync({ clubId, year: parseInt(year.trim()) });
+                await addYearGroupMutation.mutateAsync({ clubId, year: parsedYear });
             } else {
                 // Mock fallback
                 await new Promise((resolve) => setTimeout(resolve, 500));
             }
-            showToast('Årgang lagt til!', 'success');
+            showToast(t('admin.yearGroupAdded'), 'success');
             navigation.goBack();
         } catch (err: any) {
-            setError(err?.message || 'Kunne ikke legge til årgang');
+            setError(err?.message || t('admin.yearGroupAddError'));
         }
 
         setIsLoading(false);
@@ -109,7 +114,7 @@ export function AddYearGroupScreen() {
                                 color={hasBoys ? colors.primary : colors.textTertiary}
                             />
                             <Text style={[styles.checkboxText, { color: colors.text }]}>
-                                Gutter
+                                {t('admin.boys')}
                             </Text>
                         </TouchableOpacity>
 
@@ -125,7 +130,7 @@ export function AddYearGroupScreen() {
                                 color={hasGirls ? colors.primary : colors.textTertiary}
                             />
                             <Text style={[styles.checkboxText, { color: colors.text }]}>
-                                Jenter
+                                {t('admin.girls')}
                             </Text>
                         </TouchableOpacity>
 

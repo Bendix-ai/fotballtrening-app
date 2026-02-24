@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { AdminPlayer, DashboardMetrics, AdminActivity, Gender, ReportData, ChartDataPoint, PlayerCompletion } from '../types';
 import { mockAdminPlayers, mockDashboardMetrics, mockAdminActivity, mockReportData, mockPlayerCompletions } from '../data/mockData';
+import { t } from '../lib/i18n';
 
 export async function getPlayers(
     clubId: string,
@@ -148,8 +149,8 @@ export async function getRecentActivity(
         .slice(0, 15)
         .map((d) => ({
             id: d.id,
-            player_name: d.profiles?.display_name ?? 'Ukjent',
-            action: `Fullførte ${d.exercises?.title ?? 'øvelse'}`,
+            player_name: d.profiles?.display_name ?? t('admin.unknownPlayer'),
+            action: t('admin.completedAction', { exercise: d.exercises?.title ?? t('admin.unknownExercise') }),
             timestamp: d.completed_at,
             points: d.points_earned || undefined,
         }));
@@ -247,7 +248,7 @@ export async function getReportData(
     });
 
     // Weekly activity (day of week)
-    const dayLabels = ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'];
+    const dayLabels = [t('admin.daySun'), t('admin.dayMon'), t('admin.dayTue'), t('admin.dayWed'), t('admin.dayThu'), t('admin.dayFri'), t('admin.daySat')];
     const dayCountsArr = [0, 0, 0, 0, 0, 0, 0];
     filtered.forEach((d) => {
         const dow = new Date(d.completed_at).getDay();
@@ -261,7 +262,7 @@ export async function getReportData(
 
     // Monthly points
     const monthMap: Record<string, number> = {};
-    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+    const monthLabels = [t('admin.monthJan'), t('admin.monthFeb'), t('admin.monthMar'), t('admin.monthApr'), t('admin.monthMay'), t('admin.monthJun'), t('admin.monthJul'), t('admin.monthAug'), t('admin.monthSep'), t('admin.monthOct'), t('admin.monthNov'), t('admin.monthDec')];
     filtered.forEach((d) => {
         const m = new Date(d.completed_at).getMonth();
         const key = monthLabels[m];
@@ -283,8 +284,8 @@ export async function getReportData(
         catMap[cat] = (catMap[cat] ?? 0) + 1;
     });
     const catLabels: Record<string, string> = {
-        warmup: 'Oppvarming', strength: 'Styrke', agility: 'Hurtighet',
-        skill: 'Teknikk', cooldown: 'Nedtrapping', other: 'Annet',
+        warmup: t('admin.catWarmup'), strength: t('admin.catStrength'), agility: t('admin.catAgility'),
+        skill: t('admin.catSkill'), cooldown: t('admin.catCooldown'), other: t('admin.catOther'),
     };
     const categoryDistribution: ChartDataPoint[] = Object.entries(catMap).map(([k, v]) => ({
         label: catLabels[k] ?? k,
@@ -298,7 +299,7 @@ export async function getReportData(
         diffMap[diff] = (diffMap[diff] ?? 0) + 1;
     });
     const diffLabels: Record<string, string> = {
-        easy: 'Lett', medium: 'Middels', hard: 'Vanskelig',
+        easy: t('admin.diffEasy'), medium: t('admin.diffMedium'), hard: t('admin.diffHard'),
     };
     const total = filtered.length || 1;
     const difficultyDistribution: ChartDataPoint[] = Object.entries(diffMap).map(([k, v]) => ({
@@ -341,7 +342,7 @@ export async function getPlayerCompletions(playerId: string): Promise<PlayerComp
     }
 
     return (data as any[]).map((d) => ({
-        exercise_title: d.exercises?.title ?? 'Ukjent øvelse',
+        exercise_title: d.exercises?.title ?? t('admin.unknownExercise'),
         points_earned: d.points_earned ?? 0,
         completed_at: d.completed_at,
     }));

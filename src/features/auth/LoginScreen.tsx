@@ -33,7 +33,6 @@ export function LoginScreen() {
 
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedGender, setSelectedGender] = useState<string | null>(null);
-    const [, setSelectedTeamId] = useState<string | null>(null);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +60,6 @@ export function LoginScreen() {
         }
         setSelectedYear(null);
         setSelectedGender(null);
-        setSelectedTeamId(null);
     }, [selectedClubId]);
 
     // Load teams (genders) when year group changes
@@ -72,7 +70,6 @@ export function LoginScreen() {
             setGenderOptions([]);
         }
         setSelectedGender(null);
-        setSelectedTeamId(null);
     }, [selectedYear]);
 
     const loadClubs = async () => {
@@ -129,7 +126,7 @@ export function LoginScreen() {
             }
         }
         if (!username.trim() || !password.trim()) {
-            setError('Fyll inn brukernavn og passord');
+            setError(t('auth.fillCredentials'));
             return;
         }
 
@@ -148,7 +145,7 @@ export function LoginScreen() {
                             setTeam(profile.team);
                             setManagedTeamIds(profile.managedTeamIds);
                         } else {
-                            setError('Kunne ikke laste profilen. Prøv igjen.');
+                            setError(t('auth.profileLoadError'));
                         }
                     }
                 } else {
@@ -162,7 +159,7 @@ export function LoginScreen() {
                             setTeam(profile.team);
                             setManagedTeamIds(profile.managedTeamIds);
                         } else {
-                            setError('Kunne ikke laste profilen. Prøv igjen.');
+                            setError(t('auth.profileLoadError'));
                         }
                     }
                 }
@@ -209,11 +206,11 @@ export function LoginScreen() {
                 }
             }
         } catch (err: any) {
-            const message = err?.message || 'Innlogging feilet';
+            const message = err?.message || t('auth.loginFailed');
             if (message.includes('Invalid login credentials')) {
-                setError('Feil brukernavn eller passord');
+                setError(t('auth.wrongCredentials'));
             } else if (message.includes('Email not confirmed')) {
-                setError('E-posten er ikke bekreftet ennå. Kontakt treneren din.');
+                setError(t('auth.emailNotConfirmed'));
             } else {
                 setError(message);
             }
@@ -278,7 +275,7 @@ export function LoginScreen() {
                             accessibilityState={{ selected: !isAdminLogin }}
                         >
                             <Text style={[styles.toggleText, { color: !isAdminLogin ? '#ffffff' : colors.textSecondary }]}>
-                                Spiller
+                                {t('auth.player')}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -312,7 +309,7 @@ export function LoginScreen() {
                                         setSelectedClubId(value);
                                         setError('');
                                     }}
-                                    placeholder="Velg klubb..."
+                                    placeholder={t('auth.selectClubPlaceholder')}
                                     testID="login-club-dropdown"
                                 />
 
@@ -324,7 +321,7 @@ export function LoginScreen() {
                                         setSelectedYear(value);
                                         setError('');
                                     }}
-                                    placeholder="Velg argang..."
+                                    placeholder={t('auth.selectYearPlaceholder')}
                                     testID="login-year-dropdown"
                                 />
 
@@ -334,23 +331,22 @@ export function LoginScreen() {
                                     selectedValue={selectedGender}
                                     onValueChange={(value) => {
                                         setSelectedGender(value);
-                                        setSelectedTeamId(teamMap[value] ?? null);
                                         setError('');
                                     }}
-                                    placeholder="Velg kjonn..."
+                                    placeholder={t('auth.selectGenderPlaceholder')}
                                     testID="login-gender-dropdown"
                                 />
                             </>
                         )}
 
                         <Input
-                            label={isAdminLogin ? 'E-post' : t('auth.username')}
+                            label={isAdminLogin ? t('auth.email') : t('auth.username')}
                             value={username}
                             onChangeText={(text) => {
                                 setUsername(text);
                                 setError('');
                             }}
-                            placeholder={isAdminLogin ? 'admin@klubb.no' : 'Brukernavn'}
+                            placeholder={isAdminLogin ? 'admin@klubb.no' : t('auth.username')}
                             autoCapitalize="none"
                             autoCorrect={false}
                             keyboardType={isAdminLogin ? 'email-address' : 'default'}
@@ -364,7 +360,7 @@ export function LoginScreen() {
                                 setPassword(text);
                                 setError('');
                             }}
-                            placeholder="Passord"
+                            placeholder={t('auth.password')}
                             secureTextEntry
                             testID="login-password"
                         />
