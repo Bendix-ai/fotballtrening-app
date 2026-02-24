@@ -13,7 +13,10 @@ import { t } from '../../lib/i18n';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AdminHeader, Card, Button, useToast } from '../../components';
 import { useDashboardMetrics, useReportData } from '../../hooks/useAdmin';
+import { useAuthStore } from '../../stores';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
 class ChartErrorBoundary extends Component<
     { children: React.ReactNode },
@@ -102,8 +105,85 @@ export function ReportsScreen() {
         datasets: [{ data: report.difficultyDistribution.map((d) => d.value) }],
     };
 
-    const handleExport = (_format: string) => {
-        showToast(t('admin.exportSuccess'), 'success');
+    const { club } = useAuthStore();
+    const [exporting, setExporting] = useState(false);
+
+    const handleExportPDF = async () => {
+        setExporting(true);
+        try {
+            const rangeLabelMap: Record<DateRange, string> = {
+                '7d': t('admin.last7Days'),
+                '30d': t('admin.last30Days'),
+                '90d': t('admin.last90Days'),
+            };
+
+            const tableRows = (data: { label: string; value: number }[], header: string) =>
+                data.length === 0
+                    ? ''
+                    : `<h3>${header}</h3><table><tr><th>Periode</th><th>Verdi</th></tr>${data
+                          .map((d) => `<tr><td>${d.label}</td><td>${d.value}</td></tr>`)
+                          .join('')}</table>`;
+
+            const html = `
+                <html><head><style>
+                    body { font-family: -apple-system, sans-serif; padding: 20px; }
+                    h1 { color: #2E7D32; } h3 { margin-top: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background: #f5f5f5; font-weight: 600; }
+                    .meta { color: #666; font-size: 14px; margin-bottom: 20px; }
+                </style></head><body>
+                    <h1>${club?.name ?? 'Club'} — ${t('admin.reports')}</h1>
+                    <p class="meta">${rangeLabelMap[selectedRange]} | ${new Date().toLocaleDateString()}</p>
+                    <p><strong>${t('admin.totalCompletions')}:</strong> ${dashboardMetrics.totalCompletions}</p>
+                    <p><strong>${t('admin.engagementRate')}:</strong> ${dashboardMetrics.engagementRate}%</p>
+                    ${tableRows(report.weeklyActivity, t('admin.weeklyActivity'))}
+                    ${tableRows(report.monthlyPoints, t('admin.monthlyPoints'))}
+                    ${tableRows(report.categoryDistribution, t('admin.categoryDistribution'))}
+                    ${tableRows(report.difficultyDistribution, t('admin.difficultyDistribution'))}
+                </body></html>`;
+
+            const { uri } = await Print.printToFileAsync({ html });
+            await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf' });
+            showToast(t('admin.exportSuccess'), 'success');
+        } catch (err) {
+            console.error('PDF export error:', err);
+        }
+        setExporting(false);
+    };
+
+    const handleExportCSV = async () => {
+        setExporting(true);
+        try {
+            const sections: string[] = [];
+
+            const addSection = (title: string, data: { label: string; value: number }[]) => {
+                if (data.length === 0) return;
+                sections.push(`\n${title}`);
+                sections.push('Periode,Verdi');
+                data.forEach((d) => sections.push(`${d.label},${d.value}`));
+            };
+
+            sections.push(`${club?.name ?? 'Club'} — ${t('admin.reports')}`);
+            sections.push(`${t('admin.totalCompletions')},${dashboardMetrics.totalCompletions}`);
+            sections.push(`${t('admin.engagementRate')},${dashboardMetrics.engagementRate}%`);
+
+            addSection(t('admin.weeklyActivity'), report.weeklyActivity);
+            addSection(t('admin.monthlyPoints'), report.monthlyPoints);
+            addSection(t('admin.categoryDistribution'), report.categoryDistribution);
+            addSection(t('admin.difficultyDistribution'), report.difficultyDistribution);
+
+            const csvContent = sections.join('\n');
+            // Use expo-print to generate a file, then share as CSV
+            const html = `<html><body><pre>${csvContent}</pre></body></html>`;
+            const { uri } = await Print.printToFileAsync({ html });
+            // Rename by sharing with CSV mime type
+            await Sharing.shareAsync(uri, { mimeType: 'text/csv', UTI: 'public.comma-separated-values-text' });
+            showToast(t('admin.exportSuccess'), 'success');
+        } catch (err) {
+            console.error('CSV export error:', err);
+        }
+        setExporting(false);
     };
 
     const chartWidth = screenWidth - 80;
@@ -242,16 +322,20 @@ export function ReportsScreen() {
                         <View style={styles.exportSection}>
                             <Button
                                 title={t('admin.exportPDF')}
-                                onPress={() => handleExport('pdf')}
+                                onPress={handleExportPDF}
+                                loading={exporting}
                                 fullWidth
                                 variant="outline"
+                                testID="export-pdf-button"
                             />
                             <View style={{ height: 12 }} />
                             <Button
                                 title={t('admin.exportCSV')}
-                                onPress={() => handleExport('csv')}
+                                onPress={handleExportCSV}
+                                loading={exporting}
                                 fullWidth
                                 variant="outline"
+                                testID="export-csv-button"
                             />
                         </View>
                     </>

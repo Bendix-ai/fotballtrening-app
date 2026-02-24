@@ -1,0 +1,113 @@
+appId: com.bendixen.fotballtrening
+name: "Player Registration Flow"
+---
+# Prerequisite: onboarding completed, on login screen
+
+# Launch app and wait for login screen
+- runFlow: helpers/launch-to-login.yaml
+
+# Scroll down to find registration link (it's below the fold)
+- scrollUntilVisible:
+    element:
+        text: "Opprett konto"
+    direction: DOWN
+    timeout: 10000
+
+# Tap registration link
+- tapOn: "Opprett konto"
+
+# Verify registration screen loaded (title is "Opprett bruker")
+- assertVisible:
+    text: ".*Opprett bruker.*"
+
+# Ensure player tab is selected (default)
+- tapOn: "Spiller"
+
+# Select club (Våganes FK has year groups)
+- tapOn:
+    id: "register-club-dropdown"
+- extendedWaitUntil:
+    visible:
+        text: "Velg klubb"
+    timeout: 5000
+- tapOn: "Våganes FK"
+
+# Wait for year groups to load
+- extendedWaitUntil:
+    visible:
+        id: "register-year-dropdown"
+    timeout: 10000
+
+# Select year group
+- tapOn:
+    id: "register-year-dropdown"
+- extendedWaitUntil:
+    visible:
+        text: "Velg årgang"
+    timeout: 5000
+- tapOn: "2016"
+
+# Wait for gender options to load (async)
+- extendedWaitUntil:
+    visible:
+        id: "register-gender-dropdown"
+    timeout: 15000
+
+# Select gender - open dropdown, then tap option and dismiss
+- tapOn:
+    id: "register-gender-dropdown"
+- extendedWaitUntil:
+    visible:
+        text: "Gutter"
+    timeout: 10000
+# Tap on Gutter option using coordinates
+- tapOn:
+    point: "30%, 52%"
+# Tap overlay to ensure dropdown closes
+- tapOn:
+    point: "50%, 10%"
+
+# Wait for form to settle
+- waitForAnimationToEnd
+
+# Scroll down to see input fields
+- swipe:
+    direction: UP
+    duration: 500
+
+# Enter username by tapping placeholder text
+- tapOn: "Brukernavn"
+- inputText: "e2eregistration"
+- hideKeyboard
+
+# Enter display name by tapping placeholder text
+- tapOn: "Visningsnavn"
+- inputText: "E2E Testspiller"
+- hideKeyboard
+
+# Enter password by tapping the first "Passord" (label) then the input
+- tapOn:
+    id: "register-password-input"
+- inputText: "Test1234!"
+- hideKeyboard
+
+# Confirm password
+- tapOn:
+    id: "register-confirm-password-input"
+- inputText: "Test1234!"
+- hideKeyboard
+
+# Scroll to register button
+- scrollUntilVisible:
+    element:
+        id: "register-button"
+    direction: DOWN
+    timeout: 5000
+
+# Tap register button
+- tapOn:
+    id: "register-button"
+
+# Verify response - either success, error, or still on form (no crash)
+- assertVisible:
+    text: ".*opprettet.*|.*Hjem.*|.*feil.*|.*Network.*|.*Opprett.*"

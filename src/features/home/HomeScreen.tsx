@@ -13,6 +13,7 @@ import { useAuthStore, useAppStore } from '../../stores';
 import { MainTabParamList, RootStackParamList } from '../../types';
 import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
+import { useAnnouncements } from '../../hooks/useAnnouncements';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import { getLevelInfo, getPointsToNextLevel } from '../../lib/levelUtils';
 
@@ -30,6 +31,7 @@ export function HomeScreen() {
     const { data: exercises = [], isLoading: exercisesLoading, refetch: refetchExercises } = useExercises();
     const { data: todayCompletions = [], refetch: refetchToday } = useTodayCompletions();
     const { data: leaderboardData = [] } = useLeaderboard('club');
+    const { data: announcements = [] } = useAnnouncements();
 
     const onRefresh = useCallback(() => {
         refetchExercises();
@@ -57,6 +59,9 @@ export function HomeScreen() {
 
     // Show the 3 most recent exercises as suggestions
     const suggestedExercises = useMemo(() => exercises.slice(0, 3), [exercises]);
+
+    // Latest 2 announcements for the home feed
+    const latestAnnouncements = useMemo(() => announcements.slice(0, 2), [announcements]);
 
     if (exercisesLoading) {
         return (
@@ -115,6 +120,50 @@ export function HomeScreen() {
                         </View>
                     </View>
                 </Card>
+
+                {/* Announcements */}
+                {latestAnnouncements.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('home.announcements')}
+                        </Text>
+                        {latestAnnouncements.map((announcement) => {
+                            const date = new Date(announcement.created_at);
+                            const now = new Date();
+                            const diffMs = now.getTime() - date.getTime();
+                            const diffHours = Math.floor(diffMs / 3600000);
+                            const diffDays = Math.floor(diffMs / 86400000);
+                            let relativeDate: string;
+                            if (diffHours < 1) relativeDate = 'Nå';
+                            else if (diffHours < 24) relativeDate = `${diffHours}t`;
+                            else if (diffDays < 7) relativeDate = `${diffDays}d`;
+                            else relativeDate = date.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+
+                            return (
+                                <Card key={announcement.id} style={styles.announcementCard}>
+                                    <View style={styles.announcementRow}>
+                                        <View style={[styles.announcementIcon, { backgroundColor: colors.primary + '18' }]}>
+                                            <MaterialIcons name="campaign" size={20} color={colors.primary} />
+                                        </View>
+                                        <View style={styles.announcementContent}>
+                                            <View style={styles.announcementTitleRow}>
+                                                <Text style={[styles.announcementTitle, { color: colors.text }]} numberOfLines={1}>
+                                                    {announcement.title}
+                                                </Text>
+                                                <Text style={[styles.announcementDate, { color: colors.textTertiary }]}>
+                                                    {relativeDate}
+                                                </Text>
+                                            </View>
+                                            <Text style={[styles.announcementMessage, { color: colors.textSecondary }]} numberOfLines={2}>
+                                                {announcement.message}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </Card>
+                            );
+                        })}
+                    </View>
+                )}
 
                 {/* Daily Goal */}
                 <Card style={styles.dailyGoalCard}>
@@ -511,5 +560,42 @@ const styles = StyleSheet.create({
     pointsText: {
         fontSize: 14,
         fontWeight: '700',
+    },
+    announcementCard: {
+        marginBottom: 12,
+    },
+    announcementRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+    announcementIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    announcementContent: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    announcementTitleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    announcementTitle: {
+        fontSize: 15,
+        fontWeight: '600',
+        flex: 1,
+        marginRight: 8,
+    },
+    announcementDate: {
+        fontSize: 12,
+    },
+    announcementMessage: {
+        fontSize: 13,
+        lineHeight: 18,
     },
 });

@@ -62,6 +62,7 @@ export interface Exercise {
     is_public: boolean;
     created_by_club_id: string | null;
     equipment: string;
+    assigned_team_ids?: string[] | null;
     created_at: string;
 }
 
@@ -191,6 +192,18 @@ export interface ReportData {
     difficultyDistribution: ChartDataPoint[];
 }
 
+// Announcement types
+export interface Announcement {
+    id: string;
+    club_id: string;
+    team_id?: string | null;
+    created_by: string;
+    title: string;
+    message: string;
+    created_at: string;
+    author_name?: string;
+}
+
 // Navigation types
 export type RootStackParamList = {
     Onboarding: undefined;
@@ -237,6 +250,7 @@ export type AdminDrawerParamList = {
     ClubStructure: undefined;
     Exercises: undefined;
     ExerciseStore: undefined;
+    Announcements: undefined;
     Reports: undefined;
     AdminSettings: undefined;
 };

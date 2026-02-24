@@ -1,0 +1,30 @@
+appId: com.bendixen.fotballtrening
+name: "Admin Edit Player and Reset Password"
+---
+# Login as test admin
+- runFlow: helpers/login-as-admin.yaml
+
+# Navigate to Players via drawer
+- tapOn:
+    id: "drawer-players"
+
+# Verify players management screen loaded
+- assertVisible:
+    text: ".*Spillere.*"
+
+# Tap on first player card to edit
+- tapOn:
+    text: ".*@.*"
+    index: 0
+
+# Verify edit screen or players list is visible
+- assertVisible:
+    text: ".*Rediger spiller.*|.*Spillere.*"
+
+# Verify name input field exists
+- assertVisible:
+    id: "player-name-input"
+
+# Verify save button exists
+- assertVisible:
+    id: "save-player-button"

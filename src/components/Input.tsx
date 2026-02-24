@@ -14,6 +14,7 @@ import { useTheme } from '../lib/theme';
 interface InputProps extends TextInputProps {
     label?: string;
     error?: string;
+    required?: boolean;
     containerStyle?: ViewStyle;
     icon?: React.ReactNode;
     testID?: string;
@@ -22,6 +23,7 @@ interface InputProps extends TextInputProps {
 export function Input({
     label,
     error,
+    required,
     containerStyle,
     icon,
     secureTextEntry,
@@ -36,7 +38,7 @@ export function Input({
         <View accessible={false} style={[styles.container, containerStyle]}>
             {label && (
                 <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {label}
+                    {label}{required && <Text style={{ color: colors.error }}> *</Text>}
                 </Text>
             )}
             <View

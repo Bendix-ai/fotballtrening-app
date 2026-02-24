@@ -120,6 +120,7 @@ export const no = {
         level: 'Nivå {level}',
         pointsToNextLevel: '{points} poeng til neste nivå',
         maxLevel: 'Maks nivå!',
+        announcements: 'Kunngjøringer',
     },
 
     // Exercises
@@ -332,6 +333,9 @@ export const no = {
         visibility: 'Synlighet',
         public: 'Offentlig',
         private: 'Privat',
+        assignToTeams: 'Tilordne til lag',
+        allTeams: 'Alle lag',
+        assignedTeams: '{count} lag valgt',
 
         // Exercise Store
         featured: 'Utvalgte',
@@ -378,6 +382,20 @@ export const no = {
         administrator: 'Administrator',
         emailNotifications: 'E-postvarsler',
         pushNotifications: 'Push-varsler',
+        setupChecklist: 'Kom i gang',
+        setupChecklistDesc: 'Fullfør disse stegene for å sette opp klubben din',
+        setupYearGroups: 'Legg til årganger',
+        setupPlayers: 'Legg til spillere',
+        setupExercises: 'Legg til øvelser',
+
+        // Announcements
+        announcements: 'Kunngjøringer',
+        newAnnouncement: 'Ny kunngjøring',
+        announcementTitle: 'Tittel',
+        announcementMessage: 'Melding',
+        noAnnouncements: 'Ingen kunngjøringer ennå',
+        sendAnnouncement: 'Send kunngjøring',
+        announcementSent: 'Kunngjøring sendt!',
     },
 
     // Streak

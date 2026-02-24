@@ -28,6 +28,7 @@ const drawerItems: DrawerItem[] = [
     { name: 'ClubStructure', label: 'admin.clubStructure', icon: 'account-tree', showFor: 'club_admin', testID: 'drawer-structure' },
     { name: 'Exercises', label: 'admin.exercises', icon: 'fitness-center', showFor: 'all', testID: 'drawer-exercises' },
     { name: 'ExerciseStore', label: 'admin.exerciseStore', icon: 'store', showFor: 'all', testID: 'drawer-store' },
+    { name: 'Announcements', label: 'admin.announcements', icon: 'campaign', showFor: 'all', testID: 'drawer-announcements' },
     { name: 'Reports', label: 'admin.reports', icon: 'bar-chart', showFor: 'all', testID: 'drawer-reports' },
     { name: 'AdminSettings', label: 'admin.adminSettings', icon: 'settings', showFor: 'all', testID: 'drawer-settings' },
 ];

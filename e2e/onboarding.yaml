@@ -1,0 +1,49 @@
+appId: com.bendixen.fotballtrening
+name: "Onboarding First Launch Flow"
+---
+# Prerequisite: app state cleared (first launch), onboarding not completed
+
+# Verify first onboarding page is visible
+- assertVisible:
+    text: ".*Velkommen til FotballTrening.*"
+
+# Verify skip button is visible
+- assertVisible:
+    id: "onboarding-skip-button"
+
+# Dismiss debug warning banner if present (tap the X)
+- tapOn:
+    point: "95%,97%"
+
+# Swipe left to go to page 2
+- swipe:
+    direction: LEFT
+    duration: 500
+
+# Verify page 2
+- assertVisible:
+    text: ".*Slik fungerer det.*"
+
+# Swipe left to go to page 3
+- swipe:
+    direction: LEFT
+    duration: 500
+
+# Verify page 3 (last page)
+- assertVisible:
+    text: ".*Konkurrer og vinn.*"
+
+# Verify "Kom i gang" (Get Started) button is visible
+- assertVisible: "Kom i gang"
+
+# Tap "Get Started" button
+- tapOn: "Kom i gang"
+
+# Wait for auth loading to complete and login screen to appear
+- extendedWaitUntil:
+    visible:
+        text: "Admin"
+    timeout: 30000
+
+# Verify login screen fully loaded
+- assertVisible: "Spiller"

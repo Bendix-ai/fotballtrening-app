@@ -23,6 +23,7 @@ interface DropdownProps {
     onValueChange: (value: string) => void;
     placeholder?: string;
     error?: string;
+    required?: boolean;
     containerStyle?: ViewStyle;
     testID?: string;
 }
@@ -34,6 +35,7 @@ export function Dropdown({
     onValueChange,
     placeholder = 'Velg...',
     error,
+    required,
     containerStyle,
     testID,
 }: DropdownProps) {
@@ -46,7 +48,7 @@ export function Dropdown({
         <View style={[styles.container, containerStyle]}>
             {label && (
                 <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {label}
+                    {label}{required && <Text style={{ color: colors.error }}> *</Text>}
                 </Text>
             )}
             <TouchableOpacity

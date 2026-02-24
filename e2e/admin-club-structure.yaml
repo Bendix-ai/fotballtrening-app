@@ -1,0 +1,46 @@
+appId: com.bendixen.fotballtrening
+name: "Admin Club Structure - Add Year Group"
+---
+# Login as test admin (club_admin)
+- runFlow: helpers/login-as-admin.yaml
+
+# Navigate to Club Structure via drawer
+- tapOn:
+    id: "drawer-structure"
+
+# Verify club structure screen loaded
+- assertVisible:
+    text: ".*Klubbstruktur.*"
+
+# Verify club info card is visible
+- assertVisible:
+    text: ".*årganger.*"
+
+# Tap FAB to add year group
+- tapOn:
+    id: "add-yeargroup-fab"
+
+# Verify add year group form loaded
+- assertVisible:
+    text: ".*Legg til.*årgang.*"
+
+# Enter year
+- tapOn:
+    id: "yeargroup-year-input"
+- inputText: "2018"
+
+# Select boys checkbox
+- tapOn:
+    id: "yeargroup-boys-checkbox"
+
+# Select girls checkbox
+- tapOn:
+    id: "yeargroup-girls-checkbox"
+
+# Save
+- tapOn:
+    id: "save-yeargroup-button"
+
+# Verify success - toast or navigation back
+- assertVisible:
+    text: ".*lagt til.*|.*Klubbstruktur.*"

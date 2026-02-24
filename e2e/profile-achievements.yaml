@@ -1,0 +1,31 @@
+appId: com.bendixen.fotballtrening
+name: "Profile and Achievements Flow"
+---
+# Login as test player
+- runFlow: helpers/login-as-player.yaml
+
+# Navigate to profile tab (text tap — tabBarButtonTestID unreliable)
+- tapOn: "Profil"
+
+# Verify profile screen loaded
+- assertVisible:
+    text: ".*Profil.*"
+
+# Verify stats are visible
+- assertVisible:
+    text: ".*Totale poeng.*|.*poeng.*"
+
+# Verify achievements section is visible
+- assertVisible:
+    text: ".*Prestasjoner.*"
+
+# Tap on settings button
+- tapOn:
+    id: "profile-settings-button"
+
+# Verify settings screen loaded
+- assertVisible:
+    text: ".*Innstillinger.*"
+
+# Go back to profile
+- back

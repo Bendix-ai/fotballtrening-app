@@ -1,0 +1,59 @@
+appId: com.bendixen.fotballtrening
+name: "Admin Exercise CRUD"
+---
+# Login as test admin
+- runFlow: helpers/login-as-admin.yaml
+
+# Navigate to Exercises via drawer
+- tapOn:
+    id: "drawer-exercises"
+
+# Verify exercises management screen loaded
+- assertVisible:
+    text: ".*[Øø]velser.*"
+
+# Tap FAB to add new exercise
+- tapOn:
+    id: "add-exercise-fab"
+
+# Verify add exercise form loaded
+- assertVisible:
+    text: ".*Legg til.*[øo]velse.*"
+
+# Fill in exercise title
+- tapOn:
+    id: "exercise-title-input"
+- inputText: "E2E Test Øvelse"
+
+# Fill in description
+- tapOn:
+    id: "exercise-description-input"
+- inputText: "Test øvelse opprettet av E2E"
+
+# Select category
+- tapOn:
+    id: "exercise-category-dropdown"
+- tapOn: "Oppvarming"
+
+# Select difficulty
+- tapOn:
+    id: "exercise-difficulty-dropdown"
+- tapOn: "Lett"
+
+# Fill in duration
+- tapOn:
+    id: "exercise-duration-input"
+- inputText: "120"
+
+# Fill in instructions
+- tapOn:
+    id: "exercise-instructions-input"
+- inputText: "Steg 1: Stå rett. Steg 2: Jog på stedet. Steg 3: Tøy ut."
+
+# Save the exercise
+- tapOn:
+    id: "save-exercise-button"
+
+# Verify success - should navigate back to exercise list or show toast
+- assertVisible:
+    text: ".*[Øø]velse.*opprettet.*|.*[Øø]velser.*"

@@ -1,0 +1,40 @@
+appId: com.bendixen.fotballtrening
+name: "Exercise Favorites Toggle"
+---
+# Login as test player
+- runFlow: helpers/login-as-player.yaml
+
+# Navigate to exercises tab (text tap — tabBarButtonTestID unreliable)
+- tapOn: "Øvelser"
+
+# Verify exercises screen loaded
+- assertVisible:
+    text: ".*[Øø]velser.*"
+
+# Tap first exercise card
+- tapOn:
+    id: "exercise-card"
+    index: 0
+
+# Verify exercise detail screen loaded
+- assertVisible:
+    id: "exercise-start-button"
+
+# Verify favorite button is present
+- assertVisible:
+    id: "exercise-favorite-button"
+
+# Toggle favorite on
+- tapOn:
+    id: "exercise-favorite-button"
+
+# Toggle favorite off
+- tapOn:
+    id: "exercise-favorite-button"
+
+# Go back to exercises list
+- back
+
+# Verify we're back on exercises list
+- assertVisible:
+    text: ".*[Øø]velser.*"

@@ -26,4 +26,7 @@ export const queryKeys = {
         detail: (id: string) => ['store', 'detail', id] as const,
         reviews: (exerciseId: string) => ['store', 'reviews', exerciseId] as const,
     },
+    announcements: {
+        all: (clubId: string) => ['announcements', clubId] as const,
+    },
 };

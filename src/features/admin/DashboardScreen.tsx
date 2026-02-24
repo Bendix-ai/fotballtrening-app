@@ -1,19 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, AdminHeader } from '../../components';
 import { useDashboardMetrics, useRecentActivity, usePlayers } from '../../hooks/useAdmin';
+import { useExercises } from '../../hooks/useExercises';
+import { AdminDrawerParamList } from '../../types';
+
+type DashboardNavProp = DrawerNavigationProp<AdminDrawerParamList, 'Dashboard'>;
 
 export function DashboardScreen() {
     const { colors } = useTheme();
+    const navigation = useNavigation<DashboardNavProp>();
     const { data: metrics } = useDashboardMetrics();
     const { data: recentActivity = [] } = useRecentActivity();
     const { data: allPlayers = [] } = usePlayers();
+    const { data: allExercises = [] } = useExercises();
 
     const displayMetrics = metrics ?? { totalPlayers: 0, activeLast7Days: 0, totalCompletions: 0, engagementRate: 0 };
+
+    // Setup checklist for new clubs
+    const hasPlayers = displayMetrics.totalPlayers > 0;
+    const hasExercises = allExercises.length > 0;
+    const showChecklist = !hasPlayers || !hasExercises;
     const recentItems = recentActivity.slice(0, 8);
     const topPlayers = [...allPlayers].sort((a, b) => b.total_points - a.total_points).slice(0, 5);
 
@@ -28,6 +41,63 @@ export function DashboardScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
             <AdminHeader title={t('admin.dashboard')} />
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                {/* Setup Checklist */}
+                {showChecklist && (
+                    <Card style={styles.checklistCard}>
+                        <Text style={[styles.checklistTitle, { color: colors.text }]}>
+                            {t('admin.setupChecklist')}
+                        </Text>
+                        <Text style={[styles.checklistDesc, { color: colors.textSecondary }]}>
+                            {t('admin.setupChecklistDesc')}
+                        </Text>
+
+                        <TouchableOpacity
+                            style={styles.checklistItem}
+                            onPress={() => navigation.navigate('ClubStructure')}
+                        >
+                            <MaterialIcons
+                                name="check-circle"
+                                size={22}
+                                color={colors.success}
+                            />
+                            <Text style={[styles.checklistItemText, { color: colors.text }]}>
+                                {t('admin.setupYearGroups')}
+                            </Text>
+                            <MaterialIcons name="chevron-right" size={20} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.checklistItem}
+                            onPress={() => navigation.navigate('Players')}
+                        >
+                            <MaterialIcons
+                                name={hasPlayers ? 'check-circle' : 'radio-button-unchecked'}
+                                size={22}
+                                color={hasPlayers ? colors.success : colors.textTertiary}
+                            />
+                            <Text style={[styles.checklistItemText, { color: colors.text }]}>
+                                {t('admin.setupPlayers')}
+                            </Text>
+                            <MaterialIcons name="chevron-right" size={20} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.checklistItem}
+                            onPress={() => navigation.navigate('ExerciseStore')}
+                        >
+                            <MaterialIcons
+                                name={hasExercises ? 'check-circle' : 'radio-button-unchecked'}
+                                size={22}
+                                color={hasExercises ? colors.success : colors.textTertiary}
+                            />
+                            <Text style={[styles.checklistItemText, { color: colors.text }]}>
+                                {t('admin.setupExercises')}
+                            </Text>
+                            <MaterialIcons name="chevron-right" size={20} color={colors.textTertiary} />
+                        </TouchableOpacity>
+                    </Card>
+                )}
+
                 {/* Metric Cards */}
                 <View style={styles.metricsGrid}>
                     {metricCards.map((metric, index) => (
@@ -133,6 +203,29 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: 20,
         paddingBottom: 40,
+    },
+    checklistCard: {
+        marginBottom: 20,
+    },
+    checklistTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    checklistDesc: {
+        fontSize: 13,
+        marginBottom: 16,
+    },
+    checklistItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        gap: 12,
+    },
+    checklistItemText: {
+        flex: 1,
+        fontSize: 15,
+        fontWeight: '500',
     },
     metricsGrid: {
         flexDirection: 'row',

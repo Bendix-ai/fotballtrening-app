@@ -265,6 +265,7 @@ export function AddEditPlayerScreen() {
                             value={name}
                             onChangeText={(text) => { setName(text); setError(''); }}
                             placeholder="Fullt navn"
+                            required
                         />
 
                         <Input
@@ -274,6 +275,7 @@ export function AddEditPlayerScreen() {
                             placeholder="brukernavn"
                             autoCapitalize="none"
                             autoCorrect={false}
+                            required
                         />
 
                         <Input
@@ -282,6 +284,7 @@ export function AddEditPlayerScreen() {
                             onChangeText={(text) => { setPassword(text); setError(''); }}
                             placeholder={isEditing ? 'La tom for å beholde' : 'Passord'}
                             secureTextEntry
+                            required={!isEditing}
                         />
 
                         {password.length > 0 && (
@@ -300,6 +303,7 @@ export function AddEditPlayerScreen() {
                             selectedValue={selectedYear}
                             onValueChange={(value) => { setSelectedYear(value); setError(''); }}
                             placeholder="Velg årgang..."
+                            required
                         />
 
                         <Dropdown
@@ -308,6 +312,7 @@ export function AddEditPlayerScreen() {
                             selectedValue={selectedGender}
                             onValueChange={(value) => { setSelectedGender(value); setError(''); }}
                             placeholder="Velg kjønn..."
+                            required
                         />
 
                         {error ? (

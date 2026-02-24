@@ -1,0 +1,55 @@
+appId: com.bendixen.fotballtrening
+name: "Admin Reports - Charts Load"
+---
+# Login as test admin
+- runFlow: helpers/login-as-admin.yaml
+
+# Navigate to Reports via drawer
+- tapOn:
+    id: "drawer-reports"
+
+# Verify reports screen loaded
+- assertVisible:
+    text: ".*Rapporter.*"
+
+# Verify date range filter buttons are visible
+- assertVisible:
+    text: ".*7 dager.*"
+- assertVisible:
+    text: ".*30 dager.*"
+- assertVisible:
+    text: ".*90 dager.*"
+
+# Switch to 7 days
+- tapOn:
+    text: ".*7 dager.*"
+
+# Verify chart sections load
+- assertVisible:
+    text: ".*[Uu]kentlig aktivitet.*"
+
+# Verify monthly points chart
+- assertVisible:
+    text: ".*[Mm]ånedlige poeng.*"
+
+# Verify category distribution
+- assertVisible:
+    text: ".*[Kk]ategorifordeling.*"
+
+# Verify difficulty distribution
+- assertVisible:
+    text: ".*[Vv]anskelighetsfordeling.*"
+
+# Verify export buttons exist
+- assertVisible:
+    text: ".*Eksporter PDF.*"
+- assertVisible:
+    text: ".*Eksporter CSV.*"
+
+# Switch to 90 days
+- tapOn:
+    text: ".*90 dager.*"
+
+# Verify charts still visible after date range change
+- assertVisible:
+    text: ".*[Uu]kentlig aktivitet.*"

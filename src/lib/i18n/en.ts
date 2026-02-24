@@ -122,6 +122,7 @@ export const en: Translations = {
         level: 'Level {level}',
         pointsToNextLevel: '{points} points to next level',
         maxLevel: 'Max level!',
+        announcements: 'Announcements',
     },
 
     // Exercises
@@ -334,6 +335,9 @@ export const en: Translations = {
         visibility: 'Visibility',
         public: 'Public',
         private: 'Private',
+        assignToTeams: 'Assign to teams',
+        allTeams: 'All teams',
+        assignedTeams: '{count} teams selected',
 
         // Exercise Store
         featured: 'Featured',
@@ -380,6 +384,20 @@ export const en: Translations = {
         administrator: 'Administrator',
         emailNotifications: 'Email notifications',
         pushNotifications: 'Push notifications',
+        setupChecklist: 'Get started',
+        setupChecklistDesc: 'Complete these steps to set up your club',
+        setupYearGroups: 'Add year groups',
+        setupPlayers: 'Add players',
+        setupExercises: 'Add exercises',
+
+        // Announcements
+        announcements: 'Announcements',
+        newAnnouncement: 'New announcement',
+        announcementTitle: 'Title',
+        announcementMessage: 'Message',
+        noAnnouncements: 'No announcements yet',
+        sendAnnouncement: 'Send announcement',
+        announcementSent: 'Announcement sent!',
     },
 
     // Streak

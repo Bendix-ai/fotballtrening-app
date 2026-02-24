@@ -1,0 +1,55 @@
+appId: com.bendixen.fotballtrening
+name: "Settings Theme and Language Toggle"
+---
+# Login as test player
+- runFlow: helpers/login-as-player.yaml
+
+# Navigate to profile tab (text tap — tabBarButtonTestID unreliable)
+- tapOn: "Profil"
+
+# Verify profile screen
+- assertVisible:
+    text: ".*Profil.*"
+
+# Tap settings button
+- tapOn:
+    id: "profile-settings-button"
+
+# Verify settings screen loaded
+- assertVisible:
+    text: ".*Innstillinger.*"
+
+# Verify theme section is visible
+- assertVisible: "Tema"
+
+# Verify current theme buttons are visible
+- assertVisible: "Lys"
+- assertVisible: "System"
+
+# Toggle to dark mode
+- tapOn: "Mørk"
+
+# Toggle back to light mode
+- tapOn: "Lys"
+
+# Verify language section
+- assertVisible:
+    text: ".*Språk.*"
+
+# Switch to English
+- tapOn: "English"
+
+# Verify language changed - settings title should now be in English
+- assertVisible:
+    text: ".*Settings.*"
+
+# Switch back to Norwegian
+- tapOn: "Norsk"
+
+# Verify back to Norwegian
+- assertVisible:
+    text: ".*Innstillinger.*"
+
+# Verify logout button is present
+- assertVisible:
+    id: "settings-logout-button"

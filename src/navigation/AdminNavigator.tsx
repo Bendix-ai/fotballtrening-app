@@ -8,6 +8,7 @@ import { PlayersManagementScreen } from '../features/admin/PlayersManagementScre
 import { ClubStructureScreen } from '../features/admin/ClubStructureScreen';
 import { ExercisesManagementScreen } from '../features/admin/ExercisesManagementScreen';
 import { ExerciseStoreScreen } from '../features/admin/ExerciseStoreScreen';
+import { AnnouncementsScreen } from '../features/admin/AnnouncementsScreen';
 import { ReportsScreen } from '../features/admin/ReportsScreen';
 import { AdminSettingsScreen } from '../features/admin/AdminSettingsScreen';
 
@@ -28,6 +29,7 @@ export function AdminNavigator() {
             <Drawer.Screen name="ClubStructure" component={ClubStructureScreen} />
             <Drawer.Screen name="Exercises" component={ExercisesManagementScreen} />
             <Drawer.Screen name="ExerciseStore" component={ExerciseStoreScreen} />
+            <Drawer.Screen name="Announcements" component={AnnouncementsScreen} />
             <Drawer.Screen name="Reports" component={ReportsScreen} />
             <Drawer.Screen name="AdminSettings" component={AdminSettingsScreen} />
         </Drawer.Navigator>

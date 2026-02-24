@@ -18,6 +18,7 @@ import { t } from '../../lib/i18n';
 import { Card } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
 import { useExercises, useFavorites, useToggleFavorite, useTodayCompletions } from '../../hooks/useExercises';
+import { useAuthStore } from '../../stores';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import * as Haptics from 'expo-haptics';
 
@@ -54,7 +55,18 @@ export function ExercisesScreen() {
     const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
-    const { data: allExercises = [], refetch } = useExercises();
+    const { user } = useAuthStore();
+    const { data: allExercisesRaw = [], refetch } = useExercises();
+
+    // Filter exercises by team assignment: show exercises with no team restriction or assigned to player's team
+    const allExercises = useMemo(() => {
+        if (!user || user.role === 'admin') return allExercisesRaw;
+        const teamId = user.team_id;
+        return allExercisesRaw.filter((e) => {
+            if (!e.assigned_team_ids || e.assigned_team_ids.length === 0) return true;
+            return teamId ? e.assigned_team_ids.includes(teamId) : true;
+        });
+    }, [allExercisesRaw, user]);
     const { data: favoriteIds = [] } = useFavorites();
     const { data: todayCompletions = [] } = useTodayCompletions();
     const toggleFavoriteMutation = useToggleFavorite();
