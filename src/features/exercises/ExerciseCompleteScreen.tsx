@@ -14,6 +14,7 @@ import { t } from '../../lib/i18n';
 import { Card, Button } from '../../components';
 import { ExercisesStackParamList } from '../../types';
 import { useExercise, useCompleteExercise } from '../../hooks/useExercises';
+import * as Haptics from 'expo-haptics';
 
 type CompleteRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseComplete'>;
 type CompleteNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseComplete'>;
@@ -46,6 +47,9 @@ export function ExerciseCompleteScreen() {
     useEffect(() => {
         // Record the completion
         completeExercise.mutate({ exerciseId, pointsEarned });
+
+        // Success haptic
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         // Run entrance animation
         Animated.sequence([

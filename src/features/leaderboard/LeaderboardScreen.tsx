@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     RefreshControl,
     Animated,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -141,13 +142,15 @@ export function LeaderboardScreen() {
                     </Text>
                 </View>
 
-                <View
-                    style={[styles.avatar, { backgroundColor: colors.accent }]}
-                >
-                    <Text style={styles.avatarText}>
-                        {item.display_name.charAt(0).toUpperCase()}
-                    </Text>
-                </View>
+                {item.avatar_url ? (
+                    <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
+                ) : (
+                    <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
+                        <Text style={styles.avatarText}>
+                            {item.display_name.charAt(0).toUpperCase()}
+                        </Text>
+                    </View>
+                )}
 
                 <View style={styles.playerInfo}>
                     <Text

@@ -41,3 +41,16 @@ export function useDownloadExercise() {
         },
     });
 }
+
+export function useDownloadStarterPack() {
+    const queryClient = useQueryClient();
+    const { user } = useAuthStore();
+    return useMutation({
+        mutationFn: () => storeService.downloadStarterPack(user?.club_id ?? ''),
+        onSuccess: () => {
+            if (user) {
+                queryClient.invalidateQueries({ queryKey: queryKeys.exercises.all(user.club_id) });
+            }
+        },
+    });
+}

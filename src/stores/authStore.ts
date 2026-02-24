@@ -24,6 +24,7 @@ interface AuthState {
     setTeam: (team: Team | null) => void;
     setManagedTeamIds: (ids: string[]) => void;
     setLoading: (loading: boolean) => void;
+    setAvatarUrl: (url: string) => void;
     clearPasswordRecovery: () => void;
     initialize: () => Promise<void>;
     logout: () => Promise<void>;
@@ -68,6 +69,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     setManagedTeamIds: (managedTeamIds) => set({ managedTeamIds }),
 
     setLoading: (isLoading) => set({ isLoading }),
+
+    setAvatarUrl: (url) => {
+        const { user } = get();
+        if (user) {
+            set({ user: { ...user, avatar_url: url } });
+        }
+    },
 
     clearPasswordRecovery: () => set({ isPasswordRecovery: false }),
 

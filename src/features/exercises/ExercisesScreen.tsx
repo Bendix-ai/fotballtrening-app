@@ -17,6 +17,8 @@ import { t } from '../../lib/i18n';
 import { Card } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
 import { useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
+import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
+import * as Haptics from 'expo-haptics';
 
 type ExercisesNavProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExercisesList'>;
 
@@ -58,6 +60,7 @@ export function ExercisesScreen() {
     const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
     const isFavorite = useCallback((id: string) => favoriteSet.has(id), [favoriteSet]);
     const handleToggleFavorite = useCallback((id: string) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         toggleFavoriteMutation.mutate({ exerciseId: id, isFavorite: favoriteSet.has(id) });
     }, [toggleFavoriteMutation, favoriteSet]);
 
@@ -87,14 +90,14 @@ export function ExercisesScreen() {
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: item.id })} testID="exercise-card">
             <Card style={styles.exerciseCard}>
                 <View style={styles.exerciseContent}>
-                    {/* Placeholder image */}
+                    {/* Category icon */}
                     <View
                         style={[
                             styles.imagePlaceholder,
-                            { backgroundColor: colors.primaryLight }
+                            { backgroundColor: getCategoryColor(item.category) + '18' }
                         ]}
                     >
-                        <MaterialIcons name="sports-soccer" size={28} color={colors.primary} />
+                        <MaterialIcons name={getCategoryIcon(item.category)} size={28} color={getCategoryColor(item.category)} />
                     </View>
 
                     <View style={styles.exerciseInfo}>
@@ -137,7 +140,7 @@ export function ExercisesScreen() {
                                 e.stopPropagation();
                                 handleToggleFavorite(item.id);
                             }}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                         >
                             <MaterialIcons
                                 name={isFavorite(item.id) ? 'favorite' : 'favorite-border'}

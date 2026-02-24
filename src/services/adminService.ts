@@ -302,8 +302,15 @@ export async function getReportData(
         value: Math.round((v / total) * 100),
     }));
 
-    // Return mock data as fallback if no completions found
-    if (filtered.length === 0) return mockReportData;
+    // Return empty data if no completions found (honest empty state, not mock)
+    if (filtered.length === 0) {
+        return {
+            weeklyActivity: [],
+            monthlyPoints: [],
+            categoryDistribution: [],
+            difficultyDistribution: [],
+        };
+    }
 
     return { weeklyActivity, monthlyPoints, categoryDistribution, difficultyDistribution };
 }

@@ -14,6 +14,7 @@ import { t } from '../../lib/i18n';
 import { Card, Button, Badge, useToast } from '../../components';
 import { AdminStackParamList } from '../../types';
 import { useStoreExercise, useStoreReviews, useDownloadExercise } from '../../hooks/useStore';
+import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 
 type DetailRoute = RouteProp<AdminStackParamList, 'ExerciseStoreDetail'>;
 
@@ -57,8 +58,8 @@ export function ExerciseStoreDetailScreen() {
                 </TouchableOpacity>
 
                 {/* Hero */}
-                <View style={[styles.hero, { backgroundColor: colors.primaryLight }]}>
-                    <MaterialIcons name="fitness-center" size={64} color={colors.primary} />
+                <View style={[styles.hero, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}>
+                    <MaterialIcons name={getCategoryIcon(exercise.category)} size={64} color={getCategoryColor(exercise.category)} />
                 </View>
 
                 {/* Title & meta */}
@@ -197,9 +198,9 @@ const styles = StyleSheet.create({
         top: 16,
         left: 16,
         zIndex: 10,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.9)',
         alignItems: 'center',
         justifyContent: 'center',

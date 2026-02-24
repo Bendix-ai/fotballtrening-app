@@ -12,6 +12,7 @@ import { Card, Button, StreakCard } from '../../components';
 import { useAuthStore } from '../../stores';
 import { MainTabParamList, RootStackParamList } from '../../types';
 import { useExercises, useTodayCompletions } from '../../hooks/useExercises';
+import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 
 type HomeNavProp = CompositeNavigationProp<
     BottomTabNavigationProp<MainTabParamList, 'Home'>,
@@ -186,7 +187,10 @@ export function HomeScreen() {
                         {suggestedExercises.map((exercise) => (
                             <Card key={exercise.id} style={styles.exerciseCard}>
                                 <View style={styles.exerciseRow}>
-                                    <View>
+                                    <View style={[styles.exerciseCategoryIcon, { backgroundColor: getCategoryColor(exercise.category) + '18' }]}>
+                                        <MaterialIcons name={getCategoryIcon(exercise.category)} size={20} color={getCategoryColor(exercise.category)} />
+                                    </View>
+                                    <View style={styles.exerciseTextContainer}>
                                         <Text style={[styles.exerciseTitle, { color: colors.text }]}>
                                             {exercise.title}
                                         </Text>
@@ -318,8 +322,18 @@ const styles = StyleSheet.create({
     },
     exerciseRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    exerciseCategoryIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    exerciseTextContainer: {
+        flex: 1,
     },
     exerciseTitle: {
         fontSize: 16,

@@ -9,6 +9,7 @@ import {
     Animated,
 } from 'react-native';
 import { useTheme } from '../lib/theme';
+import * as Haptics from 'expo-haptics';
 
 interface ButtonProps {
     title: string;
@@ -41,13 +42,16 @@ export function Button({
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = useCallback(() => {
+        if (size === 'large') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         Animated.spring(scaleAnim, {
             toValue: 0.95,
             useNativeDriver: true,
             speed: 50,
             bounciness: 4,
         }).start();
-    }, [scaleAnim]);
+    }, [scaleAnim, size]);
 
     const handlePressOut = useCallback(() => {
         Animated.spring(scaleAnim, {

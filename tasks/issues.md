@@ -24,14 +24,14 @@
 
 | # | GitHub | Tittel | Prioritet | Status | Notater |
 |---|--------|--------|-----------|--------|---------|
-| 1 | [#9](https://github.com/Bendix-ai/fotballtrening-app/issues/9) | Standardpakke med øvelser | Medium | Open | Bulk-import av startsett |
-| 2 | [#10](https://github.com/Bendix-ai/fotballtrening-app/issues/10) | Øvelsesbutikk UX | High | Open | Filtrering, bilder, bedre kort |
-| 3 | [#11](https://github.com/Bendix-ai/fotballtrening-app/issues/11) | Rapporter med reelle data | High | Open | Erstatt dummytall, seed testdata |
-| 4 | [#12](https://github.com/Bendix-ai/fotballtrening-app/issues/12) | Import fra Spond | Medium | Open | CSV/JSON import av lag/klubber |
-| 5 | [#13](https://github.com/Bendix-ai/fotballtrening-app/issues/13) | Gjennomsiktig tab bar | Low | Open | Moderne iOS-design med blur |
-| 6 | [#14](https://github.com/Bendix-ai/fotballtrening-app/issues/14) | UI/UX for unge brukere | High | Open | Brukerhistorier, større trykkmål |
-| 7 | [#15](https://github.com/Bendix-ai/fotballtrening-app/issues/15) | Avatar / profilbilde | Medium | Open | expo-image-picker, Supabase Storage |
-| 8 | [#16](https://github.com/Bendix-ai/fotballtrening-app/issues/16) | Øvelsesbrowsing med bilder | High | Open | Bilder, filtrering, visuelt hierarki |
+| 1 | [#9](https://github.com/Bendix-ai/fotballtrening-app/issues/9) | Standardpakke med øvelser | Medium | **Done** | `downloadStarterPack()` bulk-importerer utvalgte øvelser, knapp i butikken |
+| 2 | [#10](https://github.com/Bendix-ai/fotballtrening-app/issues/10) | Øvelsesbutikk UX | High | **Done** | Kategori- og vanskelighetsfiltre, kategori-ikoner/farger på kort, Badge-merker |
+| 3 | [#11](https://github.com/Bendix-ai/fotballtrening-app/issues/11) | Rapporter med reelle data | High | **Done** | Fjernet mock-fallback, viser tom-tilstand med ikon/melding når ingen data |
+| 4 | [#12](https://github.com/Bendix-ai/fotballtrening-app/issues/12) | Import fra Spond | Medium | Deferred | Utsatt — krever CSV-parsing + kompleks mapping-UI |
+| 5 | [#13](https://github.com/Bendix-ai/fotballtrening-app/issues/13) | Gjennomsiktig tab bar | Low | **Done** | `expo-blur` BlurView, `position: absolute`, gjennomsiktig bakgrunn |
+| 6 | [#14](https://github.com/Bendix-ai/fotballtrening-app/issues/14) | UI/UX for unge brukere | High | **Done** | Touch-mål 40→44px, hitSlop 8→12, haptic feedback på knapper/favoritter/fullføring |
+| 7 | [#15](https://github.com/Bendix-ai/fotballtrening-app/issues/15) | Avatar / profilbilde | Medium | **Done** | `expo-image-picker`, Supabase Storage bucket, kameraknapp på profil, vises i toppliste |
+| 8 | [#16](https://github.com/Bendix-ai/fotballtrening-app/issues/16) | Øvelsesbrowsing med bilder | High | **Done** | Kategori-ikoner med fargekoding i øvelsesliste, detalj, hjem, butikk |
 
 ---
 
@@ -47,18 +47,16 @@
 5. ~~**#6** Hardkodet spillerantall~~ ✅
 6. ~~**#8** Årganger lagres ikke~~ ✅
 
-### Runde 3 — High features (UX-forbedringer)
-7. **#10** Øvelsesbutikk UX
-8. **#11** Rapporter med reelle data
-9. **#14** UI/UX for unge brukere
-10. **#16** Øvelsesbrowsing
+### Runde 3 — High features (UX-forbedringer) — DONE
+7. ~~**#10** Øvelsesbutikk UX~~ ✅
+8. ~~**#11** Rapporter med reelle data~~ ✅
+9. ~~**#14** UI/UX for unge brukere~~ ✅
+10. ~~**#16** Øvelsesbrowsing~~ ✅
 
-### Runde 4 — Medium bugs + features
-11. **#3** Varsler (feature-gap, ikke kodefeil)
-12. **#5** Hjelpesenter (krever brukerflyt-beslutning)
-13. **#9** Standardpakke øvelser
-14. **#12** Spond-import
-15. **#15** Avatar/profilbilde
-
-### Runde 5 — Low priority
-16. **#13** Gjennomsiktig tab bar
+### Runde 4 — Medium/Low features — DONE
+11. **#3** Varsler (feature-gap, ikke kodefeil) — Open
+12. **#5** Hjelpesenter (krever brukerflyt-beslutning) — Open
+13. ~~**#9** Standardpakke øvelser~~ ✅
+14. **#12** Spond-import — Deferred
+15. ~~**#15** Avatar/profilbilde~~ ✅
+16. ~~**#13** Gjennomsiktig tab bar~~ ✅

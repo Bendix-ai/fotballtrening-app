@@ -181,6 +181,9 @@ export const en: Translations = {
         settings: 'Settings',
         days: 'days',
         activityHistory: 'Activity history',
+        changePhoto: 'Change profile picture',
+        photoUpdated: 'Profile picture updated!',
+        photoError: 'Could not update profile picture',
     },
 
     // Achievements
@@ -331,6 +334,9 @@ export const en: Translations = {
         downloads: 'Downloads',
         reviews: 'Reviews',
         by: 'By',
+        importStarterPack: 'Import starter pack',
+        starterPackImported: 'Starter pack imported!',
+        starterPackDesc: 'Download featured exercises to your club',
 
         // Reports
         dateRange: 'Date range',
@@ -344,6 +350,8 @@ export const en: Translations = {
         exportPDF: 'Export PDF',
         exportCSV: 'Export CSV',
         exportSuccess: 'Export started!',
+        noReportData: 'No data yet',
+        noReportDataDesc: 'Reports will appear here once players start completing exercises.',
 
         // Admin Settings
         profileSection: 'Profile',

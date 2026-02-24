@@ -215,8 +215,8 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     exitButton: {
-        width: 40,
-        height: 40,
+        width: 44,
+        height: 44,
         alignItems: 'center',
         justifyContent: 'center',
     },

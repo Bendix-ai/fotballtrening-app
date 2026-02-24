@@ -15,20 +15,10 @@ import { t } from '../../lib/i18n';
 import { Card, Badge, Button } from '../../components';
 import { ExercisesStackParamList } from '../../types';
 import { useExercise, useExercises, useFavorites, useToggleFavorite } from '../../hooks/useExercises';
+import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 
 type DetailRouteProp = RouteProp<ExercisesStackParamList, 'ExerciseDetail'>;
 type DetailNavigationProp = NativeStackNavigationProp<ExercisesStackParamList, 'ExerciseDetail'>;
-
-const getCategoryIcon = (category: string): keyof typeof MaterialIcons.glyphMap => {
-    switch (category) {
-        case 'warmup': return 'directions-run';
-        case 'strength': return 'fitness-center';
-        case 'agility': return 'speed';
-        case 'skill': return 'sports-soccer';
-        case 'cooldown': return 'self-improvement';
-        default: return 'sports-soccer';
-    }
-};
 
 export function ExerciseDetailScreen() {
     const { colors } = useTheme();
@@ -103,11 +93,11 @@ export function ExerciseDetailScreen() {
                 </TouchableOpacity>
 
                 {/* Hero image placeholder */}
-                <View style={[styles.heroImage, { backgroundColor: colors.primaryLight }]}>
+                <View style={[styles.heroImage, { backgroundColor: getCategoryColor(exercise.category) + '20' }]}>
                     <MaterialIcons
                         name={getCategoryIcon(exercise.category)}
                         size={80}
-                        color={colors.primary}
+                        color={getCategoryColor(exercise.category)}
                     />
                 </View>
 
@@ -184,11 +174,11 @@ export function ExerciseDetailScreen() {
                                     accessibilityLabel={`${related.title}, +${related.points} ${t('exercises.points')}`}
                                 >
                                     <Card style={styles.relatedCard}>
-                                        <View style={[styles.relatedIcon, { backgroundColor: colors.primaryLight }]}>
+                                        <View style={[styles.relatedIcon, { backgroundColor: getCategoryColor(related.category) + '20' }]}>
                                             <MaterialIcons
                                                 name={getCategoryIcon(related.category)}
                                                 size={24}
-                                                color={colors.primary}
+                                                color={getCategoryColor(related.category)}
                                             />
                                         </View>
                                         <Text
@@ -237,9 +227,9 @@ const styles = StyleSheet.create({
         top: 16,
         left: 16,
         zIndex: 10,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.9)',
         alignItems: 'center',
         justifyContent: 'center',
@@ -249,9 +239,9 @@ const styles = StyleSheet.create({
         top: 16,
         right: 16,
         zIndex: 10,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255,255,255,0.9)',
         alignItems: 'center',
         justifyContent: 'center',

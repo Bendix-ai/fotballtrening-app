@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { useAuthStore, useAppStore } from '../stores';
@@ -34,20 +35,29 @@ const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
 };
 
 function MainTabs() {
-    const { colors } = useTheme();
+    const { colors, isDark } = useTheme();
 
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarStyle: {
-                    backgroundColor: colors.card,
-                    borderTopColor: colors.border,
-                    borderTopWidth: 1,
+                    position: 'absolute',
+                    backgroundColor: 'transparent',
+                    borderTopColor: 'transparent',
+                    borderTopWidth: 0,
+                    elevation: 0,
                     height: 88,
                     paddingTop: 8,
                     paddingBottom: 28,
                 },
+                tabBarBackground: () => (
+                    <BlurView
+                        tint={isDark ? 'dark' : 'light'}
+                        intensity={80}
+                        style={StyleSheet.absoluteFill}
+                    />
+                ),
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.textTertiary,
                 tabBarLabelStyle: {

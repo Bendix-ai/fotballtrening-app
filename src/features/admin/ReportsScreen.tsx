@@ -10,8 +10,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
+import { MaterialIcons } from '@expo/vector-icons';
 import { AdminHeader, Card, Button, useToast } from '../../components';
-import { mockReportData } from '../../data/mockData';
 import { useDashboardMetrics, useReportData } from '../../hooks/useAdmin';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
 
@@ -51,8 +51,17 @@ export function ReportsScreen() {
     const [selectedRange, setSelectedRange] = useState<DateRange>('30d');
     const { data: metrics } = useDashboardMetrics();
     const { data: reportData } = useReportData(selectedRange);
-    const report = reportData ?? mockReportData;
+    const report = reportData ?? {
+        weeklyActivity: [],
+        monthlyPoints: [],
+        categoryDistribution: [],
+        difficultyDistribution: [],
+    };
     const dashboardMetrics = metrics ?? { totalCompletions: 0, engagementRate: 0 };
+
+    const hasData = report.weeklyActivity.length > 0 ||
+        report.monthlyPoints.length > 0 ||
+        report.categoryDistribution.length > 0;
 
     const chartConfig = {
         backgroundColor: colors.card,
@@ -149,100 +158,114 @@ export function ReportsScreen() {
                     </Card>
                 </View>
 
-                {/* Weekly Activity Chart */}
-                <Card style={styles.chartCard}>
-                    <Text style={[styles.chartTitle, { color: colors.text }]}>
-                        {t('admin.weeklyActivity')}
-                    </Text>
-                    <ChartErrorBoundary>
-                        <BarChart
-                            data={activityData}
-                            width={chartWidth}
-                            height={200}
-                            yAxisLabel=""
-                            yAxisSuffix=""
-                            chartConfig={chartConfig}
-                            style={styles.chart}
-                            fromZero
-                        />
-                    </ChartErrorBoundary>
-                </Card>
+                {hasData ? (
+                    <>
+                        {/* Weekly Activity Chart */}
+                        <Card style={styles.chartCard}>
+                            <Text style={[styles.chartTitle, { color: colors.text }]}>
+                                {t('admin.weeklyActivity')}
+                            </Text>
+                            <ChartErrorBoundary>
+                                <BarChart
+                                    data={activityData}
+                                    width={chartWidth}
+                                    height={200}
+                                    yAxisLabel=""
+                                    yAxisSuffix=""
+                                    chartConfig={chartConfig}
+                                    style={styles.chart}
+                                    fromZero
+                                />
+                            </ChartErrorBoundary>
+                        </Card>
 
-                {/* Monthly Points Chart */}
-                <Card style={styles.chartCard}>
-                    <Text style={[styles.chartTitle, { color: colors.text }]}>
-                        {t('admin.monthlyPoints')}
-                    </Text>
-                    <ChartErrorBoundary>
-                        <LineChart
-                            data={pointsData}
-                            width={chartWidth}
-                            height={200}
-                            yAxisLabel=""
-                            yAxisSuffix=""
-                            chartConfig={chartConfig}
-                            style={styles.chart}
-                            bezier
-                        />
-                    </ChartErrorBoundary>
-                </Card>
+                        {/* Monthly Points Chart */}
+                        <Card style={styles.chartCard}>
+                            <Text style={[styles.chartTitle, { color: colors.text }]}>
+                                {t('admin.monthlyPoints')}
+                            </Text>
+                            <ChartErrorBoundary>
+                                <LineChart
+                                    data={pointsData}
+                                    width={chartWidth}
+                                    height={200}
+                                    yAxisLabel=""
+                                    yAxisSuffix=""
+                                    chartConfig={chartConfig}
+                                    style={styles.chart}
+                                    bezier
+                                />
+                            </ChartErrorBoundary>
+                        </Card>
 
-                {/* Category Distribution */}
-                <Card style={styles.chartCard}>
-                    <Text style={[styles.chartTitle, { color: colors.text }]}>
-                        {t('admin.categoryDistribution')}
-                    </Text>
-                    <ChartErrorBoundary>
-                        <PieChart
-                            data={pieData}
-                            width={chartWidth}
-                            height={200}
-                            chartConfig={chartConfig}
-                            accessor="value"
-                            backgroundColor="transparent"
-                            paddingLeft="15"
-                        />
-                    </ChartErrorBoundary>
-                </Card>
+                        {/* Category Distribution */}
+                        <Card style={styles.chartCard}>
+                            <Text style={[styles.chartTitle, { color: colors.text }]}>
+                                {t('admin.categoryDistribution')}
+                            </Text>
+                            <ChartErrorBoundary>
+                                <PieChart
+                                    data={pieData}
+                                    width={chartWidth}
+                                    height={200}
+                                    chartConfig={chartConfig}
+                                    accessor="value"
+                                    backgroundColor="transparent"
+                                    paddingLeft="15"
+                                />
+                            </ChartErrorBoundary>
+                        </Card>
 
-                {/* Difficulty Distribution */}
-                <Card style={styles.chartCard}>
-                    <Text style={[styles.chartTitle, { color: colors.text }]}>
-                        {t('admin.difficultyDistribution')}
-                    </Text>
-                    <ChartErrorBoundary>
-                        <BarChart
-                            data={difficultyData}
-                            width={chartWidth}
-                            height={200}
-                            yAxisLabel=""
-                            yAxisSuffix="%"
-                            chartConfig={{
-                                ...chartConfig,
-                                color: (opacity = 1) => `rgba(255, 152, 0, ${opacity})`,
-                            }}
-                            style={styles.chart}
-                            fromZero
-                        />
-                    </ChartErrorBoundary>
-                </Card>
+                        {/* Difficulty Distribution */}
+                        <Card style={styles.chartCard}>
+                            <Text style={[styles.chartTitle, { color: colors.text }]}>
+                                {t('admin.difficultyDistribution')}
+                            </Text>
+                            <ChartErrorBoundary>
+                                <BarChart
+                                    data={difficultyData}
+                                    width={chartWidth}
+                                    height={200}
+                                    yAxisLabel=""
+                                    yAxisSuffix="%"
+                                    chartConfig={{
+                                        ...chartConfig,
+                                        color: (opacity = 1) => `rgba(255, 152, 0, ${opacity})`,
+                                    }}
+                                    style={styles.chart}
+                                    fromZero
+                                />
+                            </ChartErrorBoundary>
+                        </Card>
 
-                {/* Export Buttons */}
-                <View style={styles.exportSection}>
-                    <Button
-                        title={t('admin.exportPDF')}
-                        onPress={() => handleExport('pdf')}
-                        fullWidth
-                        variant="outline"
-                    />
-                    <View style={{ height: 12 }} />
-                    <Button
-                        title={t('admin.exportCSV')}
-                        onPress={() => handleExport('csv')}
-                        fullWidth
-                        variant="outline"
-                    />
-                </View>
+                        {/* Export Buttons */}
+                        <View style={styles.exportSection}>
+                            <Button
+                                title={t('admin.exportPDF')}
+                                onPress={() => handleExport('pdf')}
+                                fullWidth
+                                variant="outline"
+                            />
+                            <View style={{ height: 12 }} />
+                            <Button
+                                title={t('admin.exportCSV')}
+                                onPress={() => handleExport('csv')}
+                                fullWidth
+                                variant="outline"
+                            />
+                        </View>
+                    </>
+                ) : (
+                    <Card style={styles.emptyCard}>
+                        <MaterialIcons name="bar-chart" size={48} color={colors.textTertiary} />
+                        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                            {t('admin.noReportData')}
+                        </Text>
+                        <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>
+                            {t('admin.noReportDataDesc')}
+                        </Text>
+                    </Card>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -306,5 +329,22 @@ const styles = StyleSheet.create({
     },
     exportSection: {
         marginTop: 8,
+    },
+    emptyCard: {
+        alignItems: 'center',
+        paddingVertical: 48,
+        marginTop: 16,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginTop: 16,
+    },
+    emptyDesc: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginTop: 8,
+        paddingHorizontal: 20,
+        lineHeight: 20,
     },
 });

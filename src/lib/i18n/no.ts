@@ -179,6 +179,9 @@ export const no = {
         settings: 'Innstillinger',
         days: 'dager',
         activityHistory: 'Aktivitetshistorikk',
+        changePhoto: 'Bytt profilbilde',
+        photoUpdated: 'Profilbilde oppdatert!',
+        photoError: 'Kunne ikke oppdatere profilbilde',
     },
 
     // Achievements
@@ -329,6 +332,9 @@ export const no = {
         downloads: 'Nedlastinger',
         reviews: 'Anmeldelser',
         by: 'Av',
+        importStarterPack: 'Importer startpakke',
+        starterPackImported: 'Startpakke importert!',
+        starterPackDesc: 'Last ned utvalgte øvelser til klubben din',
 
         // Reports
         dateRange: 'Tidsperiode',
@@ -342,6 +348,8 @@ export const no = {
         exportPDF: 'Eksporter PDF',
         exportCSV: 'Eksporter CSV',
         exportSuccess: 'Eksport startet!',
+        noReportData: 'Ingen data ennå',
+        noReportDataDesc: 'Rapporter vil vises her når spillerne begynner å fullføre øvelser.',
 
         // Admin Settings
         profileSection: 'Profil',

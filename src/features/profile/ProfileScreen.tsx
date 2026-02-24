@@ -5,20 +5,23 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Card, StreakCard } from '../../components';
+import { Card, StreakCard, useToast } from '../../components';
 import { useAuthStore } from '../../stores';
 import { ProfileStackParamList, AchievementDefinition } from '../../types';
 import { achievementDefinitions } from '../../data/mockData';
 import { AchievementDetailModal } from './AchievementDetailModal';
 import { useCompletions, useExercises } from '../../hooks/useExercises';
 import { useAchievements } from '../../hooks/useAchievements';
+import { useUploadAvatar } from '../../hooks/useProfile';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -30,11 +33,30 @@ export function ProfileScreen() {
     const { data: allExercises = [] } = useExercises();
     const { data: achievements = [] } = useAchievements();
 
+    const { showToast } = useToast();
+    const uploadAvatarMutation = useUploadAvatar();
+
     const [selectedAchievement, setSelectedAchievement] = useState<AchievementDefinition | null>(null);
     const [selectedUnlocked, setSelectedUnlocked] = useState(false);
     const [showAchievementModal, setShowAchievementModal] = useState(false);
 
     const displayName = user?.display_name || 'Spiller';
+
+    const handleChangePhoto = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            uploadAvatarMutation.mutate(result.assets[0].uri, {
+                onSuccess: () => showToast(t('profile.photoUpdated'), 'success'),
+                onError: () => showToast(t('profile.photoError'), 'error'),
+            });
+        }
+    };
 
     // Get recent completions for activity history
     const recentCompletions = useMemo(
@@ -69,12 +91,27 @@ export function ProfileScreen() {
                 {/* Profile Card */}
                 <Card style={styles.profileCard}>
                     <View style={styles.profileContent}>
-                        <View
-                            style={[styles.avatar, { backgroundColor: colors.primary }]}
-                        >
-                            <Text style={styles.avatarText}>
-                                {displayName.charAt(0).toUpperCase()}
-                            </Text>
+                        <View style={styles.avatarContainer} testID="profile-avatar">
+                            {user?.avatar_url ? (
+                                <Image
+                                    source={{ uri: user.avatar_url }}
+                                    style={styles.avatarImage}
+                                />
+                            ) : (
+                                <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                                    <Text style={styles.avatarText}>
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </Text>
+                                </View>
+                            )}
+                            <TouchableOpacity
+                                style={[styles.cameraButton, { backgroundColor: colors.primary }]}
+                                onPress={handleChangePhoto}
+                                disabled={uploadAvatarMutation.isPending}
+                                testID="profile-change-photo-button"
+                            >
+                                <MaterialIcons name="camera-alt" size={16} color="#ffffff" />
+                            </TouchableOpacity>
                         </View>
                         <Text style={[styles.name, { color: colors.text }]}>
                             {displayName}
@@ -233,18 +270,38 @@ const styles = StyleSheet.create({
     profileContent: {
         alignItems: 'center',
     },
+    avatarContainer: {
+        position: 'relative',
+        marginBottom: 12,
+    },
     avatar: {
         width: 80,
         height: 80,
         borderRadius: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 12,
+    },
+    avatarImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
     },
     avatarText: {
         fontSize: 32,
         fontWeight: '700',
         color: '#ffffff',
+    },
+    cameraButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: -4,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#ffffff',
     },
     name: {
         fontSize: 22,

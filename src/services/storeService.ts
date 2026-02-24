@@ -96,6 +96,39 @@ export async function downloadToClub(storeExerciseId: string, clubId: string): P
     return true;
 }
 
+export async function downloadStarterPack(clubId: string): Promise<number> {
+    if (!isSupabaseConfigured()) return 0;
+
+    // Get featured store exercises
+    const { data: featured, error: fetchError } = await supabase
+        .from('store_exercises')
+        .select('id')
+        .eq('is_featured', true);
+
+    if (fetchError || !featured || featured.length === 0) {
+        console.error('downloadStarterPack fetch error:', fetchError);
+        return 0;
+    }
+
+    // Check which ones are already downloaded
+    const { data: existing } = await supabase
+        .from('store_downloads')
+        .select('store_exercise_id')
+        .eq('club_id', clubId)
+        .in('store_exercise_id', featured.map(f => f.id));
+
+    const alreadyDownloaded = new Set((existing ?? []).map(e => e.store_exercise_id));
+    const toDownload = featured.filter(f => !alreadyDownloaded.has(f.id));
+
+    let downloaded = 0;
+    for (const item of toDownload) {
+        const success = await downloadToClub(item.id, clubId);
+        if (success) downloaded++;
+    }
+
+    return downloaded;
+}
+
 export async function addReview(
     exerciseId: string,
     clubName: string,
