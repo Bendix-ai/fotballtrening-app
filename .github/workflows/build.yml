@@ -30,4 +30,4 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Build iOS production and submit to TestFlight
-        run: eas build --platform ios --profile production --non-interactive --auto-submit --message "${{ github.event.head_commit.message }}"
+        run: eas build --platform ios --profile production --non-interactive --auto-submit --clear-cache --message "${{ github.event.head_commit.message }}"
