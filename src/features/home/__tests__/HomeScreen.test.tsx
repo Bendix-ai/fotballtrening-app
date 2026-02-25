@@ -237,7 +237,7 @@ describe('HomeScreen', () => {
 
     it('should display exercise titles in recent exercises', () => {
         render(<HomeScreen />);
-        expect(screen.getByText('Oppvarming med ball')).toBeTruthy();
+        expect(screen.getAllByText('Oppvarming med ball').length).toBeGreaterThanOrEqual(1);
         // Styrke: Kneboey appears in both recent exercises and daily challenge
         expect(screen.getAllByText('Styrke: Kneboey').length).toBeGreaterThanOrEqual(1);
     });

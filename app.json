@@ -39,6 +39,7 @@
     "plugins": [
       "expo-secure-store",
       "expo-font",
+      "expo-notifications",
       [
         "@sentry/react-native/expo",
         {
