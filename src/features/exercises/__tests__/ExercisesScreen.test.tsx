@@ -110,6 +110,12 @@ jest.mock('../../../hooks/useExercises', () => ({
     }),
 }));
 
+jest.mock('../../../hooks/useChallenges', () => ({
+    useActiveChallenges: () => ({
+        data: [],
+    }),
+}));
+
 jest.mock('../../../stores', () => ({
     useAuthStore: () => ({
         user: {
@@ -182,12 +188,12 @@ describe('ExercisesScreen', () => {
 
     it('should render the challenges button', () => {
         render(<ExercisesScreen />);
-        expect(screen.getByTestId('challenges-button')).toBeTruthy();
+        expect(screen.getByTestId('exercises-challenges-button')).toBeTruthy();
     });
 
     it('should navigate to Challenges when challenges button pressed', () => {
         render(<ExercisesScreen />);
-        fireEvent.press(screen.getByTestId('challenges-button'));
+        fireEvent.press(screen.getByTestId('exercises-challenges-button'));
         expect(mockNavigate).toHaveBeenCalledWith('Challenges');
     });
 

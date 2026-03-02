@@ -1,3 +1,19 @@
+// Mock expo-av
+jest.mock('expo-av', () => ({
+    Audio: {
+        Sound: {
+            createAsync: jest.fn().mockResolvedValue({
+                sound: {
+                    playAsync: jest.fn().mockResolvedValue(undefined),
+                    unloadAsync: jest.fn().mockResolvedValue(undefined),
+                    setOnPlaybackStatusUpdate: jest.fn(),
+                },
+            }),
+        },
+        setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+    },
+}));
+
 // Mock expo-notifications
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
@@ -6,6 +22,7 @@ jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'mock-push-token' }),
   scheduleNotificationAsync: jest.fn().mockResolvedValue('mock-notification-id'),
   cancelScheduledNotificationAsync: jest.fn().mockResolvedValue(undefined),
+  cancelAllScheduledNotificationsAsync: jest.fn().mockResolvedValue(undefined),
   getAllScheduledNotificationsAsync: jest.fn().mockResolvedValue([]),
   setNotificationChannelAsync: jest.fn().mockResolvedValue(undefined),
   addNotificationReceivedListener: jest.fn().mockReturnValue({ remove: jest.fn() }),

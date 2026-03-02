@@ -61,6 +61,17 @@ jest.mock('../../../hooks/useExercises', () => ({
     useExercise: () => ({
         data: mockExercise,
     }),
+    useExercises: () => ({
+        data: [mockExercise],
+    }),
+}));
+
+jest.mock('../../../hooks/useDailyChallenge', () => ({
+    useDailyChallenge: () => ({
+        dailyChallenge: mockExercise,
+        isDailyChallenge: (id: string) => id === mockExercise.id,
+        isLoading: false,
+    }),
 }));
 
 jest.mock('../../../components', () => {
@@ -207,11 +218,102 @@ describe('ExerciseExecutionScreen', () => {
         expect(mockReplace).toHaveBeenCalledWith('ExerciseComplete', {
             exerciseId: 'ex1',
             pointsEarned: 10,
+            isDailyChallenge: true, // ex1 matches daily challenge mock
         });
+    });
+
+    it('should pass isDailyChallenge true when exercise matches daily challenge', () => {
+        render(<ExerciseExecutionScreen />);
+        act(() => {
+            jest.advanceTimersByTime(121000);
+        });
+        fireEvent.press(screen.getByTestId('exercise-complete-button'));
+        const callArgs = mockReplace.mock.calls[0][1];
+        expect(callArgs.isDailyChallenge).toBe(true);
     });
 
     it('should render current instruction step', () => {
         render(<ExerciseExecutionScreen />);
         expect(screen.getByText(/Start med lett jogging/)).toBeTruthy();
+    });
+});
+
+describe('ExerciseExecutionScreen - not daily challenge', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useFakeTimers();
+        // Override useDailyChallenge to return false for this exercise
+        const dailyMock = require('../../../hooks/useDailyChallenge');
+        dailyMock.useDailyChallenge = () => ({
+            dailyChallenge: { id: 'other-exercise' },
+            isDailyChallenge: () => false,
+            isLoading: false,
+        });
+    });
+
+    afterEach(() => {
+        cleanup();
+        jest.clearAllTimers();
+        jest.useRealTimers();
+        // Restore original mock
+        const dailyMock = require('../../../hooks/useDailyChallenge');
+        dailyMock.useDailyChallenge = () => ({
+            dailyChallenge: mockExercise,
+            isDailyChallenge: (id: string) => id === mockExercise.id,
+            isLoading: false,
+        });
+    });
+
+    it('should pass isDailyChallenge false when exercise is not daily challenge', () => {
+        render(<ExerciseExecutionScreen />);
+        act(() => {
+            jest.advanceTimersByTime(121000);
+        });
+        fireEvent.press(screen.getByTestId('exercise-complete-button'));
+        expect(mockReplace).toHaveBeenCalledWith('ExerciseComplete', {
+            exerciseId: 'ex1',
+            pointsEarned: 10,
+            isDailyChallenge: false,
+        });
+    });
+});
+
+describe('ExerciseExecutionScreen - exercises loading', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useFakeTimers();
+        // Override useDailyChallenge to simulate loading
+        const dailyMock = require('../../../hooks/useDailyChallenge');
+        dailyMock.useDailyChallenge = () => ({
+            dailyChallenge: null,
+            isDailyChallenge: () => false,
+            isLoading: true,
+        });
+    });
+
+    afterEach(() => {
+        cleanup();
+        jest.clearAllTimers();
+        jest.useRealTimers();
+        // Restore original mock
+        const dailyMock = require('../../../hooks/useDailyChallenge');
+        dailyMock.useDailyChallenge = () => ({
+            dailyChallenge: mockExercise,
+            isDailyChallenge: (id: string) => id === mockExercise.id,
+            isLoading: false,
+        });
+    });
+
+    it('should pass isDailyChallenge false when exercises are still loading', () => {
+        render(<ExerciseExecutionScreen />);
+        act(() => {
+            jest.advanceTimersByTime(121000);
+        });
+        fireEvent.press(screen.getByTestId('exercise-complete-button'));
+        expect(mockReplace).toHaveBeenCalledWith('ExerciseComplete', {
+            exerciseId: 'ex1',
+            pointsEarned: 10,
+            isDailyChallenge: false,
+        });
     });
 });

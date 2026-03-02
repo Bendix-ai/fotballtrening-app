@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
 import { Button } from './Button';
+import { Mascot } from './Mascot';
 
 interface EmptyStateProps {
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -11,6 +12,7 @@ interface EmptyStateProps {
     actionLabel?: string;
     onAction?: () => void;
     style?: ViewStyle;
+    showMascot?: boolean;
 }
 
 export function EmptyState({
@@ -20,11 +22,17 @@ export function EmptyState({
     actionLabel,
     onAction,
     style,
+    showMascot = false,
 }: EmptyStateProps) {
     const { colors } = useTheme();
 
     return (
         <View style={[styles.container, style]}>
+            {showMascot && (
+                <View style={styles.mascotContainer} testID="empty-state-mascot">
+                    <Mascot state="thinking" size={48} />
+                </View>
+            )}
             <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
                 <MaterialIcons name={icon} size={48} color={colors.primary} />
             </View>
@@ -48,6 +56,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 32,
         paddingVertical: 48,
+    },
+    mascotContainer: {
+        marginBottom: 12,
+        alignItems: 'center',
     },
     iconContainer: {
         width: 96,

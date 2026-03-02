@@ -18,6 +18,7 @@ import { t } from '../../lib/i18n';
 import { Card, SkeletonCard } from '../../components';
 import { ExerciseCategory, Difficulty, Exercise, ExercisesStackParamList } from '../../types';
 import { useExercises, useFavorites, useToggleFavorite, useTodayCompletions } from '../../hooks/useExercises';
+import { useActiveChallenges } from '../../hooks/useChallenges';
 import { useAuthStore } from '../../stores';
 import { getCategoryIcon, getCategoryColor } from '../../lib/exerciseUtils';
 import * as Haptics from 'expo-haptics';
@@ -77,6 +78,7 @@ export function ExercisesScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const { user } = useAuthStore();
     const { data: allExercisesRaw = [], refetch, isLoading: exercisesLoading } = useExercises();
+    const { data: activeChallenges = [] } = useActiveChallenges();
 
     // Filter exercises by team assignment: show exercises with no team restriction or assigned to player's team
     const allExercises = useMemo(() => {
@@ -233,9 +235,16 @@ export function ExercisesScreen() {
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Challenges')}
                     style={[styles.challengesButton, { backgroundColor: colors.secondary + '18' }]}
-                    testID="challenges-button"
+                    testID="exercises-challenges-button"
                 >
                     <MaterialIcons name="sports-kabaddi" size={20} color={colors.secondary} />
+                    {activeChallenges.length > 0 && (
+                        <View style={styles.challengesBadge} testID="challenges-badge">
+                            <Text style={styles.challengesBadgeText}>
+                                {activeChallenges.length}
+                            </Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
             </View>
 
@@ -342,6 +351,23 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    challengesBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: '#FF3B30',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+    },
+    challengesBadgeText: {
+        color: '#FFFFFF',
+        fontSize: 11,
+        fontWeight: '700',
     },
     title: {
         fontSize: 28,

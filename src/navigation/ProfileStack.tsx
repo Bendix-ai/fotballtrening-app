@@ -6,6 +6,7 @@ import { SettingsScreen } from '../features/profile/SettingsScreen';
 import { ChangePasswordScreen } from '../features/profile/ChangePasswordScreen';
 import { NotificationsScreen } from '../features/profile/NotificationsScreen';
 import { AboutScreen } from '../features/profile/AboutScreen';
+import { FriendsScreen } from '../features/profile/FriendsScreen';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -13,6 +14,7 @@ export function ProfileStack() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+            <Stack.Screen name="Friends" component={FriendsScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
             <Stack.Screen name="Notifications" component={NotificationsScreen} />

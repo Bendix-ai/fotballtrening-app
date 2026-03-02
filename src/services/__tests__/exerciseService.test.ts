@@ -88,6 +88,7 @@ describe('exerciseService', () => {
         user_id: 'u1',
         exercise_id: 'e1',
         points_earned: 10,
+        is_daily_challenge: false,
       });
       expect(result).toEqual(mockCompletion);
     });

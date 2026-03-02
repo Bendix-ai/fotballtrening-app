@@ -16,3 +16,14 @@ export function useActivityFeed() {
         enabled: !!clubId,
     });
 }
+
+export function useFriendActivityFeed() {
+    const { user } = useAuthStore();
+    const userId = user?.id ?? '';
+
+    return useQuery({
+        queryKey: queryKeys.activityFeed.friends(userId),
+        queryFn: () => activityFeedService.getFriendActivity(userId),
+        enabled: !!userId,
+    });
+}

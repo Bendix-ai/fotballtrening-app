@@ -443,6 +443,11 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingBottom: 32,
         borderTopWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8,
     },
     challengeButton: {
         flexDirection: 'row',

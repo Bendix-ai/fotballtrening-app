@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Button } from '../../components';
+import { Button, Mascot } from '../../components';
 import { useAppStore } from '../../stores';
 
 const { width } = Dimensions.get('window');
@@ -68,6 +68,9 @@ export function OnboardingScreen() {
         <View style={[styles.page, { width }]}>
             <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
                 <MaterialIcons name={item.icon} size={80} color={colors.primary} />
+            </View>
+            <View style={styles.mascotRow}>
+                <Mascot state="happy" size={40} />
             </View>
             <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
             <Text style={[styles.description, { color: colors.textSecondary }]}>
@@ -164,6 +167,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 40,
+    },
+    mascotRow: {
+        marginBottom: 12,
+        alignItems: 'center',
     },
     title: {
         fontSize: 28,

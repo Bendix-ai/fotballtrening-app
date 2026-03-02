@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    FlatList,
+    SectionList,
     TouchableOpacity,
     ActivityIndicator,
 } from 'react-native';
@@ -15,6 +15,7 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Button, useToast } from '../../components';
 import { useTeammates, useCreateChallenge } from '../../hooks/useChallenges';
+import { useFriends } from '../../hooks/useFriends';
 import { useExercise } from '../../hooks/useExercises';
 import { ExercisesStackParamList } from '../../types';
 
@@ -28,13 +29,30 @@ export function CreateChallengeScreen() {
     const { exerciseId } = route.params;
     const { showToast } = useToast();
     const { data: teammates = [], isLoading: loadingTeammates } = useTeammates();
+    const { data: friends = [], isLoading: loadingFriends } = useFriends();
     const { data: exercise } = useExercise(exerciseId);
     const createChallenge = useCreateChallenge();
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
+    // Build sections: friends first, then remaining teammates
+    const sections = useMemo(() => {
+        const friendIds = new Set(friends.map((f) => f.friend_id));
+        const friendItems = friends.map((f) => ({ id: f.friend_id, display_name: f.display_name }));
+        const otherTeammates = teammates.filter((tm) => !friendIds.has(tm.id));
+        const result: { title: string; data: { id: string; display_name: string }[] }[] = [];
+        if (friendItems.length > 0) {
+            result.push({ title: t('challenges.friends'), data: friendItems });
+        }
+        if (otherTeammates.length > 0) {
+            result.push({ title: t('challenges.teammates'), data: otherTeammates });
+        }
+        return result;
+    }, [friends, teammates]);
+
     const handleSend = () => {
         if (!selectedId || !exercise) return;
-        const opponent = teammates.find((t) => t.id === selectedId);
+        const opponent = teammates.find((t) => t.id === selectedId)
+            ?? friends.map((f) => ({ id: f.friend_id, display_name: f.display_name })).find((f) => f.id === selectedId);
         if (!opponent) return;
 
         createChallenge.mutate(
@@ -89,13 +107,18 @@ export function CreateChallengeScreen() {
                 {t('challenges.selectOpponent')}
             </Text>
 
-            {loadingTeammates ? (
+            {(loadingTeammates || loadingFriends) ? (
                 <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
             ) : (
-                <FlatList
-                    data={teammates}
+                <SectionList
+                    sections={sections}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
+                    renderSectionHeader={({ section: { title } }) => (
+                        <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>
+                            {title}
+                        </Text>
+                    )}
                     renderItem={({ item }) => {
                         const isSelected = selectedId === item.id;
                         return (
@@ -165,6 +188,7 @@ const styles = StyleSheet.create({
     exerciseName: { fontSize: 16, fontWeight: '600' },
     exerciseMeta: { fontSize: 13, marginTop: 2 },
     sectionTitle: { fontSize: 16, fontWeight: '600', paddingHorizontal: 20, marginBottom: 12 },
+    sectionHeader: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 12 },
     list: { paddingHorizontal: 20, paddingBottom: 100 },
     teammateCard: { marginBottom: 8 },
     teammateRow: { flexDirection: 'row', alignItems: 'center' },

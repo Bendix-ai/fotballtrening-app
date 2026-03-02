@@ -3,14 +3,27 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
 import { ThemeProvider, useTheme } from './src/lib/theme';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider, ErrorBoundary } from './src/components';
-import { useAuthStore } from './src/stores';
+import { useAuthStore, useAppStore } from './src/stores';
 import { initSentry, Sentry } from './src/lib/sentry';
+import { requestPermissions } from './src/lib/notifications';
 
 // Initialize Sentry for crash reporting
 initSentry();
+
+// Configure how notifications are displayed when the app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -25,10 +38,18 @@ const queryClient = new QueryClient({
 function AppContent() {
   const { isDark } = useTheme();
   const { initialize } = useAuthStore();
+  const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
 
   useEffect(() => {
     initialize();
   }, []);
+
+  // Request notification permissions after onboarding is complete
+  useEffect(() => {
+    if (hasCompletedOnboarding) {
+      requestPermissions();
+    }
+  }, [hasCompletedOnboarding]);
 
   return (
     <>

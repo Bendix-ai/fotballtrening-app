@@ -90,6 +90,42 @@ describe('EmptyState', () => {
     expect(screen.queryByText('Legg til spiller')).toBeNull();
   });
 
+  it('should render mascot when showMascot is true', () => {
+    render(
+      <EmptyState
+        icon="sports-soccer"
+        title="Ingen øvelser"
+        description="Ingen data"
+        showMascot={true}
+      />
+    );
+    expect(screen.getByTestId('empty-state-mascot')).toBeTruthy();
+    expect(screen.getByTestId('mascot')).toBeTruthy();
+  });
+
+  it('should not render mascot when showMascot is false', () => {
+    render(
+      <EmptyState
+        icon="sports-soccer"
+        title="Ingen øvelser"
+        description="Ingen data"
+        showMascot={false}
+      />
+    );
+    expect(screen.queryByTestId('empty-state-mascot')).toBeNull();
+  });
+
+  it('should not render mascot by default', () => {
+    render(
+      <EmptyState
+        icon="sports-soccer"
+        title="Ingen øvelser"
+        description="Ingen data"
+      />
+    );
+    expect(screen.queryByTestId('empty-state-mascot')).toBeNull();
+  });
+
   it('should render with different icons', () => {
     const { rerender } = render(
       <EmptyState icon="sports-soccer" title="Test" description="Desc" />

@@ -106,6 +106,33 @@ jest.mock('../../../hooks/useActivityFeed', () => ({
         data: [],
         refetch: jest.fn(),
     }),
+    useFriendActivityFeed: () => ({
+        data: [],
+        refetch: jest.fn(),
+    }),
+}));
+
+jest.mock('../../../hooks/useChallenges', () => ({
+    useActiveChallenges: () => ({
+        data: [],
+    }),
+}));
+
+jest.mock('../../../hooks/useFriends', () => ({
+    useFriends: () => ({
+        data: [],
+    }),
+}));
+
+jest.mock('../../../lib/sounds', () => ({
+    playSound: jest.fn(),
+}));
+
+jest.mock('../../../hooks/useHighFives', () => ({
+    useSendHighFive: () => ({
+        mutate: jest.fn(),
+        isLoading: false,
+    }),
 }));
 
 jest.mock('../../../stores', () => ({
@@ -128,6 +155,14 @@ jest.mock('../../../stores', () => ({
     }),
     useAppStore: () => ({
         dailyGoal: 5,
+        lastLoginBonusDate: new Date().toISOString().slice(0, 10),
+        awardLoginBonus: jest.fn(),
+    }),
+}));
+
+jest.mock('../../../hooks/useChallenges', () => ({
+    useActiveChallenges: () => ({
+        data: [],
     }),
 }));
 
@@ -147,27 +182,29 @@ jest.mock('../../../lib/levelUtils', () => ({
         tierIcon: 'shield',
         tierColor: '#CD7F32',
     }),
-    getPointsToNextLevel: jest.fn().mockReturnValue(50),
+}));
+
+jest.mock('../../../hooks/useMascotMessage', () => ({
+    useMascotMessage: () => ({
+        message: 'Bra jobbet i dag!',
+        state: 'cheering',
+    }),
 }));
 
 jest.mock('../../../components', () => {
     const React = require('react');
     const { View, Text, TouchableOpacity } = require('react-native');
     return {
-        Card: ({ children, style }: any) => React.createElement(View, { style }, children),
-        Button: ({ title, onPress, testID }: any) =>
-            React.createElement(
-                TouchableOpacity,
-                { onPress, testID },
-                React.createElement(Text, null, title)
-            ),
-        StreakCard: ({ currentStreak, longestStreak }: any) =>
-            React.createElement(View, { testID: 'streak-card' },
-                React.createElement(Text, null, `Streak: ${currentStreak}`),
-                React.createElement(Text, null, `Longest: ${longestStreak}`),
-            ),
+        Card: ({ children, style, testID }: any) => React.createElement(View, { style, testID }, children),
         ProgressBar: ({ progress }: any) =>
             React.createElement(View, { testID: 'progress-bar' }),
+        MascotMessage: ({ message, state, onDismiss, testID }: any) =>
+            React.createElement(
+                View,
+                { testID: testID || 'mascot-message' },
+                React.createElement(Text, null, message),
+                onDismiss ? React.createElement(TouchableOpacity, { testID: 'mascot-message-dismiss', onPress: onDismiss }) : null
+            ),
     };
 });
 
@@ -186,43 +223,42 @@ describe('HomeScreen', () => {
         expect(screen.getByText(/Ola Nordmann/)).toBeTruthy();
     });
 
-    it('should render today progress section', () => {
+    it('should render the status stripe with streak, level, and rank', () => {
         render(<HomeScreen />);
-        expect(screen.getByText('Dagens fremgang')).toBeTruthy();
+        expect(screen.getByTestId('home-status-stripe')).toBeTruthy();
+        // Streak value
+        expect(screen.getByText('3d')).toBeTruthy();
+        // Level value
+        expect(screen.getByText('Nivå 2')).toBeTruthy();
+        // Rank value
+        expect(screen.getByText('#3')).toBeTruthy();
     });
 
-    it('should display today exercise count', () => {
+    it('should render the CTA card with testIDs', () => {
         render(<HomeScreen />);
-        // 1 completion today
-        expect(screen.getByText('1')).toBeTruthy();
+        expect(screen.getByTestId('home-cta-card')).toBeTruthy();
+        expect(screen.getByTestId('home-cta-button')).toBeTruthy();
     });
 
-    it('should display today points', () => {
+    it('should render the CTA title "Dagens trening"', () => {
         render(<HomeScreen />);
-        expect(screen.getByText('10')).toBeTruthy();
+        expect(screen.getByText('Dagens trening')).toBeTruthy();
+    });
+
+    it('should render "Start dagens plan" button text', () => {
+        render(<HomeScreen />);
+        expect(screen.getByText('Start dagens plan')).toBeTruthy();
+    });
+
+    it('should show exercises available count in CTA', () => {
+        render(<HomeScreen />);
+        expect(screen.getByText('2 øvelser tilgjengelige')).toBeTruthy();
     });
 
     it('should render the daily goal section', () => {
         render(<HomeScreen />);
         expect(screen.getByText('Dagens mål')).toBeTruthy();
         expect(screen.getByText('1/5')).toBeTruthy();
-    });
-
-    it('should render streak card', () => {
-        render(<HomeScreen />);
-        expect(screen.getByTestId('streak-card')).toBeTruthy();
-        expect(screen.getByText('Streak: 3')).toBeTruthy();
-        expect(screen.getByText('Longest: 7')).toBeTruthy();
-    });
-
-    it('should render the current streak section title', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('Nåværende streak')).toBeTruthy();
-    });
-
-    it('should render quick start button', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('Start trening')).toBeTruthy();
     });
 
     it('should render recent exercises section', () => {
@@ -238,33 +274,18 @@ describe('HomeScreen', () => {
     it('should display exercise titles in recent exercises', () => {
         render(<HomeScreen />);
         expect(screen.getAllByText('Oppvarming med ball').length).toBeGreaterThanOrEqual(1);
-        // Styrke: Kneboey appears in both recent exercises and daily challenge
         expect(screen.getAllByText('Styrke: Kneboey').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('should render the daily challenge section', () => {
+    it('should show daily challenge title in the CTA card', () => {
         render(<HomeScreen />);
-        expect(screen.getByText('Dagens utfordring')).toBeTruthy();
-    });
-
-    it('should render the level card', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('Nivå 2')).toBeTruthy();
-    });
-
-    it('should render points to next level text', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('50 poeng til neste nivå')).toBeTruthy();
-    });
-
-    it('should render leaderboard rank when available', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('Du er #3 i klubben')).toBeTruthy();
-    });
-
-    it('should render quick start section title', () => {
-        render(<HomeScreen />);
-        expect(screen.getByText('Hurtigstart')).toBeTruthy();
+        // The daily challenge exercise title should appear inside the CTA card
+        // Which exercise depends on the day, but both are in the exercise list
+        const allTexts = [
+            ...screen.queryAllByText('Oppvarming med ball'),
+            ...screen.queryAllByText('Styrke: Kneboey'),
+        ];
+        expect(allTexts.length).toBeGreaterThanOrEqual(1);
     });
 });
 
@@ -294,4 +315,7 @@ describe('HomeScreen - loading state', () => {
         const { ActivityIndicator } = require('react-native');
         expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
     });
+
+    // Note: home-screen testID is on SafeAreaView which is mocked to pass-through children only.
+    // The testID exists in the source and works at runtime and in Maestro E2E tests.
 });

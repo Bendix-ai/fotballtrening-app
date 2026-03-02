@@ -28,7 +28,7 @@ export function LoginScreen() {
     const { colors } = useTheme();
     const navigation = useNavigation<LoginNavigationProp>();
     const { setUser, setClub, setTeam, setManagedTeamIds } = useAuthStore();
-    const { selectedClubId, setSelectedClubId } = useAppStore();
+    const { selectedClubId, setSelectedClubId, lastLoginYear, lastLoginGender, setLastLoginYear, setLastLoginGender } = useAppStore();
     const { showToast } = useToast();
 
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -38,6 +38,9 @@ export function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [isAdminLogin, setIsAdminLogin] = useState(false);
+    const [isCompactMode, setIsCompactMode] = useState(
+        !!(selectedClubId && lastLoginYear && lastLoginGender)
+    );
 
     // Dynamic data from Supabase
     const [clubs, setClubs] = useState<{ value: string; label: string }[]>([]);
@@ -46,13 +49,20 @@ export function LoginScreen() {
     const [teamMap, setTeamMap] = useState<Record<string, string>>({});
     const [loadingClubs, setLoadingClubs] = useState(true);
 
-    // Load clubs on mount
+    // Load clubs on mount, and initialize compact mode data
     useEffect(() => {
         loadClubs();
+        if (isCompactMode && selectedClubId && lastLoginYear && lastLoginGender) {
+            setSelectedYear(lastLoginYear);
+            setSelectedGender(lastLoginGender);
+            loadYearGroups(selectedClubId);
+            loadTeams(lastLoginYear);
+        }
     }, []);
 
-    // Load year groups when club changes
+    // Load year groups when club changes (skip in compact mode on mount)
     useEffect(() => {
+        if (isCompactMode) return;
         if (selectedClubId) {
             loadYearGroups(selectedClubId);
         } else {
@@ -62,8 +72,9 @@ export function LoginScreen() {
         setSelectedGender(null);
     }, [selectedClubId]);
 
-    // Load teams (genders) when year group changes
+    // Load teams (genders) when year group changes (skip in compact mode on mount)
     useEffect(() => {
+        if (isCompactMode) return;
         if (selectedYear) {
             loadTeams(selectedYear);
         } else {
@@ -158,6 +169,8 @@ export function LoginScreen() {
                             setClub(profile.club);
                             setTeam(profile.team);
                             setManagedTeamIds(profile.managedTeamIds);
+                            setLastLoginYear(selectedYear);
+                            setLastLoginGender(selectedGender);
                         } else {
                             setError(t('auth.profileLoadError'));
                         }
@@ -203,6 +216,8 @@ export function LoginScreen() {
                         last_login: new Date().toISOString(),
                     });
                     if (selectedClub) setClub(selectedClub);
+                    setLastLoginYear(selectedYear);
+                    setLastLoginGender(selectedGender);
                 }
             }
         } catch (err: any) {
@@ -299,7 +314,33 @@ export function LoginScreen() {
 
                     {/* Login Form */}
                     <Card style={styles.formCard}>
-                        {!isAdminLogin && (
+                        {!isAdminLogin && isCompactMode && (
+                            <View style={styles.compactContainer}>
+                                <Text
+                                    testID="login-compact-summary"
+                                    style={[styles.compactSummary, { color: colors.textSecondary }]}
+                                >
+                                    {t('auth.savedAs')}:{' '}
+                                    <Text style={{ color: colors.text, fontWeight: '600' }}>
+                                        {clubs.find(c => c.value === selectedClubId)?.label ?? ''},{' '}
+                                        {yearGroups.find(y => y.value === lastLoginYear)?.label ?? lastLoginYear},{' '}
+                                        {genderOptions.find(g => g.value === lastLoginGender)?.label ?? lastLoginGender}
+                                    </Text>
+                                </Text>
+                                <TouchableOpacity
+                                    testID="login-change-team-link"
+                                    onPress={() => setIsCompactMode(false)}
+                                    accessibilityRole="link"
+                                    accessibilityLabel={t('auth.changeTeam')}
+                                >
+                                    <Text style={[styles.changeTeamText, { color: colors.primary }]}>
+                                        {t('auth.changeTeam')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+
+                        {!isAdminLogin && !isCompactMode && (
                             <>
                                 <Dropdown
                                     label={t('auth.selectClub')}
@@ -490,5 +531,19 @@ const styles = StyleSheet.create({
     registerLinkAction: {
         fontSize: 14,
         fontWeight: '600',
+    },
+    compactContainer: {
+        marginBottom: 12,
+        alignItems: 'center',
+    },
+    compactSummary: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: 4,
+    },
+    changeTeamText: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginTop: 4,
     },
 });

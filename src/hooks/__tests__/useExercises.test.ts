@@ -77,7 +77,7 @@ describe('useExercises hooks', () => {
       result.current.mutate({ exerciseId: 'e1', pointsEarned: 10 });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      expect(mockService.completeExercise).toHaveBeenCalledWith('u1', 'e1', 10);
+      expect(mockService.completeExercise).toHaveBeenCalledWith('u1', 'e1', 10, false);
     });
   });
 

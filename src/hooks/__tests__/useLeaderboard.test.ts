@@ -6,6 +6,9 @@ import * as leaderboardService from '../../services/leaderboardService';
 import { useAuthStore } from '../../stores';
 
 jest.mock('../../services/leaderboardService');
+jest.mock('../useFriends', () => ({
+  useFriends: () => ({ data: [{ friend_id: 'f1' }, { friend_id: 'f2' }] }),
+}));
 const mockService = leaderboardService as jest.Mocked<typeof leaderboardService>;
 
 function createWrapper() {
@@ -32,7 +35,7 @@ describe('useLeaderboard', () => {
     const { result } = renderHook(() => useLeaderboard(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockService.getLeaderboard).toHaveBeenCalledWith('c1', 'club', null, 'all_time', 'u1');
+    expect(mockService.getLeaderboard).toHaveBeenCalledWith('c1', 'club', null, 'all_time', 'u1', undefined);
     expect(result.current.data).toEqual(mockData);
   });
 
@@ -42,7 +45,7 @@ describe('useLeaderboard', () => {
     renderHook(() => useLeaderboard('team', 't1', 'week'), { wrapper: createWrapper() });
 
     await waitFor(() =>
-      expect(mockService.getLeaderboard).toHaveBeenCalledWith('c1', 'team', 't1', 'week', 'u1')
+      expect(mockService.getLeaderboard).toHaveBeenCalledWith('c1', 'team', 't1', 'week', 'u1', undefined)
     );
   });
 
@@ -53,5 +56,15 @@ describe('useLeaderboard', () => {
 
     expect(result.current.isFetching).toBe(false);
     expect(mockService.getLeaderboard).not.toHaveBeenCalled();
+  });
+
+  it('should pass friendIds when scope is friends', async () => {
+    mockService.getLeaderboard.mockResolvedValue([]);
+
+    renderHook(() => useLeaderboard('friends', null, 'week'), { wrapper: createWrapper() });
+
+    await waitFor(() =>
+      expect(mockService.getLeaderboard).toHaveBeenCalledWith('c1', 'friends', null, 'week', 'u1', ['f1', 'f2'])
+    );
   });
 });

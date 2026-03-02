@@ -3,32 +3,38 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { t } from './i18n';
 
-// Configure notification behavior
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+// Notification identifiers for cancellation
+const DAILY_REMINDER_ID = 'daily-reminder';
+const STREAK_WARNING_ID = 'streak-warning';
 
-export async function registerForPushNotifications(): Promise<string | null> {
+/**
+ * Request notification permissions from the user.
+ * Returns true if granted, false otherwise.
+ */
+export async function requestPermissions(): Promise<boolean> {
     if (!Device.isDevice) {
         console.warn('Push notifications require a physical device');
-        return null;
+        return false;
     }
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
 
-    if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+    if (existingStatus === 'granted') {
+        return true;
     }
 
-    if (finalStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
+}
+
+/**
+ * Register for push notifications and get the Expo push token.
+ * Sets up Android notification channel if needed.
+ */
+export async function registerForPushNotifications(): Promise<string | null> {
+    const granted = await requestPermissions();
+
+    if (!granted) {
         return null;
     }
 
@@ -44,11 +50,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
     return tokenData.data;
 }
 
-export async function scheduleDailyReminder(hour: number = 17, minute: number = 0) {
-    // Cancel existing daily reminders first
+/**
+ * Schedule a daily training reminder at 16:00.
+ * "Tid for trening! Apne appen og tren i dag"
+ */
+export async function scheduleDailyReminder(hour: number = 16, minute: number = 0) {
+    // Cancel existing daily reminder first
     await cancelDailyReminder();
 
     await Notifications.scheduleNotificationAsync({
+        identifier: DAILY_REMINDER_ID,
         content: {
             title: t('notifications.dailyReminderTitle'),
             body: t('notifications.dailyReminderBody'),
@@ -61,16 +72,27 @@ export async function scheduleDailyReminder(hour: number = 17, minute: number = 
     });
 }
 
+/**
+ * Cancel only the daily reminder notification.
+ */
 export async function cancelDailyReminder() {
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    for (const notification of scheduled) {
-        await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+    try {
+        await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID);
+    } catch {
+        // Notification may not exist yet, that's ok
     }
 }
 
-export async function scheduleStreakReminder() {
-    // Remind at 20:00 if they haven't trained
+/**
+ * Schedule a streak warning at 20:00.
+ * "Streaken din er i fare! Gjor en ovelse for midnatt"
+ */
+export async function scheduleStreakWarning() {
+    // Cancel existing streak warning first
+    await cancelStreakWarning();
+
     await Notifications.scheduleNotificationAsync({
+        identifier: STREAK_WARNING_ID,
         content: {
             title: t('notifications.streakReminderTitle'),
             body: t('notifications.streakReminderBody'),
@@ -82,6 +104,30 @@ export async function scheduleStreakReminder() {
         },
     });
 }
+
+/**
+ * Cancel only the streak warning notification.
+ */
+export async function cancelStreakWarning() {
+    try {
+        await Notifications.cancelScheduledNotificationAsync(STREAK_WARNING_ID);
+    } catch {
+        // Notification may not exist yet, that's ok
+    }
+}
+
+/**
+ * Cancel all scheduled notifications.
+ */
+export async function cancelAllNotifications() {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+}
+
+/**
+ * Keep backward compatibility alias.
+ * @deprecated Use scheduleStreakWarning() instead.
+ */
+export const scheduleStreakReminder = scheduleStreakWarning;
 
 export function addNotificationReceivedListener(
     listener: (notification: Notifications.Notification) => void

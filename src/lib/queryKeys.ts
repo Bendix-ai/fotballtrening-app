@@ -32,6 +32,10 @@ export const queryKeys = {
     activityFeed: {
         all: (clubId: string) => ['activityFeed', clubId] as const,
         team: (clubId: string, teamId: string) => ['activityFeed', clubId, teamId] as const,
+        friends: (userId: string) => ['activityFeed', 'friends', userId] as const,
+    },
+    highfives: {
+        count: (activityId: string) => ['highfives', 'count', activityId] as const,
     },
     challenges: {
         all: (userId: string) => ['challenges', userId] as const,

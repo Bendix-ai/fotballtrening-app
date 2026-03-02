@@ -71,6 +71,7 @@ export interface ExerciseCompletion {
     user_id: string;
     exercise_id: string;
     points_earned: number;
+    is_daily_challenge?: boolean;
     completed_at: string;
 }
 
@@ -90,21 +91,29 @@ export interface LeaderboardEntry {
     exercises_completed: number;
     current_streak: number;
     is_current_user: boolean;
+    rank_change?: number;
 }
 
-export type LeaderboardScope = 'club' | 'year_group' | 'team';
+export type LeaderboardScope = 'club' | 'year_group' | 'team' | 'friends';
 export type LeaderboardPeriod = 'week' | 'month' | 'all_time';
 
 // Achievement types
 export type AchievementType =
     | 'first_exercise'
+    | 'streak_3'
     | 'streak_7'
     | 'streak_30'
+    | 'points_10'
     | 'points_100'
     | 'points_500'
     | 'points_1000'
+    | 'exercises_5'
     | 'exercises_10'
     | 'exercises_50'
+    | 'first_favorite'
+    | 'tried_2_categories'
+    | 'first_challenge'
+    | 'first_highfive'
     | 'all_categories';
 
 export interface Achievement {
@@ -238,6 +247,7 @@ export interface ActivityFeedItem {
     type: 'exercise_completed' | 'achievement_unlocked' | 'streak_milestone';
     title: string;
     points?: number;
+    highfive_count?: number;
     created_at: string;
 }
 
@@ -259,6 +269,9 @@ export interface Challenge {
     created_at: string;
     expires_at: string;
 }
+
+// Mascot types
+export type MascotState = 'happy' | 'impressed' | 'cheering' | 'thinking' | 'training' | 'worried';
 
 // Navigation types
 export type RootStackParamList = {
@@ -288,7 +301,7 @@ export type ExercisesStackParamList = {
     ExercisesList: undefined;
     ExerciseDetail: { exerciseId: string };
     ExerciseExecution: { exerciseId: string };
-    ExerciseComplete: { exerciseId: string; pointsEarned: number };
+    ExerciseComplete: { exerciseId: string; pointsEarned: number; isDailyChallenge?: boolean };
     Challenges: undefined;
     CreateChallenge: { exerciseId: string };
 };
@@ -296,6 +309,7 @@ export type ExercisesStackParamList = {
 export type ProfileStackParamList = {
     ProfileMain: undefined;
     Achievements: undefined;
+    Friends: undefined;
     Settings: undefined;
     ChangePassword: undefined;
     Notifications: undefined;

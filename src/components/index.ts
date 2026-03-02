@@ -13,3 +13,6 @@ export { SearchBar } from './SearchBar';
 export { AdminHeader } from './AdminHeader';
 export { ErrorBoundary } from './ErrorBoundary';
 export { FAB } from './FAB';
+export { Mascot } from './Mascot';
+export { MascotMessage } from './MascotMessage';
+export { LevelUpModal } from './LevelUpModal';

@@ -166,9 +166,16 @@ export const mockLeaderboard: LeaderboardEntry[] = [
 
 export const mockAchievements = [
     { type: 'first_exercise' as const, unlocked: true },
+    { type: 'streak_3' as const, unlocked: true },
     { type: 'streak_7' as const, unlocked: true },
+    { type: 'points_10' as const, unlocked: true },
     { type: 'points_100' as const, unlocked: true },
+    { type: 'exercises_5' as const, unlocked: true },
     { type: 'exercises_10' as const, unlocked: true },
+    { type: 'first_favorite' as const, unlocked: true },
+    { type: 'tried_2_categories' as const, unlocked: false },
+    { type: 'first_challenge' as const, unlocked: false },
+    { type: 'first_highfive' as const, unlocked: false },
     { type: 'streak_30' as const, unlocked: false },
     { type: 'points_500' as const, unlocked: false },
     { type: 'points_1000' as const, unlocked: false },
@@ -178,13 +185,20 @@ export const mockAchievements = [
 
 export const achievementDefinitions: Record<string, AchievementDefinition> = {
     first_exercise: { type: 'first_exercise', title: 'Første øvelse', description: 'Fullfør din første øvelse', icon: 'star', points_bonus: 10 },
+    streak_3: { type: 'streak_3', title: 'Tre dager i rad', description: 'Hold streaken i 3 dager', icon: 'local-fire-department', points_bonus: 5 },
     streak_7: { type: 'streak_7', title: 'Uke-streak', description: 'Hold streaken i 7 dager', icon: 'local-fire-department', points_bonus: 25 },
     streak_30: { type: 'streak_30', title: 'Måneds-streak', description: 'Hold streaken i 30 dager', icon: 'whatshot', points_bonus: 100 },
+    points_10: { type: 'points_10', title: 'Ti poeng', description: 'Tjen 10 poeng', icon: 'emoji-events', points_bonus: 5 },
     points_100: { type: 'points_100', title: 'Hundre poeng', description: 'Tjen 100 poeng', icon: 'emoji-events', points_bonus: 15 },
     points_500: { type: 'points_500', title: 'Fem hundre', description: 'Tjen 500 poeng', icon: 'emoji-events', points_bonus: 50 },
     points_1000: { type: 'points_1000', title: 'Tusen poeng', description: 'Tjen 1000 poeng', icon: 'emoji-events', points_bonus: 100 },
+    exercises_5: { type: 'exercises_5', title: 'Fem øvelser', description: 'Fullfør 5 øvelser', icon: 'fitness-center', points_bonus: 5 },
     exercises_10: { type: 'exercises_10', title: 'Ti øvelser', description: 'Fullfør 10 øvelser', icon: 'fitness-center', points_bonus: 20 },
     exercises_50: { type: 'exercises_50', title: 'Femti øvelser', description: 'Fullfør 50 øvelser', icon: 'fitness-center', points_bonus: 75 },
+    first_favorite: { type: 'first_favorite', title: 'Første favoritt', description: 'Legg til din første favorittøvelse', icon: 'favorite', points_bonus: 5 },
+    tried_2_categories: { type: 'tried_2_categories', title: 'Prøvd to kategorier', description: 'Gjennomfør øvelser i minst 2 kategorier', icon: 'category', points_bonus: 10 },
+    first_challenge: { type: 'first_challenge', title: 'Første utfordring', description: 'Send din første utfordring til en venn', icon: 'flash-on', points_bonus: 10 },
+    first_highfive: { type: 'first_highfive', title: 'Første high five', description: 'Gi din første high five til en lagkamerat', icon: 'waving-hand', points_bonus: 5 },
     all_categories: { type: 'all_categories', title: 'Allsidig', description: 'Prøv alle øvelseskategorier', icon: 'category', points_bonus: 50 },
 };
 

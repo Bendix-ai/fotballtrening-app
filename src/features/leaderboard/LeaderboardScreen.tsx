@@ -28,6 +28,7 @@ const scopes: { key: LeaderboardScope; label: string }[] = [
     { key: 'club', label: 'club' },
     { key: 'year_group', label: 'yearGroup' },
     { key: 'team', label: 'team' },
+    { key: 'friends', label: 'friends' },
 ];
 
 const getRankColor = (rank: number, colors: any): string => {
@@ -38,6 +39,29 @@ const getRankColor = (rank: number, colors: any): string => {
         default: return colors.textTertiary;
     }
 };
+
+function RankChangeIndicator({ rankChange, colors }: { rankChange?: number; colors: any }) {
+    if (rankChange == null || rankChange === 0) {
+        return (
+            <View style={styles.rankChangeContainer}>
+                <Text style={[styles.rankChangeDash, { color: colors.textTertiary }]}>—</Text>
+            </View>
+        );
+    }
+
+    const isUp = rankChange > 0;
+    const color = isUp ? '#22C55E' : '#EF4444';
+    const icon = isUp ? 'arrow-upward' : 'arrow-downward';
+
+    return (
+        <View style={styles.rankChangeContainer}>
+            <MaterialIcons name={icon} size={12} color={color} />
+            <Text style={[styles.rankChangeText, { color }]}>
+                {Math.abs(rankChange)}
+            </Text>
+        </View>
+    );
+}
 
 // Podium component for top 3 with staggered entrance animation
 function Podium({ top3, colors }: { top3: LeaderboardEntry[]; colors: any }) {
@@ -144,6 +168,14 @@ export function LeaderboardScreen() {
     const rest = useMemo(() => leaderboardData.slice(3), [leaderboardData]);
     const currentUser = useMemo(() => leaderboardData.find((e) => e.is_current_user), [leaderboardData]);
 
+    // Compute motivation message: show when current user has positive rank_change
+    const motivationMessage = useMemo(() => {
+        if (currentUser?.rank_change != null && currentUser.rank_change > 0) {
+            return t('leaderboard.climbedPositions', { count: String(currentUser.rank_change) });
+        }
+        return null;
+    }, [currentUser]);
+
     const renderLeaderboardEntry = useCallback(({ item, index }: { item: LeaderboardEntry; index?: number }) => {
         const isCurrentUser = item.is_current_user;
 
@@ -162,6 +194,7 @@ export function LeaderboardScreen() {
                     <Text style={[styles.rankNumber, { color: colors.textSecondary }]}>
                         {item.rank}
                     </Text>
+                    <RankChangeIndicator rankChange={item.rank_change} colors={colors} />
                 </View>
 
                 {item.avatar_url ? (
@@ -229,6 +262,20 @@ export function LeaderboardScreen() {
         }
         return card;
     }, [colors]);
+
+    const ListHeader = useMemo(() => (
+        <>
+            {motivationMessage && (
+                <View style={[styles.motivationBanner, { backgroundColor: '#22C55E20' }]}>
+                    <MaterialIcons name="trending-up" size={18} color="#22C55E" />
+                    <Text style={[styles.motivationText, { color: '#22C55E' }]}>
+                        {motivationMessage}
+                    </Text>
+                </View>
+            )}
+            <Podium top3={top3} colors={colors} />
+        </>
+    ), [motivationMessage, top3, colors]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -331,7 +378,7 @@ export function LeaderboardScreen() {
                     renderItem={renderLeaderboardEntry}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
-                    ListHeaderComponent={<Podium top3={top3} colors={colors} />}
+                    ListHeaderComponent={ListHeader}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
                     }
@@ -393,6 +440,36 @@ const styles = StyleSheet.create({
     periodText: {
         fontSize: 13,
         fontWeight: '600',
+    },
+    // Motivation banner
+    motivationBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginHorizontal: 0,
+        marginBottom: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    motivationText: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    // Rank change
+    rankChangeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+        gap: 1,
+    },
+    rankChangeText: {
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    rankChangeDash: {
+        fontSize: 10,
     },
     // Podium styles
     podiumContainer: {

@@ -39,13 +39,19 @@ export async function getExerciseById(id: string): Promise<Exercise | null> {
 export async function completeExercise(
     userId: string,
     exerciseId: string,
-    pointsEarned: number
+    pointsEarned: number,
+    isDailyChallenge: boolean = false
 ): Promise<ExerciseCompletion | null> {
     if (!isSupabaseConfigured()) return null;
 
     const { data, error } = await supabase
         .from('exercise_completions')
-        .insert({ user_id: userId, exercise_id: exerciseId, points_earned: pointsEarned })
+        .insert({
+            user_id: userId,
+            exercise_id: exerciseId,
+            points_earned: pointsEarned,
+            is_daily_challenge: isDailyChallenge,
+        })
         .select()
         .single();
 

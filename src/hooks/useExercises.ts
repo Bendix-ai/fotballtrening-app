@@ -43,8 +43,8 @@ export function useCompleteExercise() {
     };
 
     return useMutation({
-        mutationFn: ({ exerciseId, pointsEarned }: { exerciseId: string; pointsEarned: number }) =>
-            exerciseService.completeExercise(user?.id ?? '', exerciseId, pointsEarned),
+        mutationFn: ({ exerciseId, pointsEarned, isDailyChallenge = false }: { exerciseId: string; pointsEarned: number; isDailyChallenge?: boolean }) =>
+            exerciseService.completeExercise(user?.id ?? '', exerciseId, pointsEarned, isDailyChallenge),
         onMutate: async ({ exerciseId, pointsEarned }) => {
             if (!user) return;
             const key = queryKeys.exercises.todayCompletions(user.id);

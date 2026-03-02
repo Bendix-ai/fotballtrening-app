@@ -23,6 +23,7 @@ import { ExerciseCompleteScreen } from '../ExerciseCompleteScreen';
 
 // Navigation mocks
 const mockPopToTop = jest.fn();
+const mockParentNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
     ...jest.requireActual('@react-navigation/native'),
     useNavigation: () => ({
@@ -32,6 +33,9 @@ jest.mock('@react-navigation/native', () => ({
         push: jest.fn(),
         dispatch: jest.fn(),
         popToTop: mockPopToTop,
+        getParent: () => ({
+            navigate: mockParentNavigate,
+        }),
     }),
     useRoute: () => ({
         params: { exerciseId: 'ex1', pointsEarned: 15 },
@@ -86,23 +90,59 @@ jest.mock('../../../stores', () => ({
     useAppStore: () => ({
         dailyGoal: 5,
     }),
+    useAuthStore: () => ({
+        user: { id: 'u1', total_points: 120, club_id: 'c1' },
+    }),
 }));
 
 jest.mock('../../../data/mockData', () => ({
     achievementDefinitions: {},
 }));
 
+jest.mock('../../../hooks/useLeaderboard', () => ({
+    useLeaderboard: () => ({
+        data: [
+            { rank: 1, user_id: 'other', display_name: 'Other', is_current_user: false, total_points: 500, exercises_completed: 20, current_streak: 5, avatar_url: null },
+            { rank: 2, user_id: 'u1', display_name: 'Me', is_current_user: true, total_points: 120, exercises_completed: 8, current_streak: 3, avatar_url: null },
+        ],
+    }),
+}));
+
+jest.mock('../../../lib/sounds', () => ({
+    playSound: jest.fn(),
+}));
+
+jest.mock('../../../lib/levelUtils', () => ({
+    getLevelInfo: () => ({
+        level: 3,
+        tier: 'bronze',
+        currentPoints: 120,
+        pointsForCurrentLevel: 100,
+        pointsForNextLevel: 300,
+        progressToNext: 0.1,
+        tierIcon: 'shield',
+        tierColor: '#CD7F32',
+    }),
+    getPointsToNextLevel: () => 180,
+}));
+
 jest.mock('../../../components', () => {
     const React = require('react');
     const { View, Text, TouchableOpacity } = require('react-native');
     return {
-        Card: ({ children, style }: any) => React.createElement(View, { style }, children),
+        Card: ({ children, style, testID }: any) => React.createElement(View, { style, testID }, children),
         Button: ({ title, onPress, testID }: any) =>
             React.createElement(
                 TouchableOpacity,
                 { onPress, testID },
                 React.createElement(Text, null, title)
             ),
+        ProgressBar: ({ progress, color }: any) =>
+            React.createElement(View, { testID: 'progress-bar' }),
+        LevelUpModal: ({ visible, level, _tierName, _tierColor, _onDismiss }: any) =>
+            visible ? React.createElement(View, { testID: 'level-up-modal' }, React.createElement(Text, null, `Level ${level}`)) : null,
+        Mascot: ({ state, size }: any) =>
+            React.createElement(View, { testID: 'mascot' }, React.createElement(Text, null, state)),
     };
 });
 
@@ -139,16 +179,32 @@ describe('ExerciseCompleteScreen', () => {
         expect(screen.getByText('poeng')).toBeTruthy();
     });
 
-    it('should render the continue button', () => {
+    it('should render the three CTA buttons', () => {
         render(<ExerciseCompleteScreen />);
-        expect(screen.getByTestId('exercise-back-button')).toBeTruthy();
-        expect(screen.getByText('Fortsett trening')).toBeTruthy();
+        expect(screen.getByTestId('complete-do-another-button')).toBeTruthy();
+        expect(screen.getByText('Gjør en øvelse til')).toBeTruthy();
+        expect(screen.getByTestId('complete-see-progress-button')).toBeTruthy();
+        expect(screen.getByText('Se fremgang')).toBeTruthy();
+        expect(screen.getByTestId('complete-back-home-button')).toBeTruthy();
+        expect(screen.getByText('Tilbake til hjem')).toBeTruthy();
     });
 
-    it('should navigate back to exercises list when continue pressed', () => {
+    it('should navigate back to exercises list when "do another" pressed', () => {
         render(<ExerciseCompleteScreen />);
-        fireEvent.press(screen.getByTestId('exercise-back-button'));
+        fireEvent.press(screen.getByTestId('complete-do-another-button'));
         expect(mockPopToTop).toHaveBeenCalled();
+    });
+
+    it('should navigate to profile when "see progress" pressed', () => {
+        render(<ExerciseCompleteScreen />);
+        fireEvent.press(screen.getByTestId('complete-see-progress-button'));
+        expect(mockParentNavigate).toHaveBeenCalledWith('ProfileTab');
+    });
+
+    it('should navigate to home when "back to home" pressed', () => {
+        render(<ExerciseCompleteScreen />);
+        fireEvent.press(screen.getByTestId('complete-back-home-button'));
+        expect(mockParentNavigate).toHaveBeenCalledWith('Home');
     });
 
     it('should call completeExercise mutation on mount', () => {
@@ -156,6 +212,7 @@ describe('ExerciseCompleteScreen', () => {
         expect(mockMutate).toHaveBeenCalledWith({
             exerciseId: 'ex1',
             pointsEarned: 15,
+            isDailyChallenge: false,
         });
     });
 
@@ -168,6 +225,81 @@ describe('ExerciseCompleteScreen', () => {
         render(<ExerciseCompleteScreen />);
         expect(screen.getByText('star')).toBeTruthy(); // MockIcon renders name as text
     });
+
+    it('should render the level progress card', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByTestId('complete-level-progress')).toBeTruthy();
+    });
+
+    it('should display the level text', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByText(/Nivå 3/)).toBeTruthy();
+    });
+
+    it('should display points to next level', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByText(/180 poeng til neste nivå/)).toBeTruthy();
+    });
+
+    it('should display the user rank', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByText(/Du er #2 i klubben/)).toBeTruthy();
+    });
+
+    it('should call playSound with complete on mount', () => {
+        const { playSound: mockPlaySound } = require('../../../lib/sounds');
+        render(<ExerciseCompleteScreen />);
+        expect(mockPlaySound).toHaveBeenCalledWith('complete');
+    });
+});
+
+describe('ExerciseCompleteScreen - daily challenge 2x', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useFakeTimers();
+        // Override route to include isDailyChallenge
+        const navMock = require('@react-navigation/native');
+        navMock.useRoute = () => ({
+            params: { exerciseId: 'ex1', pointsEarned: 15, isDailyChallenge: true },
+        });
+    });
+
+    afterEach(() => {
+        cleanup();
+        jest.clearAllTimers();
+        jest.useRealTimers();
+        // Restore original route
+        const navMock = require('@react-navigation/native');
+        navMock.useRoute = () => ({
+            params: { exerciseId: 'ex1', pointsEarned: 15 },
+        });
+    });
+
+    it('should show daily challenge banner when isDailyChallenge is true', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByTestId('complete-daily-challenge-banner')).toBeTruthy();
+    });
+
+    it('should show 2x multiplier badge', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(screen.getByTestId('complete-multiplier-badge')).toBeTruthy();
+        expect(screen.getByText('2x')).toBeTruthy();
+    });
+
+    it('should display doubled points value in UI', () => {
+        render(<ExerciseCompleteScreen />);
+        // pointsEarned=15, doubled = 30
+        expect(screen.getByText('+30')).toBeTruthy();
+    });
+
+    it('should send original (non-doubled) points to backend', () => {
+        render(<ExerciseCompleteScreen />);
+        expect(mockMutate).toHaveBeenCalledWith({
+            exerciseId: 'ex1',
+            pointsEarned: 15, // Original, not doubled — trigger handles doubling
+            isDailyChallenge: true,
+        });
+    });
 });
 
 describe('ExerciseCompleteScreen - daily goal reached', () => {
@@ -178,6 +310,9 @@ describe('ExerciseCompleteScreen - daily goal reached', () => {
         const storesMock = require('../../../stores');
         storesMock.useAppStore = () => ({
             dailyGoal: 2,
+        });
+        storesMock.useAuthStore = () => ({
+            user: { id: 'u1', total_points: 120, club_id: 'c1' },
         });
         // Override hooks to simulate 1 completion + this one = 2 = goal
         const exerciseHooks = require('../../../hooks/useExercises');

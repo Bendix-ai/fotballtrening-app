@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ActivityFeedItem } from '../types';
+import { getFriends } from './friendService';
 
 const mockActivityFeed: ActivityFeedItem[] = [
     {
@@ -106,12 +107,12 @@ export async function getActivityFeed(clubId: string, teamId?: string): Promise<
     }
 
     try {
-        // Fetch recent exercise completions with profile info
+        // Fetch more than needed since we filter client-side by club/team
         const query = supabase
             .from('exercise_completions')
             .select('id, user_id, points_earned, completed_at, exercises:exercise_id (title), profiles:user_id (display_name, avatar_url, club_id, team_id)')
             .order('completed_at', { ascending: false })
-            .limit(20);
+            .limit(100);
 
         const { data, error } = await query;
 
@@ -128,6 +129,7 @@ export async function getActivityFeed(clubId: string, teamId?: string): Promise<
                 if (teamId && profile.team_id !== teamId) return false;
                 return true;
             })
+            .slice(0, 20)
             .map((row) => ({
                 id: row.id,
                 user_id: row.user_id,
@@ -142,5 +144,41 @@ export async function getActivityFeed(clubId: string, teamId?: string): Promise<
         return items.length > 0 ? items : mockActivityFeed;
     } catch {
         return mockActivityFeed;
+    }
+}
+
+export async function getFriendActivity(userId: string): Promise<ActivityFeedItem[]> {
+    if (!isSupabaseConfigured()) return [];
+
+    try {
+        const friends = await getFriends(userId);
+        if (friends.length === 0) return [];
+
+        const friendIds = friends.map((f) => f.friend_id);
+
+        const { data, error } = await supabase
+            .from('exercise_completions')
+            .select('id, user_id, points_earned, completed_at, exercises:exercise_id (title), profiles:user_id (display_name, avatar_url)')
+            .in('user_id', friendIds)
+            .order('completed_at', { ascending: false })
+            .limit(20);
+
+        if (error || !data) {
+            console.error('getFriendActivity error:', error);
+            return [];
+        }
+
+        return (data as any[]).map((row) => ({
+            id: row.id,
+            user_id: row.user_id,
+            display_name: row.profiles?.display_name ?? 'Spiller',
+            avatar_url: row.profiles?.avatar_url ?? null,
+            type: 'exercise_completed' as const,
+            title: row.exercises?.title ?? '',
+            points: row.points_earned,
+            created_at: row.completed_at,
+        }));
+    } catch {
+        return [];
     }
 }

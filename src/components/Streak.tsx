@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/theme';
 import { t } from '../lib/i18n';
+import { useAppStore } from '../stores/appStore';
 
 interface StreakBadgeProps {
     days: number;
@@ -64,6 +65,7 @@ interface StreakCardProps {
 
 export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
     const { colors } = useTheme();
+    const streakShieldAvailable = useAppStore((s) => s.streakShieldAvailable);
 
     return (
         <View
@@ -101,6 +103,14 @@ export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
                 <Text style={[styles.motivation, { color: colors.primary }]}>
                     {t('streak.keepItUp')}
                 </Text>
+            )}
+            {streakShieldAvailable && (
+                <View testID="streak-shield-indicator" style={styles.shieldRow}>
+                    <MaterialIcons name="shield" size={16} color={colors.primary + 'AA'} />
+                    <Text style={[styles.shieldText, { color: colors.textSecondary }]}>
+                        {t('streak.shieldAvailable')}
+                    </Text>
+                </View>
             )}
         </View>
     );
@@ -156,5 +166,16 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         textAlign: 'center',
+    },
+    shieldRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 8,
+        gap: 4,
+    },
+    shieldText: {
+        fontSize: 12,
+        fontWeight: '500',
     },
 });

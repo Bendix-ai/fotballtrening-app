@@ -51,6 +51,16 @@
 - **Root cause**: `kAXErrorInvalidUIElement` XCTest driver error during view hierarchy queries. This is a Maestro/iOS compatibility issue, not a code issue.
 - **Rule**: Accept intermittent failures during E2E testing on bleeding-edge iOS simulators. Retry once, then move on.
 
+### Pattern: Notification Handler Should Be in App Root, Not Module Side-Effect
+- **Root cause**: `setNotificationHandler` was called at module scope in `notifications.ts`, running on every import including tests. This couples configuration to the module.
+- **Rule**: Keep modules side-effect-free. Move `Notifications.setNotificationHandler()` to `App.tsx` where it belongs as app-level configuration.
+- **Fix**: Moved handler to `App.tsx`, extracted `requestPermissions()` as standalone function separate from push token registration.
+
+### Pattern: Use Identifier-Based Notification Cancellation for Independent Control
+- **Root cause**: `cancelDailyReminder()` used `getAllScheduledNotificationsAsync()` + loop, which cancelled ALL notifications including streak warnings.
+- **Rule**: Use `identifier` parameter in `scheduleNotificationAsync` and cancel by specific ID with `cancelScheduledNotificationAsync(id)`.
+- **Fix**: Added `DAILY_REMINDER_ID` and `STREAK_WARNING_ID` constants, schedule with identifier, cancel by ID.
+
 ### Pattern: testIDs Referenced in E2E Tests Must Actually Exist in Source
 - **Root cause**: E2E YAML files referenced `exercise-card`, `exercise-timer`, `exercise-complete-button`, `store-exercise-card`, etc. but these testIDs were never added to the component source files.
 - **Rule**: When writing Maestro tests, always verify testIDs exist in the source. Add missing testIDs following the `{feature}-{element}-{type}` convention before writing the test.

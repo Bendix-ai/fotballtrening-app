@@ -38,6 +38,12 @@ interface AppState {
     selectedClubId: string | null;
     setSelectedClubId: (clubId: string | null) => void;
 
+    // Remembered login (returning player)
+    lastLoginYear: string | null;
+    lastLoginGender: string | null;
+    setLastLoginYear: (year: string | null) => void;
+    setLastLoginGender: (gender: string | null) => void;
+
     // Daily goal
     dailyGoal: number;
     setDailyGoal: (goal: number) => void;
@@ -45,6 +51,20 @@ interface AppState {
     // Notification preferences
     notificationPrefs: NotificationPreferences;
     setNotificationPref: (key: keyof NotificationPreferences, value: boolean) => void;
+
+    // Sound
+    soundEnabled: boolean;
+    setSoundEnabled: (enabled: boolean) => void;
+
+    // Streak shield
+    streakShieldAvailable: boolean;
+    streakShieldUsedDate: string | null;
+    useStreakShield: () => void;
+
+    // Login bonus
+    lastLoginBonusDate: string | null;
+    loginStreak: number;
+    awardLoginBonus: () => void;
 
     // Offline sync queue
     pendingCompletions: PendingCompletion[];
@@ -75,6 +95,12 @@ export const useAppStore = create<AppState>()(
             selectedClubId: null,
             setSelectedClubId: (selectedClubId) => set({ selectedClubId }),
 
+            // Remembered login
+            lastLoginYear: null,
+            lastLoginGender: null,
+            setLastLoginYear: (lastLoginYear) => set({ lastLoginYear }),
+            setLastLoginGender: (lastLoginGender) => set({ lastLoginGender }),
+
             // Daily goal
             dailyGoal: 5,
             setDailyGoal: (dailyGoal) => set({ dailyGoal }),
@@ -92,6 +118,39 @@ export const useAppStore = create<AppState>()(
                 set((state) => ({
                     notificationPrefs: { ...state.notificationPrefs, [key]: value },
                 })),
+
+            // Sound
+            soundEnabled: true,
+            setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
+
+            // Streak shield
+            streakShieldAvailable: true,
+            streakShieldUsedDate: null,
+            useStreakShield: () =>
+                set({
+                    streakShieldAvailable: false,
+                    streakShieldUsedDate: new Date().toISOString().split('T')[0],
+                }),
+
+            // Login bonus
+            lastLoginBonusDate: null,
+            loginStreak: 0,
+            awardLoginBonus: () =>
+                set((state) => {
+                    const today = new Date().toISOString().split('T')[0];
+                    if (state.lastLoginBonusDate === today) return {};
+
+                    // DST-safe: use date arithmetic instead of 86400000ms
+                    const yesterdayDate = new Date();
+                    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                    const yesterday = yesterdayDate.toISOString().split('T')[0];
+                    const isConsecutive = state.lastLoginBonusDate === yesterday;
+
+                    return {
+                        lastLoginBonusDate: today,
+                        loginStreak: isConsecutive ? state.loginStreak + 1 : 1,
+                    };
+                }),
 
             // Offline sync queue
             pendingCompletions: [],

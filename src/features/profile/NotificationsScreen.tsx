@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     View,
     Text,
@@ -14,7 +14,13 @@ import { useTheme } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, useToast } from '../../components';
 import { useAppStore } from '../../stores';
-import { registerForPushNotifications, scheduleDailyReminder, cancelDailyReminder, scheduleStreakReminder } from '../../lib/notifications';
+import {
+    requestPermissions,
+    scheduleDailyReminder,
+    cancelDailyReminder,
+    scheduleStreakWarning,
+    cancelStreakWarning,
+} from '../../lib/notifications';
 
 export function NotificationsScreen() {
     const { colors } = useTheme();
@@ -22,14 +28,24 @@ export function NotificationsScreen() {
     const { showToast } = useToast();
     const { notificationPrefs, setNotificationPref } = useAppStore();
 
+    // Request permissions on mount if any notification is enabled
+    useEffect(() => {
+        async function checkPermissions() {
+            if (notificationPrefs.dailyReminder || notificationPrefs.streakReminder) {
+                await requestPermissions();
+            }
+        }
+        checkPermissions();
+    }, []);
+
     const handleToggleDailyReminder = async (v: boolean) => {
         if (v) {
-            const token = await registerForPushNotifications();
-            if (!token) {
+            const granted = await requestPermissions();
+            if (!granted) {
                 showToast(t('notifications.permissionDenied'), 'error');
                 return;
             }
-            await scheduleDailyReminder(17, 0);
+            await scheduleDailyReminder();
         } else {
             await cancelDailyReminder();
         }
@@ -38,14 +54,14 @@ export function NotificationsScreen() {
 
     const handleToggleStreakReminder = async (v: boolean) => {
         if (v) {
-            const token = await registerForPushNotifications();
-            if (!token) {
+            const granted = await requestPermissions();
+            if (!granted) {
                 showToast(t('notifications.permissionDenied'), 'error');
                 return;
             }
-            await scheduleStreakReminder();
+            await scheduleStreakWarning();
         } else {
-            await cancelDailyReminder(); // cancels all scheduled
+            await cancelStreakWarning();
         }
         setNotificationPref('streakReminder', v);
     };
@@ -122,7 +138,7 @@ export function NotificationsScreen() {
                 </Card>
 
                 <Text style={[styles.note, { color: colors.textTertiary }]}>
-                    {t('notifications.pushComingSoon')}
+                    {t('notifications.note')}
                 </Text>
             </ScrollView>
         </SafeAreaView>

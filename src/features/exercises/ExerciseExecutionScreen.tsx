@@ -16,6 +16,7 @@ import { t } from '../../lib/i18n';
 import { ProgressBar, Button, ConfirmationDialog } from '../../components';
 import { ExercisesStackParamList } from '../../types';
 import { useExercise } from '../../hooks/useExercises';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const TIMER_SIZE = 200;
@@ -33,7 +34,11 @@ export function ExerciseExecutionScreen() {
     const { exerciseId } = route.params;
 
     const { data: exercise } = useExercise(exerciseId);
+    const { isDailyChallenge: checkDailyChallenge, isLoading: exercisesLoading } = useDailyChallenge();
     const totalDuration = exercise?.duration_seconds ?? 120;
+
+    // Determine if this exercise is today's daily challenge
+    const isDailyChallenge = checkDailyChallenge(exerciseId);
 
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
@@ -112,6 +117,7 @@ export function ExerciseExecutionScreen() {
         navigation.replace('ExerciseComplete', {
             exerciseId,
             pointsEarned: exercise?.points ?? 0,
+            isDailyChallenge,
         });
     };
 
@@ -265,6 +271,7 @@ export function ExerciseExecutionScreen() {
                     <Button
                         title={t('exercises.complete')}
                         onPress={handleComplete}
+                        disabled={exercisesLoading}
                         fullWidth
                         size="large"
                         testID="exercise-complete-button"

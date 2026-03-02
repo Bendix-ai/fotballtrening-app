@@ -22,6 +22,7 @@ import { AchievementDetailModal } from './AchievementDetailModal';
 import { useCompletions, useExercises } from '../../hooks/useExercises';
 import { useAchievements } from '../../hooks/useAchievements';
 import { useUploadAvatar } from '../../hooks/useProfile';
+import { useFriends } from '../../hooks/useFriends';
 import { getLevelInfo, getPointsToNextLevel } from '../../lib/levelUtils';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
@@ -33,6 +34,7 @@ export function ProfileScreen() {
     const { data: completions = [] } = useCompletions();
     const { data: allExercises = [] } = useExercises();
     const { data: achievements = [] } = useAchievements();
+    const { data: friends = [] } = useFriends();
 
     const { showToast } = useToast();
     const uploadAvatarMutation = useUploadAvatar();
@@ -55,13 +57,20 @@ export function ProfileScreen() {
         // Progress map: { current, target } for each achievement type
         const progressMap: Record<string, { current: number; target: number }> = {
             first_exercise: { current: Math.min(totalCompletions, 1), target: 1 },
+            streak_3: { current: Math.min(currentStreak, 3), target: 3 },
             streak_7: { current: Math.min(currentStreak, 7), target: 7 },
             streak_30: { current: Math.min(currentStreak, 30), target: 30 },
+            points_10: { current: Math.min(totalPoints, 10), target: 10 },
             points_100: { current: Math.min(totalPoints, 100), target: 100 },
             points_500: { current: Math.min(totalPoints, 500), target: 500 },
             points_1000: { current: Math.min(totalPoints, 1000), target: 1000 },
+            exercises_5: { current: Math.min(totalCompletions, 5), target: 5 },
             exercises_10: { current: Math.min(totalCompletions, 10), target: 10 },
             exercises_50: { current: Math.min(totalCompletions, 50), target: 50 },
+            first_favorite: { current: 0, target: 1 }, // Tracked separately
+            tried_2_categories: { current: 0, target: 2 }, // Hard to calculate exactly
+            first_challenge: { current: 0, target: 1 }, // Tracked separately
+            first_highfive: { current: 0, target: 1 }, // Tracked separately
             all_categories: { current: 0, target: 5 }, // Hard to calculate exactly
         };
 
@@ -331,6 +340,31 @@ export function ProfileScreen() {
                         })}
                     </View>
                 </View>
+
+                {/* Friends Section */}
+                <TouchableOpacity
+                    style={styles.section}
+                    onPress={() => navigation.navigate('Friends')}
+                    accessibilityRole="button"
+                    testID="profile-friends-button"
+                >
+                    <Card style={styles.friendsCard}>
+                        <View style={styles.friendsRow}>
+                            <View style={[styles.friendsIcon, { backgroundColor: colors.primaryLight }]}>
+                                <MaterialIcons name="people" size={24} color={colors.primary} />
+                            </View>
+                            <View style={styles.friendsInfo}>
+                                <Text style={[styles.friendsTitle, { color: colors.text }]}>
+                                    {t('profile.friends')}
+                                </Text>
+                                <Text style={[styles.friendsCount, { color: colors.textSecondary }]}>
+                                    {friends.length} {t('profile.friends').toLowerCase()}
+                                </Text>
+                            </View>
+                            <MaterialIcons name="chevron-right" size={24} color={colors.textTertiary} />
+                        </View>
+                    </Card>
+                </TouchableOpacity>
             </ScrollView>
 
             <AchievementDetailModal
@@ -550,5 +584,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
+    },
+    // Friends
+    friendsCard: {
+        marginBottom: 0,
+    },
+    friendsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    friendsIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    friendsInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    friendsTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    friendsCount: {
+        fontSize: 13,
+        marginTop: 2,
     },
 });
